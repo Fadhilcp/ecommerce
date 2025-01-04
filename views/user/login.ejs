@@ -1,0 +1,130 @@
+<!-- setting header -->
+<%- include("../../views/partials/user/header") %>
+
+
+
+<style>
+    body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            .main-content {
+                display: flex;
+                flex-direction: column;
+            }
+    
+            .login-form {
+                margin-inline: auto;
+                max-width: 400px;
+                width: 100%;
+            }
+    
+            .form-title {
+                margin-top: 20px;
+                text-align: start;
+            }
+    
+            .forms input {
+                font-family: "Rokkitt", Georgia, serif;
+                width: 100%;
+                padding: 10px;
+                margin: 5px 0;
+                outline: none;
+                border: none;
+                background-color: #d9d9d9;
+            }
+    
+            .google-signin, .login-button, .login-link {
+                margin: 5px 0;
+                text-align: center;
+            }
+            .google-signin {
+                margin-top: 120px;
+            }
+            .login-link a{
+                color: black;
+            }
+            .forget-password {
+                margin: 5px 0;
+                text-align: start;
+                color: #ef7c00;
+            }
+    
+            .login-button {
+                font-family: "Rokkitt", Georgia, serif;
+                font-size: x-large;
+                width: 100%;
+                background-color: #ef7c00;
+                color: rgb(0, 0, 0);
+                outline: none;
+                border: none;
+                cursor: pointer;
+            }
+    
+            .login-button:hover {
+                background-color: #884600;
+            }
+            .image-section {
+                width: 47rem;
+               height: 32rem;
+               overflow: hidden;
+            }
+    
+            .image-section img {
+                width: 100%;
+            }
+    
+            @media (min-width: 768px) {
+                .main-content {
+                    flex-direction: row;
+                    justify-content: center;
+                }
+            }
+    
+            .hr-line {
+              margin-top: 0px;
+              margin-bottom: 0px;  
+              border-top: 2px solid #ef7c00;
+            }
+
+            .msg{
+                text-align: center;
+                margin: 20px;
+            }
+    
+        </style>  
+
+
+
+
+<hr class="hr-line">
+<main class="main-content">
+    <div class="login-form">
+        <h3 class="form-title">LOGIN</h3>
+        <form action="" method="post" class="forms">
+            <input id="email" name="email" type="email" placeholder="EMAIL">
+            <input id="password" name="password" type="password" placeholder="PASSWORD">
+
+            <a href="#" class="forget-password">Forget Password?</a>
+
+            <p class="msg">Hello</p>
+
+            <div class="google-signin">
+                <img src="/api/placeholder/24/24" alt="Google Sign In">
+            </div>
+
+            <div class="login-link">
+                <a href="/register">Create an Account</a>
+            </div>
+
+            <button type="submit" class="login-button">LOGIN</button>
+        </form>
+    </div>
+    <div class="image-section"><img src="./Image/perfume-ad.jpeg" alt=""></div>
+</main>
+
+</body>
+</html>

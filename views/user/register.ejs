@@ -1,0 +1,207 @@
+<!-- setting header -->
+<%- include("../../views/partials/user/header") %>
+
+
+
+<style>
+    body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            .main-content {
+                display: flex;
+                flex-direction: column;
+            }
+    
+            .signup-form {
+                margin-inline: auto;
+                max-width: 400px;
+                width: 100%;
+            }
+    
+            .form-title {
+                margin-top: 20px;
+                text-align: start;
+            }
+    
+            .forms input {
+                font-family: "Rokkitt", Georgia, serif;
+                width: 100%;
+                padding: 10px;
+                margin: 5px 0;
+                outline: none;
+                border: none;
+                background-color: #d9d9d9;
+            }
+    
+            .signup-button, .login-link {
+                margin: 5px 0;
+                text-align: center;
+            }
+            .google-signin{
+                margin-top: 25px;
+                text-align: center;
+            }
+            .login-link a{
+                color: black;
+            }
+            .profile-image {
+                margin: 5px 0;
+                text-align: start;
+                color: #ef7c00;
+            }
+    
+            .signup-button {
+                font-family: "Rokkitt", Georgia, serif;
+                font-size: x-large;
+                width: 100%;
+                background-color: #ef7c00;
+                color: rgb(0, 0, 0);
+                outline: none;
+                border: none;
+                cursor: pointer;
+            }
+    
+            .signup-button:hover {
+                background-color: #884600;
+            }
+            .image-section {
+                width: 47rem;
+               height: 32rem;
+               overflow: hidden;
+            }
+    
+            .image-section img {
+                width: 100%;
+            }
+    
+            @media (min-width: 768px) {
+                .main-content {
+                    flex-direction: row;
+                    justify-content: center;
+                }
+            }
+    
+            .hr-line {
+              margin-top: 0px;
+              margin-bottom: 0px;  
+              border-top: 2px solid #ef7c00;
+            }
+            .msg{
+                text-align: center;
+                margin: 15px;
+            }
+    
+        </style>
+    
+    
+            <hr class="hr-line">
+            <main class="main-content">
+                <div class="signup-form">
+                    <h3 class="form-title">CREATE AN ACCOUNT</h3>
+
+
+                    <form id='register-form' action="/register" method="post" class="forms">
+
+
+                        <input id="username" name="username" type="text" placeholder="USERNAME">
+                        <input id="email" name="email" type="email" placeholder="EMAIL">
+                        <input id="password" name="password" type="password" placeholder="PASSWORD">
+                        <input id="confirmPassword" name="confirmPassword" type="password" placeholder="CONFIRM PASSWORD">
+    
+                        <a href="#" class="profile-image">PROFILE IMAGE</a>
+
+                        <p class="msg" id="msg"></p>
+    
+                        <div class="google-signin">
+                            <img src="#" alt="Google Sign In">
+                        </div>
+    
+                        <div class="login-link">
+                            <a href="/login">Already have an Account</a>
+                        </div>
+    
+                        <button type="button" id="submit-btn" class="signup-button">SIGN UP</button>
+                    </form>
+                </div>
+                <div class="image-section"><img src="./Image/perfume-ad.jpeg" alt=""></div>
+            </main>
+    
+
+            <script>
+
+
+                document.addEventListener('DOMContentLoaded',function(){
+                    document.getElementById('submit-btn').addEventListener('click',formValidate)
+                })
+
+                    function formValidate(e){
+                    e.preventDefault() 
+                    var username = document.getElementById('username').value
+                    var email = document.getElementById('email').value
+                    var password = document.getElementById('password').value
+                    var confirmPassword = document.getElementById('confirmPassword').value
+                    var message = document.getElementById('msg')
+                    let isValid = true
+            
+                    if(username == '' && email == '' && password == '' && confirmPassword == ''){
+                        message.innerHTML = 'All fields are required'
+                        isValid = false
+                    }else if(username == ''){
+                        message.innerHTML = 'Username required'
+                        isValid = false
+                    }else if(email == ''){
+                        message.innerHTML = 'Email required'
+                        isValid = false
+                    }else if(password == ''){
+                        message.innerHTML = 'Password required'
+                        isValid = false
+                    }else if(confirmPassword == ''){
+                        message.innerHTML = 'Confirm password required'
+                        isValid = false
+                    }
+                    if(password != confirmPassword){
+                        message.innerHTML = 'Password doesnt Match'
+                        isValid = false
+                    }
+
+                    var emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+                    if(!emailPattern.test(email)){
+                        message.innerHTML = 'Please Enter a Valid email'
+                        isValid = false
+                    }
+
+                    var passwordPattern = /^[a-zA-Z0-9]$/
+                    if(!passwordPattern.test(password)){
+                        message.innerHTML = 'Password must contain letter and numbers'
+                        isValid = false
+                    }
+                    passwordPatternSymb = /^[!@#$%^&*]$/
+                    if(!passwordPatternSymb.test(password)){
+                        message.innerHTML = 'Password doesnt contain any specail characters'
+                    }
+                    if(password.length < 8){
+                        message.innerHTML = 'Password must be at least 8 characters long'
+                    }
+
+                    
+
+
+
+
+
+
+                   if(isValid) {
+                    document.getElementById('register-form').submit()
+                   } else {
+                         return
+                   }
+                }
+    
+
+            </script>
+    </body>
+    </html>
