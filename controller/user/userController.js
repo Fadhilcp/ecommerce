@@ -1,4 +1,11 @@
 const User = require('../../model/userSchema')
+const otpGenerator = require('otp-generator')
+const nodeMailer = require('nodemailer')
+const env = require('dotenv').config()
+
+
+
+
 
 
 const loadHomePage = async (req,res)=>{
@@ -12,11 +19,13 @@ const loadHomePage = async (req,res)=>{
     }
 }
 
+
+
 const loadLogin = async (req,res)=>{
     try {
 
        return res.render('user/login')
-        
+
     } catch (error) {
         console.log('Register Page not found')
         res.status(500).send('Internal server error')
@@ -25,8 +34,7 @@ const loadLogin = async (req,res)=>{
 
 
 const loadRegister = async (req,res)=>{
-    try {
-        
+    try {    
         return res.render('user/register')
 
     } catch (error) {
@@ -36,17 +44,53 @@ const loadRegister = async (req,res)=>{
 }
 
 
+
+async function verificationEmail(email,otp){
+    try {     
+        const transporter = await nodeMailer.createTransport({
+            service:'gmail',
+            port:587,
+            secure:false,
+            requireTLS:true,
+            auth:{
+                user:process.env.NODEMAILER_EMAIL,
+                pass:process.env.NODEMAILER_PASSWORD
+            }
+        })
+
+        const info = await transporter.sendMail({
+            from:process.env.NODEMAILER_EMAIL,
+            to:email,
+            subject:'Verify your Account',
+            text:`Your OTP is ${otp}`,
+            html:`<b>Your OTP:${otp}</b>`
+        })
+    } catch (error) {
+        console.error('Error sending email',error)
+        return false
+    }
+}
+
+
 const register = async (req,res)=>{
-    const {username,email,password} = req.body
+    
     try {
 
-        const newUser = new User({username,email,password})
+        const {username,email,password} = req.body
 
-        console.log(newUser)
+        const findUser = await User.findOne({email})
 
-        await newUser.save()
+        if(findUser){
+            return res.render('user/register',{message:'User already exists'})
+        }
 
-        res.redirect('/register')
+        const otp = await otpGenerator.generate(6,{
+            digits:true,
+            lowerCaseAlphabets:false,
+            upperCaseAlphabets:false,
+            specialChars:false
+        })
+
         
     } catch (error) {
 

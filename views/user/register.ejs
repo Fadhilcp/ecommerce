@@ -91,8 +91,9 @@
               border-top: 2px solid #ef7c00;
             }
             .msg{
-                text-align: center;
-                margin: 15px;
+                margin: 0px;
+                color: crimson;
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
             }
     
         </style>
@@ -108,13 +109,16 @@
 
 
                         <input id="username" name="username" type="text" placeholder="USERNAME">
+                        <span><p class="msg" id="msg1"></p></span>
                         <input id="email" name="email" type="email" placeholder="EMAIL">
+                        <span><p class="msg" id="msg2"></p></span>
                         <input id="password" name="password" type="password" placeholder="PASSWORD">
+                        <span><p class="msg" id="msg3"></p></span>
                         <input id="confirmPassword" name="confirmPassword" type="password" placeholder="CONFIRM PASSWORD">
-    
+                        <span><p class="msg" id="msg4"></p></span>
                         <a href="#" class="profile-image">PROFILE IMAGE</a>
 
-                        <p class="msg" id="msg"></p>
+                        <span><p><%= message %></p></span>
     
                         <div class="google-signin">
                             <img src="#" alt="Google Sign In">
@@ -138,68 +142,93 @@
                     document.getElementById('submit-btn').addEventListener('click',formValidate)
                 })
 
-                    function formValidate(e){
-                    e.preventDefault() 
-                    var username = document.getElementById('username').value
-                    var email = document.getElementById('email').value
-                    var password = document.getElementById('password').value
-                    var confirmPassword = document.getElementById('confirmPassword').value
-                    var message = document.getElementById('msg')
-                    let isValid = true
-            
-                    if(username == '' && email == '' && password == '' && confirmPassword == ''){
-                        message.innerHTML = 'All fields are required'
-                        isValid = false
-                    }else if(username == ''){
-                        message.innerHTML = 'Username required'
-                        isValid = false
-                    }else if(email == ''){
-                        message.innerHTML = 'Email required'
-                        isValid = false
-                    }else if(password == ''){
-                        message.innerHTML = 'Password required'
-                        isValid = false
-                    }else if(confirmPassword == ''){
-                        message.innerHTML = 'Confirm password required'
-                        isValid = false
-                    }
-                    if(password != confirmPassword){
-                        message.innerHTML = 'Password doesnt Match'
-                        isValid = false
-                    }
+     function formValidate(e) {
+              e.preventDefault()
 
-                    var emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-                    if(!emailPattern.test(email)){
-                        message.innerHTML = 'Please Enter a Valid email'
-                        isValid = false
-                    }
+    var username = document.getElementById('username').value
+    var email = document.getElementById('email').value
+    var password = document.getElementById('password').value
+    var confirmPassword = document.getElementById('confirmPassword').value
+    var msg1 = document.getElementById('msg1')
+    var msg2 = document.getElementById('msg2')
+    var msg3 = document.getElementById('msg3')
+    var msg4 = document.getElementById('msg4')
+    let isValid = true
 
-                    var passwordPattern = /^[a-zA-Z0-9]$/
-                    if(!passwordPattern.test(password)){
-                        message.innerHTML = 'Password must contain letter and numbers'
-                        isValid = false
-                    }
-                    passwordPatternSymb = /^[!@#$%^&*]$/
-                    if(!passwordPatternSymb.test(password)){
-                        message.innerHTML = 'Password doesnt contain any specail characters'
-                    }
-                    if(password.length < 8){
-                        message.innerHTML = 'Password must be at least 8 characters long'
-                    }
+    // Clear previous messages
+    msg1.innerHTML = ''
+    msg2.innerHTML = ''
+    msg3.innerHTML = ''
+    msg4.innerHTML = ''
 
-                    
+    
+    var usernamePattern = /^[a-zA-Z][a-zA-Z0-9_]{2,15}$/
+     if (username == '') {
+        msg1.innerHTML = 'Username is required'
+        isValid = false
+    }
+    else if(username < 4){
+      msg1.innerHTML = 'Minimum 4 Charcters'
+      isValid = false
+    }
+    else if(!usernamePattern.test(username)){
+        msg1.innerHTML = 'Dont contain any Special Characters'
+        isValid = false
+    }
 
 
+    var emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+
+     if (email == '') {
+        msg2.innerHTML = 'Email is required'
+        isValid = false;
+    } 
+    // Email validation
+    else if (email && !emailPattern.test(email)) {
+        msg2.innerHTML = 'Please enter a valid email'
+        isValid = false
+    }
+
+    
+
+    var passwordPattern1 = /^(?=.*[a-zA-Z])/
+    var passwordPattern2 = /^(?=.*[0-9])/
+
+    if (password == '') {
+        msg3.innerHTML = 'Password is required'
+        isValid = false
+    }
+    else if (password && password.length < 8) {
+    msg3.innerHTML = 'Password must be at least 8 characters long'
+        isValid = false
+    }
+     // Password validations
+    else if (password && !passwordPattern1.test(password)) {
+        msg3.innerHTML = 'Password must contain at least one letter'
+        isValid = false
+    }
+    else if (password && !passwordPattern2.test(password)) {
+        msg3.innerHTML = 'Password must contain at least one number'
+        isValid = false
+    }
 
 
-
-
-                   if(isValid) {
-                    document.getElementById('register-form').submit()
-                   } else {
-                         return
-                   }
-                }
+    if (confirmPassword == '') {
+        msg4.innerHTML = 'Confirm Password is required'
+        isValid = false
+    }
+    else if (password != confirmPassword) {
+        msg4.innerHTML = 'Passwords do not match'
+        isValid = false
+    }
+    
+    console.log('askfjsdalj')
+    if (isValid) {
+        document.getElementById('register-form').submit()
+    } else {
+        return false
+    }
+}
     
 
             </script>
