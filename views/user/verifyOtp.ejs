@@ -109,7 +109,7 @@
             <input id="otp" name="otp" type="text" placeholder="OTP">
            
             <a href="#" class="back-btn">Back</a>
-            <a href="#" class="resend-btn">Resend OTP</a>
+            <a href="#" class="resend-btn" onclick="resendOtp()">Resend OTP</a>
 
             <span id="timerValue">60</span>
 
@@ -188,6 +188,38 @@
             }
         })
            console.log('validation otp')
+        return false
+      }
+
+
+
+      function resendOtp(){
+        clearInterval(timerInterval)
+        time = 60
+        document.getElementById('otp').disabled = false
+        document.getElementById('timerValue').classList.remove('expired')
+        startTimer()
+        $.ajax({
+            type:'POST',
+            url:'resendOtp',
+            success:function(response){
+                if(response.success){
+                    Swal.fire({
+                        icon:'success',
+                        title:'OTP Resend Successfully',
+                        showConfirmButton:false,
+                        timer:1500
+                    })
+                }
+                else{
+                    Swal.fire({
+                        icon:'error',
+                        title:'Error',
+                        text:"An error occured while resending OTP,Please try again"
+                    })
+                }
+            }
+        })
         return false
       }
 
