@@ -1,0 +1,197 @@
+<!-- setting header -->
+<%- include("../../views/partials/user/header") %>
+
+<style>
+    body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            .main-content {
+                display: flex;
+                flex-direction: column;
+            }
+    
+            .otp-form {
+                margin-inline: auto;
+                max-width: 400px;
+                width: 100%;
+            }
+    
+            .form-title {
+                margin-top: 20px;
+                text-align: start;
+            }
+    
+            .forms input {
+                font-family: "Rokkitt", Georgia, serif;
+                width: 100%;
+                padding: 10px;
+                margin: 10px 0;
+                outline: none;
+                border: none;
+                background-color: #d9d9d9;
+            }
+    
+              .login-button {
+                margin-top: 270px;
+                text-align: center;
+            }
+    
+            .back-btn {
+                margin: 5px 0;
+                text-align: start;
+                color: #ef7c00;
+            }
+            .resend-btn {
+                margin-left: 280px;
+                text-align: start;
+                color: #ef7c00;
+            }
+    
+            .login-button {
+                font-family: "Rokkitt", Georgia, serif;
+                font-size: x-large;
+                width: 100%;
+                background-color: #ef7c00;
+                color: rgb(0, 0, 0);
+                outline: none;
+                border: none;
+                cursor: pointer;
+            }
+    
+            .login-button:hover {
+                background-color: #884600;
+            }
+            .image-section {
+                width: 47rem;
+               height: 32rem;
+               overflow: hidden;
+            }
+    
+            .image-section img {
+                width: 100%;
+            }
+    
+            @media (min-width: 768px) {
+                .main-content {
+                    flex-direction: row;
+                    justify-content: center;
+                }
+            }
+    
+            .hr-line {
+              margin-top: 0px;
+              margin-bottom: 0px;  
+              border-top: 2px solid #ef7c00;
+            }
+    
+        </style>
+
+
+
+
+
+
+
+<hr class="hr-line">
+<main class="main-content">
+    <div class="otp-form">
+        <h3 class="form-title">Enter OTP</h3>
+
+
+        <form method="post" class="forms" onsubmit="return validateOtpForm()">
+
+
+            
+            <input id="otp" name="otp" type="text" placeholder="OTP">
+           
+            <a href="#" class="back-btn">Back</a>
+            <a href="#" class="resend-btn">Resend OTP</a>
+
+            <span id="timerValue">60</span>
+
+            <button type="submit" class="login-button">LOGIN</button>
+        </form>
+    </div>
+    <div class="image-section"><img src="./Image/perfume-ad.jpeg" alt=""></div>
+</main>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+
+
+
+      let timer = 60
+      let timerInterval
+
+      function startTimer(){
+        timerInterval = setInterval(() => {
+            timer--
+            document.getElementById('timerValue').textContent = timer
+
+            if(timer <= 0){
+            document.getElementById('timerValue').classList.add('expired')
+            document.getElementById('timerValue').textContent = 'Expired'
+            document.getElementById('otp').disabled = true 
+            }
+        }, 1000);
+      }
+
+      startTimer()
+
+
+
+
+
+      function validateOtpForm(){
+        const otpInput = document.getElementById('otp').value 
+
+        $.ajax({
+
+            type:'POST',
+            url:'verifyOtp',
+            data:{otp:otpInput},
+            success: function(response){
+
+                if(response.success){
+
+                    Swal.fire({
+                        icon:'success',
+                        title:'OTP Verified Successfully',
+                        showConfirmButton:false,
+                        timer:1500
+                    }).then(()=>{
+                        window.location.href = response.redirectUrl
+                    })
+                }else{
+                    Swal.fire({
+                        icon:'error',
+                        title:Error,
+                        text:response.message
+                    })
+                }
+            },
+            error: function(){
+                Swal.fire({
+                    icon:'error',
+                    title:'Invalid OTP',
+                    text:'Please try again'
+                })
+            }
+        })
+           console.log('validation otp')
+        return false
+      }
+
+</script>
+
+</body>
+</html>
