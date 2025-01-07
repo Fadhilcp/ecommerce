@@ -5,7 +5,13 @@ const env = require('dotenv').config()
 const bcrypt = require('bcrypt')
 
 
-
+const pageNotFound = async (req,res)=>{
+    try {
+        res.render('user/page404')
+    } catch (error) {
+        res.redirect('/pageNotFound')
+    }
+}
 
 
 
@@ -25,11 +31,46 @@ const loadHomePage = async (req,res)=>{
 const loadLogin = async (req,res)=>{
     try {
 
-       return res.render('user/login')
+    if(!req.session.user){
+        return res.render('user/login',{message:''})
+    }else{
+        res.redirect('/')
+    }
+
 
     } catch (error) {
-        console.log('Register Page not found')
-        res.status(500).send('Internal server error')
+        res.redirect('/pageNotFound')
+    }
+}
+
+const login = async (req,res) =>{
+
+    try {
+        
+        const {email,password} = req.body
+        const findUser = await User.findOne({isAdmin:false,email:email})
+ 
+        if(!findUser){
+            return res.render('user/login',{message:'User not found'})
+        }
+        if(findUser.isBlocked){
+            return res.render('user/login',{message:'User is Blocked by Admin'})
+        }
+        const passwordMatch = await bcrypt.compare(password,findUser.password)
+
+        if(!passwordMatch){
+            return res.render('user/login',{message:'Incorrect password'})
+        }
+
+        req.session.user = findUser._id
+        res.redirect('/')
+
+
+    } catch (error) {
+
+        console.error('Login error',error)
+        res.render('login',{message:'Login failed,Please try again'})
+        
     }
 }
 
@@ -111,26 +152,29 @@ const register = async (req,res)=>{
     } catch (error) {
 
         console.error('signUp'+error)
-        res.redirect('user/pageNotFound')
+        res.redirect('/pageNotFound')
         
     }
 }
 
 
-async function securePassword(user,password){
+async function securePassword(password){
     try {
 
         const  passwordHash = await bcrypt.hash(password,10) 
+
         return passwordHash 
         
     } catch (error) {
-        
+        console.error('Hash password',error)
+        res.status(500).json('Server internal error')
     }
 }
 
 const verifyOtp = async (req,res)=>{
 
     try {
+
         const {otp} = req.body
    
         if(otp === req.session.userOtp){
@@ -142,7 +186,7 @@ const verifyOtp = async (req,res)=>{
                 email:user.email,
                 password:passwordHash
             })
-
+    
             await saveUserData.save()
             req.session.user = saveUserData._id
             res.json({success:true ,redirectUrl:'/'})
@@ -173,7 +217,7 @@ const resendOtp = async (req,res)=>{
         const emailSent = await verificationEmail(email,otp)
 
         if(emailSent){
-            console.log('Resend OTP ',otp)
+            console.log('Resend OTP',otp)
             res.status(200).json({success:true,message:'OTP Resend Successfully'})
         }else{
             res.status(500).json({success:false,message:'Failed to Resend OTP,Please try again'})
@@ -186,6 +230,42 @@ const resendOtp = async (req,res)=>{
     }
 }
 
+const account = async (req,res) =>{
+    try {
+        
+        res.render('user/account')
+
+    } catch (error) {
+        console.log('account page error:',error)
+        res.status(500).json('internal server error')
+        
+    }
+}
+
+
+const logout = async(req,res) => {
+    try {
+
+        console.log('session',req.session)
+
+        req.session.destroy((err)=>{
+            if(err){
+                console.log('Session Destruction error',err.messsage)
+                return res.redirect('/pageNotFound')
+            }else{
+                return res.redirect('/login')
+            }
+        })
+        
+    } catch (error) {
+        console.log('Logout error',error)
+        res.redirect('/pageNotFound')
+    }
+}
+
+
+
+
 
 
 
@@ -193,8 +273,12 @@ const resendOtp = async (req,res)=>{
 module.exports = {
     loadHomePage,
     loadLogin,
+    login,
     loadRegister,
     register,
     verifyOtp,
-    resendOtp
+    resendOtp,
+    pageNotFound,
+    account,
+    logout
 }

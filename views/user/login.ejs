@@ -104,16 +104,26 @@
 <main class="main-content">
     <div class="login-form">
         <h3 class="form-title">LOGIN</h3>
-        <form action="" method="post" class="forms">
+
+        <form action="/login" method="post" class="forms">
+
+
             <input id="email" name="email" type="email" placeholder="EMAIL">
             <input id="password" name="password" type="password" placeholder="PASSWORD">
 
             <a href="#" class="forget-password">Forget Password?</a>
 
-            <p class="msg">Hello</p>
+            <%if(locals.message && message.length > 0){%>
+                <div class="alert text-danger text-center">
+                    <%= message %>
+                </div>
+            <%}%>
+            <p class="msg"></p>
 
             <div class="google-signin">
-                <img src="/api/placeholder/24/24" alt="Google Sign In">
+                <a href="/auth/google">
+                    <h4 class="fa-brands fa-google"></h4>
+                </a>
             </div>
 
             <div class="login-link">

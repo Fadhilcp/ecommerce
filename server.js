@@ -7,8 +7,10 @@ const path = require('path')
 const session = require('express-session')
 const nocache = require('nocache')
 const db = require('./config/db')
+const passport = require('./config/passport')
 
 const userRouter = require('./routes/userRouter')
+const adminRouter = require('./routes/adminRouter')
 
 db()
 app.use(express.json())
@@ -25,6 +27,10 @@ app.use(session({
     }
 })) 
 
+
+app.use(passport.initialize())
+app.use(passport.session())
+
 app.use(nocache())
 
 app.set('view engine','ejs')
@@ -34,6 +40,7 @@ app.use(express.static(path.join(__dirname,'public')))
 
 
 app.use('/',userRouter)
+app.use('/admin',adminRouter)
 
 
 
@@ -41,5 +48,5 @@ app.use('/',userRouter)
 
 
 app.listen(process.env.PORT,()=>{
-    console.log('server is running')
+    console.log('server running at http://localhost:3000')
 })

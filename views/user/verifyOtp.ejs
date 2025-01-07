@@ -111,7 +111,7 @@
             <a href="#" class="back-btn">Back</a>
             <a href="#" class="resend-btn" onclick="resendOtp()">Resend OTP</a>
 
-            <span id="timerValue">60</span>
+            <span id="timerValue"></span>
 
             <button type="submit" class="login-button">LOGIN</button>
         </form>
@@ -127,83 +127,124 @@
 
 <script>
 
+let interval
+function startTimer(){
+         let timer = 60
+         const savedStartTime = localStorage.getItem("otpStartTime")
+          if (savedStartTime) {
+              const elapsedTime = Math.floor((Date.now() - savedStartTime) / 1000)
+              timer = Math.max(0, timer - elapsedTime)
+        } else {
+               localStorage.setItem("otpStartTime", Date.now())
+           }
+        if (timer > 0) {
 
-
-      let timer = 60
-      let timerInterval
-
-      function startTimer(){
-        timerInterval = setInterval(() => {
-            timer--
-            document.getElementById('timerValue').textContent = timer
-
-            if(timer <= 0){
-            document.getElementById('timerValue').classList.add('expired')
-            document.getElementById('timerValue').textContent = 'Expired'
-            document.getElementById('otp').disabled = true 
+            if(interval){
+                clearInterval(interval)
             }
-        }, 1000);
-      }
+
+            interval = setInterval(() => {
+            if (timer > 0) {
+            timer--
+            document.getElementById("timerValue").textContent = timer
+            if (timer === 0) {
+                clearInterval(interval);
+                document.getElementById("timerValue").textContent = "Expired"
+                document.getElementById("otp").disabled = true
+                localStorage.removeItem("otpStartTime")
+              }
+            }
+          }, 1000)
+       } else {
+         document.getElementById("otp").disabled = true;
+         localStorage.removeItem("otpStartTime")
+     }
+   }
 
       startTimer()
 
 
 
 
-
       function validateOtpForm(){
         const otpInput = document.getElementById('otp').value 
+       
 
-        $.ajax({
+       
+        fetch('verifyOtp', {
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({otp:otpInput})
+        })
+        .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok')
+           }
+             return response.json()
+          }) 
+          
+            .then(data =>{
+                if(data.success){
 
-            type:'POST',
-            url:'verifyOtp',
-            data:{otp:otpInput},
-            success: function(response){
-
-                if(response.success){
-
-                    Swal.fire({
-                        icon:'success',
-                        title:'OTP Verified Successfully',
-                        showConfirmButton:false,
-                        timer:1500
-                    }).then(()=>{
-                        window.location.href = response.redirectUrl
+                      Swal.fire({
+                      icon:'success',
+                      title:'OTP Verified Successfully',
+                      showConfirmButton:false,
+                      timer:1500
+                      }).then(()=>{
+                         window.location.href = data.redirectUrl
                     })
-                }else{
+                } 
+                else{
                     Swal.fire({
                         icon:'error',
-                        title:Error,
-                        text:response.message
+                        title:'Error',
+                        text:data.message
                     })
                 }
-            },
-            error: function(){
+            }).catch(error =>{
                 Swal.fire({
                     icon:'error',
                     title:'Invalid OTP',
                     text:'Please try again'
                 })
+                console.error('Error: ',error)
+            })
+               
+            return false
             }
-        })
-           console.log('validation otp')
-        return false
-      }
+        
+
 
 
 
       function resendOtp(){
-        clearInterval(timerInterval)
-        time = 60
+        timer = 60
+        document.getElementById('timerValue').textContent = timer
         document.getElementById('otp').disabled = false
-        document.getElementById('timerValue').classList.remove('expired')
+        localStorage.removeItem('otpStartTime')
         startTimer()
-        $.ajax({
-            type:'POST',
-            url:'resendOtp',
-            success:function(response){
-                if(response.success){
+       
+        
+
+        const otpInput = document.getElementById('otp').value 
+        fetch('resendOtp',{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({otp:otpInput})
+        })
+         .then(response => {
+           if (!response.ok) {
+               throw new Error('Network response was not ok')
+            }
+              return response.json()
+           })
+        .then(data =>{
+            if(data.success){
                     Swal.fire({
                         icon:'success',
                         title:'OTP Resend Successfully',
@@ -218,8 +259,14 @@
                         text:"An error occured while resending OTP,Please try again"
                     })
                 }
-            }
+        }).catch(error => {
+            Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Network error occurred. Please try again.',
         })
+           console.error('Error:', error)
+            })
         return false
       }
 

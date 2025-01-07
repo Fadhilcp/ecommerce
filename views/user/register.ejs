@@ -118,10 +118,17 @@
                         <span><p class="msg" id="msg4"></p></span>
                         <a href="#" class="profile-image">PROFILE IMAGE</a>
 
-                        <span><p><%= message %></p></span>
+                        <%if(locals.message && message.length > 0){%>
+                            <div class="alert text-danger text-center">
+                                <%= message %>
+                            </div>
+                        <%}%>
     
                         <div class="google-signin">
-                            <img src="#" alt="Google Sign In">
+                            <a href="/auth/google">
+                                <h4 class="fa-brands fa-google"></h4>
+                            </a>
+                            
                         </div>
     
                         <div class="login-link">
@@ -222,7 +229,7 @@
         isValid = false
     }
     
-    console.log('askfjsdalj')
+
     if (isValid) {
         document.getElementById('register-form').submit()
     } else {
