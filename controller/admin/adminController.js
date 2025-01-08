@@ -44,10 +44,10 @@ const login = async (req,res) =>{
 const loadDashboard = async (req,res) =>{
     try {
         if(req.session.admin){
-
             res.render('admin/dashboard')
         }
     } catch (error) {
+        console.log('Dashboard error',error)
         res.redirect('/pageError')
     }
 }
@@ -59,10 +59,28 @@ const pageError = async (req,res) => {
 }
 
 
+const logout = async (req,res) => {
+    try {
+        
+        req.session.destroy(err => {
+            if(err){
+                console.log('Error destroying Session')
+                return res.redirect('/pageError')
+            }else{
+                res.redirect('/admin/login')
+            }
+        })
+    } catch (error) {
+        console.log('unexpected error during logout',error)    
+        res.redirect('/pageError')
+    }
+}
+
 
 module.exports = {
     loadLogin,
     login,
     loadDashboard,
-    pageError
+    pageError,
+    logout
 }

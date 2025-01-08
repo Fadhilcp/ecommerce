@@ -138,7 +138,7 @@ const register = async (req,res)=>{
         }
 
         const otp = await verificationOtp()
-        const emailSent = await verificationEmail(email,otp) 
+        const emailSent = await verificationEmail(email,otp)
 
         if(!emailSent){
             return res.json('Email-error')
