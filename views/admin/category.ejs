@@ -6,7 +6,7 @@
     <div class="content-header">
         <div>
             <h2 class="content-title card-title">Category List</h2>
-            <p>Add,Update and Delete Categories</p>
+            <p>Add,Edit and Delete Categories</p>
         </div>
     </div>
     <div class="row">
@@ -40,11 +40,12 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Offer Price</th>
-                                    <th>Offer</th>
-                                    <th>List/Unlist</th>
+                                    <th class="text-center">Name</th>
+                                    <th class="text-center">Description</th>
+                                    <th class="text-center">Offer Price</th>
+                                    <th class="text-center">Offer</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">List/Unlist</th>
                                     <th class="text-end">Edit</th>
                                 </tr>
                             </thead>
@@ -52,28 +53,50 @@
                                 <%if(cat.length > 0){%>
                                 <%cat.reverse().forEach((category,Index)=>{%>
                                 <tr>
-                                    <td><%=category.name%></td>
-                                    <td><%=category.description%></td>
-                                    <td>
-                                        <%if(category.categoryOffer != 0){%>
-                                            <%category.categoryOffer%>
-                                        <%}else{%>
-                                            0%
-                                            <%}%>
-                                    </td>
-                                    <td>
+                                    <td class="text-center"><%=category.name%></td>
+                                    <td class="text-center"><%=category.description%></td>
+                                        <td class="text-center">
+                                            <%if(category.categoryOffer != 0){%>
+                                                <%= category.categoryOffer+'%' %>
+                                            <%}else{%>
+                                                0%
+                                                <%}%>
+                                        </td>
+                                    <td class="text-center">
                                         <%if(category.categoryOffer === 0){%>
-                                            <button btn btn-info>
-                                                <a href="#" class="text-white" onclick="return addOffer('<%=category._id%>')"">Add Offer</a>
+                                            <button class="btn btn-success" style="height: 30px;">
+                                                <a class="text-white" onclick="return addOffer('<%=category._id%>')" style="font-size: smaller;" >Add Offer</a>
                                             </button>
                                             <%}else{%>
-                                                <button btn btn-info>
-                                                    <a href="#" class="text-white" onclick="return removeOffer('<%=category._id%>')"">Remove</a>
+                                                <button class="btn btn-danger" style="height: 30px;">
+                                                    <a class="text-white" onclick="return removeOffer('<%=category._id%>')" style="font-size: smaller;" >Remove</a>
                                                 </button>
                                                 <%}%>
                                     </td>
-                                    <td>list/unlist</td>
-                                    <td>edit</td>
+                                    <td class="text-center">
+                                        <%if(category.isListed){%>
+                                        <span class="badge rounded-pill alert-success" style="width: 60px;">Listed</span>
+                                       <% } else {%>
+                                        <span class="badge rounded-pill alert-danger" style="width: 60px;">Unlisted</span>
+                                       <% } %>
+                                    </td>
+                                    <td class="text-center">
+                                        <% if(category.isListed){%>
+                                        <button class="btn btn-danger" style="height: 30px;">
+                                            <a onclick="return listCategory('<%=category._id%>')" class="text-white">Unlist</a>
+                                        </button>
+                                        <% } else {%> 
+                                            <button class="btn btn-success" style="height: 30px;">
+                                                <a onclick="return UnlistCategory('<%=category._id%>')" class="text-white">List</a>
+                                            </button> 
+                                        <%}%>
+                                    </td>
+
+                                    <td>
+                                        <button class="btn btn-info" style="height: 30px;">
+                                            <a href="/admin/editCategory?id=<%= category._id %>" class="text-white">Edit</a>
+                                        </button> 
+                                    </td>
 
                                     
                                 </tr>    
@@ -149,13 +172,12 @@
 <script>
     
     function handleFormSubmit(event){
-        console.log('helllooo')
 
         event.preventDefault()
         if(!validateForm()){
-            return console.log('this is the problem') 
+            return
         }
-        console.log('helello22')
+
         const name = document.getElementById('name').value
         const description = document.getElementById("descriptionId").value
 
@@ -207,7 +229,6 @@
 
     function validateForm(){
         clearErrorMessages()
-     console.log('guuyyss')
         const name = document.getElementById('name').value.trim()
         const description = document.getElementById('descriptionId').value.trim()
         isValid = true
@@ -310,7 +331,6 @@
 
 
     async function removeOffer(categoryId){
-        console.log('remove Offer',categoryId)
         try {
             console.log('tryy')
             const response = await fetch('/admin/removeCategoryOffer',{
@@ -344,6 +364,47 @@
                 'error'
             )
             console.error('Error removing offer',error)
+        }
+    }
+
+
+
+
+
+
+
+
+    async function listCategory(categoryId){
+         try {
+            console.log(categoryId)
+            const response = await fetch(`/admin/listCategory?id=${categoryId}`,{
+            method:'GET',
+            })
+
+        if(response.ok){
+            location.reload()
+        }else{
+            console.log(response.statusText)
+        }
+         } catch (error) {
+            console.error('listing category',error)
+         }
+    }
+
+
+    async function UnlistCategory(categoryId){
+        try {
+            const response = await fetch(`/admin/unlistCategory?id=${categoryId}`,{
+            method:'GET',
+        })
+
+        if(response.ok){
+            location.reload()
+        }else{
+            console.log(response.statusText)
+        }
+        } catch (error) {
+            console.error('Unlisting category',error)
         }
     }
 

@@ -1,0 +1,54 @@
+<!-- setting header -->
+<%- include("../../views/partials/admin/header") %>
+
+
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Category Edit</h2>
+            <p>Add,Edit and Delete Categories</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Edit</h5>
+                    <form action="/admin/editCategory/<%= category._id %>" method="post" onsubmit="return handleFormSubmit(event)">
+                        <div class="mb-4">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" placeholder="Type here" class="form-control" name="categoryName" id="name" value="<%= category.name %>" />
+                        </div>
+                        <div class="mb-4">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea type="text" placeholder="Type here" class="form-control" name="description" id="descriptionId" ><%= category.description %></textarea>
+                        </div>
+                        <p class="error-message" id="error-message"></p>
+                        <button type="submit" class="form-control bg-success" id="order_customer_1">ADD</button>
+                       
+                    </form>
+                </div>
+            </div>
+            <!-- card end// -->
+        </div>
+    </div>
+</section>
+<!-- content-main end// -->
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear());
+            </script>
+            &copy; Nest - HTML Ecommerce Template .
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+        </div>
+    </div>
+</footer>
+
+
+<!-- setting footer -->
+<%- include("../../views/partials/admin/footer") %>
