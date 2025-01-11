@@ -3,7 +3,7 @@ const router = express.Router()
 const adminController = require('../controller/admin/adminController')
 const customerController = require('../controller/admin/customerController')
 const categoryController = require('../controller/admin/categoryController')
-const brandController = require('../controller/admin/brandController')
+const productController = require('../controller/admin/productController')
 const {userAuth,adminAuth} = require('../middleware/auth')
 const multer = require('multer')
 const storage = require('../helpers/multer')
@@ -32,12 +32,8 @@ router.get('/editCategory',adminAuth,categoryController.getEditCategory)
 router.post('/editCategory/:id',adminAuth,categoryController.editCategory)
 
 
-
-//brand management
-router.get('/brands',adminAuth,brandController.getBrandPage)
-router.post('/addBrand',adminAuth,uploads.single('image'),brandController.addBrand)
-router.get('/blockBrand',adminAuth,brandController.blockBrand)
-router.get('/unBlockBrand',adminAuth,brandController.unBlockBrand)
-router.get('/deleteBrand',adminAuth,brandController.deleteBrand)
+//product management
+router.get('/products',adminAuth,productController.getAddProducts)
+router.post('/addProducts',adminAuth,uploads.array('images',3),productController.addProducts) 
 
 module.exports = router

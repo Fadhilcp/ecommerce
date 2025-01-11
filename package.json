@@ -14,7 +14,8 @@
     "nodemon": "^3.1.9",
     "otp-generator": "^4.0.1",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "sharp": "^0.33.5"
   },
   "name": "perfumora",
   "version": "1.0.0",

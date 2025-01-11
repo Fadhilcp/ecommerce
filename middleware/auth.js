@@ -27,7 +27,7 @@ const adminAuth = (req,res,next) =>{
         if(data){
             next()
         }else{
-            res.redirect('/admin/Login')
+            res.redirect('/admin/login')
         }
     }).catch(error =>{
         console.log('Error in admin Auth middleware')

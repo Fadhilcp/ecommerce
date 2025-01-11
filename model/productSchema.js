@@ -2,16 +2,13 @@ const mongoose = require('mongoose')
 const {Schema} = mongoose
 
 const productSchema = new Schema({
-    productTitle:{
+    productName:{
         type:String,
 
     },
     description:{
         type:String,
 
-    },
-    brand:{
-        type:String,
     },
     category:{
         type:Schema.Types.ObjectId,

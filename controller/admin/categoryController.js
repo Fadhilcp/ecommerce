@@ -58,9 +58,7 @@ const addCategory = async (req,res) => {
 
 
 const addCategoryOffer = async (req,res)=>{
-    console.log('add category offer')
      try {
-        console.log('try')
         const percentage = parseInt(req.body.percentage)
         const categoryId = req.body.categoryId
         const category = await Category.findById(categoryId)
