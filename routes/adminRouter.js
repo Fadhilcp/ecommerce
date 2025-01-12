@@ -33,7 +33,13 @@ router.post('/editCategory/:id',adminAuth,categoryController.editCategory)
 
 
 //product management
-router.get('/products',adminAuth,productController.getAddProducts)
+router.get('/addProducts',adminAuth,productController.getAddProducts)
 router.post('/addProducts',adminAuth,uploads.array('images',3),productController.addProducts) 
+router.get('/products',adminAuth,productController.getAllProducts)
+router.post('/addProductOffer',adminAuth,productController.addProductOffer)
+router.post('/removeProductOffer',adminAuth,productController.removeProductOffer)
+router.get('/blockProduct',adminAuth,productController.blockProduct)
+router.get('/unBlockProduct',adminAuth,productController.unBlockProduct)
+router.get('/editProduct',adminAuth,productController.editProduct)
 
-module.exports = router
+module.exports = router 

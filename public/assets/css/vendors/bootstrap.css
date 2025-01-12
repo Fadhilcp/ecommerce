@@ -2052,10 +2052,7 @@ progress {
   border-bottom-width: 0;
 }
 
-.table-striped > tbody > tr:nth-of-type(odd) {
-  --bs-table-accent-bg: var(--bs-table-striped-bg);
-  color: var(--bs-table-striped-color);
-}
+
 
 .table-active {
   --bs-table-accent-bg: var(--bs-table-active-bg);
