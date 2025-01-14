@@ -57,7 +57,7 @@
                                 <input type="text" class="form-control" name="quantity" id="quantity" >
                                 <p id="quantity-error"></p>
                             </div>
-                            <div class="col-lg-8 mb-3">
+                            <div class="col-lg-4 mb-3">
                                 <label class="form-label">Category</label>
                                 <select class="form-select" name="category" id="category" >
 
@@ -68,6 +68,16 @@
                                     <%}%>
                                 </select>
                                 <p id="category-error"></p>
+                            </div>
+                            <div class="col-lg-4 mb-3">
+                                <label class="form-label">Capacity</label>
+                                <select class="form-select" name="capacity" id="capacity" >
+                                    <option value="30">30ml</option>
+                                    <option value="50ml">50ml</option>
+                                    <option value="75ml">75ml</option>
+                                    <option value="100ml">100ml</option>
+                                </select>
+                                <p id="capacity-error"></p>
                             </div>
                         </div>
         
@@ -133,7 +143,7 @@
                            
                                
                             
-                        <button class="btn btn-md rounded font-sm hover-up" type="button" onclick="validateAndSubmit()">Publich</button>
+                        <button class="btn btn-md rounded font-sm hover-up" type="button" onclick="validateAndSubmit()">Add</button>
 
                     </form>
                 </div>

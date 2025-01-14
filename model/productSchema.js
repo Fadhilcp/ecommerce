@@ -38,7 +38,6 @@ const productSchema = new Schema({
     capacity:{
         type:String,
         enum:["30ml","50ml","75ml","100ml"],
- 
     },
     isBlocked:{
         type:Boolean,

@@ -311,8 +311,17 @@
 
     async function removeOffer(categoryId){
         try {
-            console.log('tryy')
-            const response = await fetch('/admin/removeCategoryOffer',{
+
+            const confirm = await Swal.fire({
+                title:'Remove Offer',
+                text:'Are you sure you want to remove Offer',
+                icon:'warning',
+                showCancelButton:true,
+                confirmButtonText:'Yes,remove it'
+            })
+            console.log(confirm)
+           if(confirm.isConfirmed){ 
+            const response =  await fetch('/admin/removeCategoryOffer',{
                 method:'POST',
                 headers:{
                     'content-type':'application/json'
@@ -335,7 +344,7 @@
             }else{
                 Swal.fire('Failed',data.message || 'Removing offer failed','error')
             }
-
+        }
         } catch (error) {
             Swal.fire(
                 'Error',

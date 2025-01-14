@@ -4,6 +4,7 @@ const Product = require('../../model/productSchema')
 const fs = require('fs')
 const path = require('path')
 const sharp = require('sharp')
+const { status } = require('init')
 
 
 
@@ -126,9 +127,8 @@ const getAllProducts = async (req,res) => {
 
 const addProductOffer = async (req,res) => {
     try {
-        console.log('this is add offer')
+
         const {percentage,productId} = req.body
-        console.log('this is ',productId)
         const findProduct = await Product.findOne({_id:productId})
         const findCategory = await Category.findOne({_id:findProduct.category})
 
@@ -137,7 +137,6 @@ const addProductOffer = async (req,res) => {
         }
 
         findProduct.offerPrice = findProduct.offerPrice - Math.floor(findProduct.regularPrice*(percentage/100))
-     console.log('offer',findProduct.offerPrice)
         findProduct.productOffer = parseInt(percentage)
         await findProduct.save()
         findCategory.categoryOffer = 0
@@ -211,7 +210,7 @@ const unBlockProduct = async (req,res)=>{
 
 
 
-const editProduct = async (req,res) => {
+const getEditProduct = async (req,res) => {
     try {
         
         const id = req.query.id
@@ -231,6 +230,78 @@ const editProduct = async (req,res) => {
 }
 
 
+const editProduct = async (req,res)=>{
+    try {
+
+        const id = req.params.id
+        const product = await Product.findOne({_id:id})
+        const data = req.body
+        const existingProduct = await Product.findOne({
+            productName:data.productName,
+            _id:{$ne:id}
+        })
+
+        if(existingProduct){
+            return res.status(400).json({error:'Product with this name is already exists,please try with another name'})
+        }
+
+        const images = []
+
+        if(req.files && req.files.length >= 0){
+            for(let i=0;i<req.files.length;i++){
+                images.push(req.files[i].filename)
+            }
+        }
+
+        const updateFields = {
+            productName:data.productName,
+            description:data.description,
+            category:product.category,
+            regularPrice:data.regularPrice,
+            capacity:data.capacity,
+            offerPrice:data.offerPrice,
+            quantity:data.quantity
+        }
+
+        if(req.files.length > 0){
+            updateFields.$push = {productImage:{$each:images}}
+        }
+
+        await Product.findByIdAndUpdate(id,updateFields,{new:true})
+
+        res.redirect('/admin/products')
+    } catch (error) {
+        console.error('edit product error',error)
+        res.redirect('/admin/pageError')
+
+    }
+}
+
+
+const deleteSingleImage = async (req,res) => {
+    try {
+        console.log('delete')
+        const {imageId,productId} = req.body
+        const product = await Product.findByIdAndUpdate({_id:productId},{$pull:{productImage:imageId}})
+
+        const imagePath = path.join('public','uploads','reImage',imageId)
+
+        if(fs.existsSync(imagePath)){
+
+            await fs.unlinkSync(imagePath)
+            console.log(`Image ${imageId} deleted successfully`)
+        }else{
+            console.log(`image ${imageId} not found`)
+        }
+
+        res.send({status:true})
+
+    } catch (error) {
+        console.error('delete image error',error)
+        res.redirect('/admin/pageError')
+    }
+}
+
 
 module.exports = {
     getAddProducts,
@@ -240,5 +311,7 @@ module.exports = {
     removeProductOffer,
     blockProduct,
     unBlockProduct,
-    editProduct
+    getEditProduct,
+    editProduct,
+    deleteSingleImage
 }
