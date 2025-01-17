@@ -29,6 +29,7 @@ const addProducts = async (req,res)=>{
     try {
        
         const products = req.body
+        console.log('This is products',products)
         const productExists = await Product.findOne({
             productName:products.productName,
         })
@@ -58,11 +59,12 @@ const addProducts = async (req,res)=>{
                 category:categoryId._id,
                 regularPrice:products.regularPrice,
                 offerPrice:products.offerPrice,
-                createdOn:new Date(),
+                productOffer:products.offerPrice,
+                createdAt:new Date(),
                 quantity:products.quantity,
                 capacity:products.capacity,
                 productImage:images,
-                statu:'Available'
+                status:'Available'
     
             })
     
@@ -105,7 +107,7 @@ const getAllProducts = async (req,res) => {
 
 
         if(category){
-            res.render('admin/products',{
+           return res.render('admin/products',{
                 data:productData,
                 currentPage:page,
                 totalPages:page,
@@ -219,7 +221,7 @@ const getEditProduct = async (req,res) => {
         const category = await Category.find({})
 
 
-        res.render('admin/editProduct',{
+        return res.render('admin/editProduct',{
             product:product,
             cat:category
         })
@@ -269,7 +271,7 @@ const editProduct = async (req,res)=>{
 
         await Product.findByIdAndUpdate(id,updateFields,{new:true})
 
-        res.redirect('/admin/products')
+        return res.redirect('/admin/products')
     } catch (error) {
         console.error('edit product error',error)
         res.redirect('/admin/pageError')

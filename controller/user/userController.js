@@ -1,4 +1,6 @@
 const User = require('../../model/userSchema')
+const Product = require('../../model/productSchema')
+const Category = require('../../model/categorySchema')
 const otpGenerator = require('otp-generator')
 const nodeMailer = require('nodemailer')
 const env = require('dotenv').config()
@@ -17,12 +19,86 @@ const pageNotFound = async (req,res)=>{
 
 const loadHomePage = async (req,res)=>{
     try {
-        
-       return res.render('user/home')
-    } catch (error) {
+        const user = req.session.user
 
-        console.log('Home Page not found')
+        const categories = await Category.find({isListed:true})
+        let productData = await Product.find(
+            {isBlocked:false,
+                category:{$in:categories.map(category => category._id)},
+                quantity:{$gt:0}}
+        )
+
+        productData.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt))
+        productData = productData.slice(0,8)
+
+        if(user){
+            const userData = await User.findOne({_id:user._id})
+            return res.render('user/home',{user:userData,products:productData})
+        }else{
+            return res.render('user/home',{products:productData})
+        }
+    } catch (error) {
+        console.log('Home Page not found',error)
         res.status(500).send('Internal server error')
+    }
+}
+
+
+
+const getShop = async (req,res) => {
+    try {
+
+        const user = req.session.user
+        
+        
+        
+
+        const categories = await Category.find({isListed:true})
+        const categoryIds = categories.map((category)=> category._id.toString())
+        
+        const page = parseInt(req.query.page) || 1
+        const limit = 9
+        const skip = (page - 1) * limit
+
+        let products = await Product.find(
+            {isBlocked:false,
+                category:{$in:categoryIds},
+                quantity:{$gt:0}}
+        ).sort({createdAt:-1}).skip(skip).limit(limit)
+
+        let totalProducts = await Product.countDocuments({
+            isBlocked:false,
+            category:{$in:categoryIds},
+            quantity:{$gt:0}
+        })
+
+        const totalPages = Math.ceil(totalProducts/limit)
+        const categoriesWithIds = categories.map((category)=>({_id:category._id,name:category.name}))
+
+
+        if(user){
+            const userData = await User.findOne({_id:user._id})
+            
+            return res.render('user/shop',{
+                user:userData,
+                products:products,
+                category:categoriesWithIds,
+                totalProducts:totalProducts,
+                currentPage:page,
+                totalPages:totalPages,
+                active:'active'
+            })
+        }
+
+        return res.render('user/shop',{
+            products:products,
+            category:categoriesWithIds,
+            totalProducts:totalProducts,
+            currentPage:page,
+            totalPages:totalPages
+        })
+    } catch (error) {
+        console.error('load shop error',error)
     }
 }
 
@@ -42,6 +118,12 @@ const loadLogin = async (req,res)=>{
         res.redirect('/pageNotFound')
     }
 }
+
+
+
+
+
+
 
 const login = async (req,res) =>{
 
@@ -232,8 +314,15 @@ const resendOtp = async (req,res)=>{
 
 const account = async (req,res) =>{
     try {
+
+        const user = req.session.user
+
+        const userData = await User.findById(user)
         
-        res.render('user/account')
+        res.render('user/account',{
+            username:userData.username,
+            email:userData.email
+        })
 
     } catch (error) {
         console.log('account page error:',error)
@@ -245,8 +334,6 @@ const account = async (req,res) =>{
 
 const logout = async(req,res) => {
     try {
-
-        console.log('session',req.session)
 
         req.session.destroy((err)=>{
             if(err){
@@ -270,6 +357,9 @@ const logout = async(req,res) => {
 
 
 
+
+
+
 module.exports = {
     loadHomePage,
     loadLogin,
@@ -280,5 +370,6 @@ module.exports = {
     resendOtp,
     pageNotFound,
     account,
+    getShop,
     logout
 }

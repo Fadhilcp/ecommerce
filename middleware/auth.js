@@ -1,28 +1,17 @@
 const User = require('../model/userSchema')
 
 
-const userAuth = (req,res,next) =>{
-    if(req.session.user){
-        User.findById(req.session.user) 
-        .then(data =>{
-            if(data && !data.isBlocked){
-                next()
-            }else{
-                res.redirect('/login')
-            }
-        }).catch(error =>{
-            console.log('Error in user auth middleware')
-            res.status(500).send('Internal Server error')
-        })
-    }else{
-        res.redirect('/login')
-    }
-}
+const userAuth = (req, res, next) => {
+     if (req.session.user) {
+         return next() 
+        } else {
+             return res.redirect('/') 
+            } 
+        }
 
 
-
-const adminAuth = (req,res,next) =>{
-    User.findOne({isAdmin:true})
+const adminAuth = async (req,res,next) =>{
+   await User.findOne({isAdmin:true})
     .then(data => {
         if(data){
             next()
@@ -36,8 +25,28 @@ const adminAuth = (req,res,next) =>{
 }
 
 
+const isBlock = async (req, res, next) => {
+    
+    if (req.session.user) { 
+        try { 
+            const user = await User.findById(req.session.user)
+             if (!user.isBlocked) { 
+                next() 
+            } else {
+                return res.redirect('/') 
+                }
+            } catch (error) {
+                 console.error('isBlock middleware error', error)
+                res.status(500).json('Internal server error') 
+            } 
+        } else {
+            next()
+        }
+    }
+
 
 module.exports = {
     userAuth,
-    adminAuth
+    adminAuth,
+    isBlock
 }

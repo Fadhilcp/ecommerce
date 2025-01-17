@@ -7649,7 +7649,7 @@ h1, h2, h3, h4, h5,
       .breadcrumbs .bread span:first-child {
         padding-left: 0; }
       .breadcrumbs .bread span a {
-        color: #88c8bc; }
+        color: #ef7c00; }
 
 .breadcrumbs-img {
   height: 300px;
@@ -8260,7 +8260,6 @@ h1, h2, h3, h4, h5,
 .blog-img,
 .colorlib-video {
   background-size: cover;
-  background-position: center center;
   background-repeat: no-repeat;
   position: relative; }
 

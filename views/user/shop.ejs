@@ -1,0 +1,149 @@
+
+<!-- setting header -->
+<%- include("../../views/partials/user/header") %>
+
+
+
+<div class="breadcrumbs">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p class="bread"><span><a href="/">Home</a></span> / <span>Shop</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="breadcrumbs-two">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="breadcrumbs-img" style="background-image: url(/images/perfume\ for\ banner.jpeg);">
+                    <h2>Shop</h2>
+                </div>
+                <div class="menu text-center">
+                    <p><a href="#">New Arrivals</a> <a href="#">Best Sellers</a> <a href="#">Extended Widths</a> <a href="#">Sale</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="colorlib-featured">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4 text-center">
+                <div class="featured">
+                    <div class="featured-img featured-img-2" style="background-image: url(/images/cea6d1d7-f1f6-415f-8377-727b651f7aaf.jpeg);">
+                        <h2>Floral</h2>
+                        <p><a href="#" class="btn btn-primary btn-lg">Shop now</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 text-center">
+                <div class="featured">
+                    <div class="featured-img featured-img-2" style="background-image: url(/images/c77f93a5-e1c4-402d-a5bd-12f8b71627f4.jpeg);">
+                        <h2>Citrus</h2>
+                        <p><a href="#" class="btn btn-primary btn-lg">Shop now</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 text-center">
+                <div class="featured">
+                    <div class="featured-img featured-img-2" style="background-image: url(/images/The\ White\ Royals\ on\ Instagram_\ _Amamos\ los\ detalles_\ Boda_\ Almu\ +\ Fer_\ CDMX_.jpeg);">
+                        <h2>Fresh</h2>
+                        <p><a href="#" class="btn btn-primary btn-lg">Shop now</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="colorlib-product">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-xl-3">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="side border mb-1">
+                            <h3>Category</h3>
+                            <ul>
+                                <% for(let i=0;i< category.length;i++){ %>
+                                <li><a href="#"><%= category[i].name %></a></li>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="side border mb-1">
+                            <h3>Bottle capacity</h3>
+                            <div class="block-26 mb-2">
+                                <h4>Milliliters</h4>
+                           <ul>
+                              <li><a href="#">30ml</a></li>
+                              <li><a href="#">50ml</a></li>
+                              <li><a href="#">75ml</a></li>
+                              <li><a href="#">100ml</a></li>
+                           </ul>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="side border mb-1">
+                            <h3>Price</h3>
+                            <ul>
+                                <li><a href="#">0-1000</a></li>
+                                <li><a href="#">1000-1500</a></li>
+                                <li><a href="#">1500-2000</a></li>
+                                <li><a href="#">2000-2500</a></li>
+                                <li><a href="#">2500-Above</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9 col-xl-9">
+                <div class="row row-pb-md">
+
+                    <% for(let i=0;i<products.length;i++){%>
+                    <div class="col-lg-4 mb-4 text-center">
+                        <div class="product-entry border">
+                            <a href="/productDetails?id=<%=products[i]._id%>" class="prod-img">
+                                <img src="/uploads/reImage/<%= products[i].productImage[0] %>" class="img-fluid" alt="<%= products[i].productName %>">
+                            
+                            <div class="desc">
+                                <h2><a><%= products[i].productName %></a></h2>
+                                <span class="price"><%= products[i].offerPrice %></span>
+                            </div>
+                          </a>
+                        </div>
+                    </div>
+                    <%}%>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <div class="block-27">
+                       <ul>
+                        <% if(currentPage>1){%>
+                           <li><a href="#"><i class="ion-ios-arrow-back"></i></a></li>
+                           <%}%>
+                           <% for(let i=0;i<totalPages;i++){%>
+                          <li class="active"><span>1</span></li>
+                          <%}%>
+                          <% if(currentPage<totalPages){%>
+                          <li><a href="#"><i class="ion-ios-arrow-forward"></i></a></li>
+                          <%}%>
+                       </ul>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- setting footer -->
+<%- include("../../views/partials/user/footer") %>
