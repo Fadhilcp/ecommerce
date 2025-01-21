@@ -108,7 +108,8 @@
             
             <input id="otp" name="otp" type="text" placeholder="OTP">
            
-            <a href="#" class="back-btn">Back</a>
+            <a href="/register" class="back-btn">Back</a>
+
             <a href="#" class="resend-btn" onclick="resendOtp()">Resend OTP</a>
 
             <span id="timerValue"></span>
@@ -116,7 +117,7 @@
             <button type="submit" class="login-button">LOGIN</button>
         </form>
     </div>
-    <div class="image-section"><img src="./Image/perfume-ad.jpeg" alt=""></div>
+    <div class="image-section"><img src="/images/perfume-ad.jpeg" alt=""></div>
 </main>
 
 
@@ -131,47 +132,106 @@
      startTimer()
 
 
-let interval
-function startTimer(){
-         let timer = 60
-         const savedStartTime = localStorage.getItem("otpStartTime")
-          if (savedStartTime) {
-              const elapsedTime = Math.floor((Date.now() - savedStartTime) / 1000)
-              timer = Math.max(0, timer - elapsedTime)
-        } else {
-               localStorage.setItem("otpStartTime", Date.now())
-           }
-        if (timer > 0) {
+function startTimer() {
+    const totalDuration = 60
+    const savedStartTime = localStorage.getItem("otpStartTime")
 
-            if(interval){
-                clearInterval(interval)
-            }
+    let timer = 0
 
-            interval = setInterval(() => {
-            if (timer > 0) {
+    if (savedStartTime) {
+        const elapsedTime = Math.floor((Date.now() - parseInt(savedStartTime, 10)) / 1000)
+        timer = Math.max(totalDuration - elapsedTime, 0)
+    } else {
+        localStorage.setItem("otpStartTime", Date.now())
+        timer = totalDuration
+    }
+
+    document.getElementById("timerValue").textContent = timer > 0 ? timer : "Expired"
+    document.getElementById("otp").disabled = timer === 0
+
+
+    if (timer > 0) {
+        const interval = setInterval(() => {
             timer--
-            document.getElementById("timerValue").textContent = timer
+            document.getElementById("timerValue").textContent = timer > 0 ? timer : "Expired"
             if (timer === 0) {
-                clearInterval(interval);
-                document.getElementById("timerValue").textContent = "Expired"
+                clearInterval(interval)
                 document.getElementById("otp").disabled = true
                 localStorage.removeItem("otpStartTime")
-              }
             }
-          }, 1000)
-       } else {
-         document.getElementById("otp").disabled = true;
-         localStorage.removeItem("otpStartTime")
-     }
-   }
+        }, 1000)
+    }
+}
+        
+
+
+function resendOtp() {
+
+    if (document.getElementById("timerValue").textContent !== "Expired") {
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Wait until timer expires',
+            text: 'You can resend the OTP only after the timer has expired.',
+        });
+        return false
+    }
+   
+    let timer = 60
+    document.getElementById('timerValue').textContent = timer
+    document.getElementById('otp').disabled = false
+    localStorage.removeItem('otpStartTime')
+    localStorage.setItem('otpStartTime', Date.now())
+    startTimer()
+    const otpInput = document.getElementById('otp').value
+
+
+    fetch('/resendOtp', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ otp: otpInput }),
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok')
+            }
+            return response.json()
+        })
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'OTP Resent Successfully',
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: "An error occurred while resending OTP. Please try again.",
+                })
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Network error occurred. Please try again.',
+            })
+            console.error('Error:', error)
+        })
+
+    return false
+}
 
 
 
- 
+
       function validateOtpForm(){
-        const otpInput = document.getElementById('otp').value 
-       
-
+        const otpInput = document.getElementById('otp').value
        
         fetch('verifyOtp', {
             method:'POST',
@@ -218,59 +278,6 @@ function startTimer(){
             return false
             }
         
-
-
-
-
-      function resendOtp(){
-        timer = 60
-        document.getElementById('timerValue').textContent = timer
-        document.getElementById('otp').disabled = false
-        localStorage.removeItem('otpStartTime')
-        startTimer()
-       
-        
-
-        const otpInput = document.getElementById('otp').value 
-        fetch('resendOtp',{
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json'
-            },
-            body:JSON.stringify({otp:otpInput})
-        })
-         .then(response => {
-           if (!response.ok) {
-               throw new Error('Network response was not ok')
-            }
-              return response.json()
-           })
-        .then(data =>{
-            if(data.success){
-                    Swal.fire({
-                        icon:'success',
-                        title:'OTP Resend Successfully',
-                        showConfirmButton:false,
-                        timer:1500
-                    })
-                }
-                else{
-                    Swal.fire({
-                        icon:'error',
-                        title:'Error',
-                        text:"An error occured while resending OTP,Please try again"
-                    })
-                }
-        }).catch(error => {
-            Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Network error occurred. Please try again.',
-        })
-           console.error('Error:', error)
-            })
-        return false
-      }
 
 </script>
 

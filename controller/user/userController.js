@@ -126,32 +126,32 @@ const loadLogin = async (req,res)=>{
 
 
 const login = async (req,res) =>{
-
     try {
         
         const {email,password} = req.body
+        
         const findUser = await User.findOne({isAdmin:false,email:email})
- 
+
         if(!findUser){
-            return res.render('user/login',{message:'User not found'})
+            return res.json({status:false,message:'User not found'})
         }
         if(findUser.isBlocked){
-            return res.render('user/login',{message:'User is Blocked by Admin'})
+            return res.json({status:false,message:'User isBlocked by Admin'})
         }
         const passwordMatch = await bcrypt.compare(password,findUser.password)
 
         if(!passwordMatch){
-            return res.render('user/login',{message:'Incorrect password'})
+            return res.json({status:false,message:'Password is not match'})
         }
 
         req.session.user = findUser._id
-        res.redirect('/')
+        return res.json({status:true,redirectUrl:'/'})
 
 
     } catch (error) {
 
         console.error('Login error',error)
-        res.render('login',{message:'Login failed,Please try again'})
+        res.json({status:false,message:'User not found'})
         
     }
 }
@@ -216,20 +216,19 @@ const register = async (req,res)=>{
         const findUser = await User.findOne({email})
 
         if(findUser){
-            return res.render('user/register',{message:'User already exists'})
+            return res.json('user/register',{message:'User already exists'})
         }
 
         const otp = await verificationOtp()
         const emailSent = await verificationEmail(email,otp)
 
         if(!emailSent){
-            return res.json('Email-error')
+            return res.json('user/register',{message:'Email didnt sent'})
         }
         req.session.userOtp = otp
         req.session.userData = {username,email,password}
         console.log(otp)
-
-        res.render('user/verifyOtp') 
+        return res.render('user/verifyOtp', { message: 'OTP sent successfully. Please check your email.' })
         
     } catch (error) {
 
@@ -297,7 +296,6 @@ const resendOtp = async (req,res)=>{
 
         req.session.userOtp = otp
         const emailSent = await verificationEmail(email,otp)
-
         if(emailSent){
             console.log('Resend OTP',otp)
             res.status(200).json({success:true,message:'OTP Resend Successfully'})

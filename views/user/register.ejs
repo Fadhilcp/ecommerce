@@ -117,13 +117,16 @@
                         <input id="confirmPassword" name="confirmPassword" type="password" placeholder="CONFIRM PASSWORD">
                         <span><p class="msg" id="msg4"></p></span>
                         <a href="#" class="profile-image">PROFILE IMAGE</a>
-
+                        <p id="msg"></p>
                         <%if(locals.message && message.length > 0){%>
                             <div class="alert text-danger text-center">
                                 <%= message %>
                             </div>
-                        <%}%>
-    
+                        <%}else{%>
+                            <div class="alert text-danger text-center" >
+                               
+                            </div>
+                            <%}%>
                         <div class="google-signin">
                             <a href="/auth/google">
                                 <h4 class="fa-brands fa-google"></h4>
@@ -138,7 +141,7 @@
                         <button type="button" id="submit-btn" class="signup-button">SIGN UP</button>
                     </form>
                 </div>
-                <div class="image-section"><img src="./Image/perfume-ad.jpeg" alt=""></div>
+                <div class="image-section"><img src="/images/perfume-ad.jpeg" alt=""></div>
             </main>
     
 
@@ -149,13 +152,14 @@
                     document.getElementById('submit-btn').addEventListener('click',formValidate)
                 })
 
-     function formValidate(e) {
+   async function formValidate(e) {
               e.preventDefault()
 
     var username = document.getElementById('username').value
     var email = document.getElementById('email').value
     var password = document.getElementById('password').value
     var confirmPassword = document.getElementById('confirmPassword').value
+    var msg = document.getElementById('msg')
     var msg1 = document.getElementById('msg1')
     var msg2 = document.getElementById('msg2')
     var msg3 = document.getElementById('msg3')
@@ -185,12 +189,12 @@
 
 
     var emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-
+    // Email validation
      if (email == '') {
         msg2.innerHTML = 'Email is required'
         isValid = false;
     } 
-    // Email validation
+
     else if (email && !emailPattern.test(email)) {
         msg2.innerHTML = 'Please enter a valid email'
         isValid = false
@@ -200,7 +204,7 @@
 
     var passwordPattern1 = /^(?=.*[a-zA-Z])/
     var passwordPattern2 = /^(?=.*[0-9])/
-
+     // Password validations
     if (password == '') {
         msg3.innerHTML = 'Password is required'
         isValid = false
@@ -209,7 +213,7 @@
     msg3.innerHTML = 'Password must be at least 8 characters long'
         isValid = false
     }
-     // Password validations
+   
     else if (password && !passwordPattern1.test(password)) {
         msg3.innerHTML = 'Password must contain at least one letter'
         isValid = false
@@ -231,11 +235,35 @@
     
 
     if (isValid) {
-        document.getElementById('register-form').submit()
-    } else {
-        return false
+      document.getElementById('register-form').submit()
+    //   try {
+                        
+    //     const response = await fetch('/register',{
+    //       method:'POST',
+    //       headers:{ 
+    //             'content-type':'application/json'
+    //         },
+    //      body:JSON.stringify({username,email,password})
+    //      })
+
+    //         const data = await response.json()
+
+    //          if(response.ok && data.status){
+    //              if(data.redirectUrl){
+    //               window.location.reload()
+    //          }else{
+    //              msg.innerHTML = 'redirect Failed'
+    //           }
+    //      }else{
+    //           msg.innerHTML = data.message
+    //          }
+    //         } catch (error) {
+    //              msg.innerHTML = 'Failed to connect to the server'
+    //              console.error('Fetch error',error)
+    //           }
+            }
     }
-}
+
     
 
             </script>

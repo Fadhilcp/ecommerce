@@ -8,7 +8,7 @@ const loadLogin =  (req,res) =>{
         if(req.session.admin){
             return res.redirect('/admin')
         }
-        res.render('admin/login')
+        res.render('admin/login',{message:''})
 }
 
 const login = async (req,res) =>{
@@ -18,22 +18,22 @@ const login = async (req,res) =>{
         const admin = await User.findOne({email,isAdmin:true})
 
         if(admin){
-            const passwordMatch = bcrypt.compare(password,admin.password)
+            const passwordMatch = await bcrypt.compare(password,admin.password)
 
             if(passwordMatch){
                 req.session.admin = true
-                return res.redirect('/admin')
+              return res.json({status:true,redirectUrl:'/admin'})
 
             }else{
-                return res.render('admin/login')
+                return res.json({status:false,message:'Invalid Password'})
             }
         }else{
-            return res.render('admin/login')
+            return res.json({status:false,message:'Admin not found'})
         }
 
     } catch (error) {
         console.error('login error',error)
-        return res.redirect('/pageError')
+        res.json({stauts:false,redirectUrl:'/admin/pageError'})
         
     }
 }

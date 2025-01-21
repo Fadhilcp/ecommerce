@@ -52,6 +52,7 @@ const addProducts = async (req,res)=>{
             if(!categoryId){
                 return res.status(400).join('invalid category name')
             }
+            products.productOffer = Math.floor(((products.regularPrice - products.offerPrice) / products.regularPrice) * 100)
     
             const newProduct = new Product({
                 productName:products.productName,
@@ -59,13 +60,12 @@ const addProducts = async (req,res)=>{
                 category:categoryId._id,
                 regularPrice:products.regularPrice,
                 offerPrice:products.offerPrice,
-                productOffer:products.offerPrice,
+                productOffer:products.productOffer,
                 createdAt:new Date(),
                 quantity:products.quantity,
                 capacity:products.capacity,
                 productImage:images,
                 status:'Available'
-    
             })
     
             await newProduct.save()
@@ -255,6 +255,8 @@ const editProduct = async (req,res)=>{
             }
         }
 
+        data.productOffer = Math.floor(((data.regularPrice - data.offerPrice) / data.regularPrice) * 100)
+
         const updateFields = {
             productName:data.productName,
             description:data.description,
@@ -262,6 +264,7 @@ const editProduct = async (req,res)=>{
             regularPrice:data.regularPrice,
             capacity:data.capacity,
             offerPrice:data.offerPrice,
+            productOffer:data.productOffer,
             quantity:data.quantity
         }
 

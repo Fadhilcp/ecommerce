@@ -10,8 +10,6 @@
         <meta property="og:type" content="" />
         <meta property="og:url" content="" />
         <meta property="og:image" content="" />
-        <!-- Favicon -->
-        <link rel="shortcut icon" type="image/x-icon" href="/assets/imgs/theme/favicon.svg" />
         <!-- Template CSS -->
         <link href="/assets/css/main.css?v=1.1" rel="stylesheet" type="text/css" />
     </head>
@@ -32,18 +30,21 @@
             <h4 class="card-title mb-4">Sign in</h4>
             <form method="post" action="/admin/login">
                 <div class="mb-3">
-                    <input name="email" class="form-control" placeholder="Username or email" type="email" />
+                    <input name="email" id="email" class="form-control" placeholder="Username or email" type="email" />
                 </div>
                 <!-- form-group// -->
                 <div class="mb-3">
-                    <input name="password" class="form-control" placeholder="Password" type="password" />
+                    <input name="password" id="password" class="form-control" placeholder="Password" type="password" />
                 </div>
                 <!-- form-group// -->
                 <div class="mb-3">
                 </div>
                 <!-- form-group form-check .// -->
+                 <div class="container">
+                    <p id="err-message" class="text-center text-warning"></p>
+                 </div>
                 <div class="mb-4">
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                    <button type="submit" id="submit-btn" class="btn btn-primary w-100">Login</button>
                 </div>
                 <!-- form-group// -->
             </form>
@@ -55,3 +56,71 @@
 
         <!-- setting footer -->
         <%- include("../../views/partials/admin/footer") %>
+
+
+
+        <script>
+
+
+document.addEventListener('DOMContentLoaded',function(){
+                    document.getElementById('submit-btn').addEventListener('click',formValidate)
+                })
+
+
+            async function formValidate(event){
+                    event.preventDefault()
+
+                    var email = document.getElementById('email').value.trim()
+                    var password = document.getElementById('password').value.trim()
+                    var msg = document.getElementById('err-message')
+                    let isValid = true
+
+                    msg.innerHTML = ''
+
+                    let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+                    if (email == '') {
+                    msg.innerHTML = 'Email is required'
+                    isValid = false
+                   }else if(email && !emailPattern.test(email)){
+                    msg.innerHTML = 'Type valid Email'
+                    isValid = false
+                   }else if (password == '') {
+                    msg.innerHTML = 'Password is required'
+                    isValid = false
+                   } else if (password.length < 8) {
+                    msg.innerHTML = 'Password must be at least 8 characters long'
+                    isValid = false
+                   }
+
+                   if (isValid) {
+                       try {
+                        
+                        const response = await fetch('/admin/login',{
+                            method:'POST',
+                            headers:{
+                                'content-type':'application/json'
+                            },
+                            body:JSON.stringify({email,password})
+                        })
+
+                        const data = await response.json()
+
+                        if(response.ok && data.status){
+                           if(data.redirectUrl){
+                            window.location.href = data.redirectUrl
+                           }else{
+                            msg.innerHTML = 'redirect Failed'
+                           }
+                        }else{
+                            msg.innerHTML = data.message
+                        }
+                       } catch (error) {
+                        msg.innerHTML = 'Failed to connect to the server'
+                        console.error('Fetch error',error)
+                       }
+                   }
+                }
+
+                
+        </script>

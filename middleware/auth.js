@@ -10,19 +10,6 @@ const userAuth = (req, res, next) => {
         }
 
 
-const adminAuth = async (req,res,next) =>{
-   await User.findOne({isAdmin:true})
-    .then(data => {
-        if(data){
-            next()
-        }else{
-            res.redirect('/admin/login')
-        }
-    }).catch(error =>{
-        console.log('Error in admin Auth middleware')
-        res.status(500).send('Internal Server error')
-    })
-}
 
 
 const isBlock = async (req, res, next) => {
@@ -43,6 +30,26 @@ const isBlock = async (req, res, next) => {
             next()
         }
     }
+
+
+
+
+const adminAuth = async (req,res,next) => {
+    try {
+
+        if(req.session?.admin){
+            next()
+        }else{
+            res.redirect('/admin/login')
+        }
+    } catch (error) {
+        console.error('adminAuth middleware error',error)
+        res.status(500).json('Internal server error')
+    }
+}
+
+
+
 
 
 module.exports = {

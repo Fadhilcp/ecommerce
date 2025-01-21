@@ -19,43 +19,44 @@
 
 
                     <form method="post" action="/admin/editProduct/<%= product._id %>" enctype="multipart/form-data" id="addProductForm">
+
                         <div class="mb-4">
                             <label for="product_name" class="form-label">Product Name</label>
                             <input type="text" placeholder="Type here" class="form-control" id="productName" name="productName" value="<%= product.productName %>"/>
-                            <p id="productName-error"></p>
+                            <p id="productName-error" class="error-message"></p>
                         </div>
+
                         <div class="mb-4">
                             <label class="form-label">Description</label>
                             <textarea name="description" id="description" placeholder="Type here" class="form-control" rows="4"><%= product.description %></textarea>
-                            <p id="description-error"></p>
+                            <p id="description-error" class="error-message"></p>
                         </div>
+
                         <div class="row">
                             <div class="col-lg-4">
                                 <div class="mb-4">
                                     <label class="form-label">Regular price</label>
                                     <div class="row gx-2">
                                         <input type="text" class="form-control" name="regularPrice" id="regularPrice" value="<%= product.regularPrice %>"/>
-                                        <p id="regularPrice-error"></p>
+                                        <p id="regularPrice-error" class="error-message"></p>
                                     </div>
                                 </div>
                             </div>
+
                             <div class="col-lg-4">
                                 <div class="mb-4">
                                     <label class="form-label">Offer price</label>
                                     <input type="text" class="form-control" name="offerPrice" id="offerPrice" value="<%= product.offerPrice %>"/>
-                                    <p id="offerPrice-error"></p>
+                                    <p id="offerPrice-error" class="error-message"></p>
                                 </div>
                             </div>
-                            <div class="col-lg-4">
-                                <label class="form-label">Product Offer</label>
-                                <input type="text" class="form-control" name="productOffer" id="productOffer" value="<%= product.productOffer %>">
-                                <p id="productOffer-error"></p>
-                            </div>
+
                             <div class="col-lg-4">
                                 <label class="form-label">Quantity</label>
                                 <input type="text" class="form-control" name="quantity" id="quantity" value="<%= product.quantity %>">
-                                <p id="quantity-error"></p>
+                                <p id="quantity-error" class="error-message"></p>
                             </div>
+
                             <div class="col-lg-4 mb-3">
                                 <label class="form-label">Category</label>
                                 <select class="form-select" name="category" id="category" >
@@ -66,8 +67,9 @@
                                     </option>
                                     <%}%>
                                 </select>
-                                <p id="category-error"></p>
+                                <p id="category-error" class="error-message"></p>
                             </div>
+
                             <div class="col-lg-4 mb-3">
                                 <label class="form-label">Capacity</label>
 
@@ -96,7 +98,7 @@
                                 </select>
 
 
-                                <p id="capacity-error"></p>
+                                <p id="capacity-error" class="error-message"></p>
                             </div>
                         </div>
         
@@ -357,7 +359,7 @@
       if (description.trim() === "") {
          displayErrorMessage('description-error', 'Please enter a product description.')
          isValid = false
-      } else if (!/^[a-zA-Z\s]+$/.test(description.trim())) {
+      } else if (!/^[a-zA-Z\s.,-]+$/.test(description.trim())) {
          displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.')
          isValid = false
       }
@@ -386,7 +388,7 @@
                      displayErrorMessage('offerPrice-error', 'Please enter a valid non-negative price.')
                      isValid = false
                  }
-                 if (parseFloat(price) <= parseFloat(offerPrice)) {
+                 if (parseFloat(price) < parseFloat(offerPrice)) {
                      displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.')
                      isValid = false
                  }
