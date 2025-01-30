@@ -184,9 +184,9 @@ const blockProduct = async (req,res)=>{
 
         const id = req.query.id
 
-        await Product.updateOne({_id:id},{$set:{isBlocked:true}})
+        await Product.updateOne({_id:id},{$set:{isBlocked:true}},{new:true})
 
-        res.json({status:true})
+        res.json({status:true,message:'Product blocked successfully'})
     } catch (error) {
         console.error('block product error',error)
         res.redirect('/admin/pageError')
@@ -199,9 +199,9 @@ const unBlockProduct = async (req,res)=>{
         
         const id = req.query.id
 
-        await Product.updateOne({_id:id},{$set:{isBlocked:false}})
+        await Product.updateOne({_id:id},{$set:{isBlocked:false}},{new:true})
 
-        res.json({status:true})
+        res.json({status:true,message:'Product unblocked successfully'})
     } catch (error) {
         console.error('Unblock product error')
         res.redirect('/admin/pageError')

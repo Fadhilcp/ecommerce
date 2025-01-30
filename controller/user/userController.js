@@ -310,24 +310,8 @@ const resendOtp = async (req,res)=>{
     }
 }
 
-const account = async (req,res) =>{
-    try {
 
-        const user = req.session.user
 
-        const userData = await User.findById(user)
-        
-        res.render('user/account',{
-            username:userData.username,
-            email:userData.email
-        })
-
-    } catch (error) {
-        console.log('account page error:',error)
-        res.status(500).json('internal server error')
-        
-    }
-}
 
 
 const logout = async(req,res) => {
@@ -358,6 +342,8 @@ const logout = async(req,res) => {
 
 
 
+
+
 module.exports = {
     loadHomePage,
     loadLogin,
@@ -367,7 +353,6 @@ module.exports = {
     verifyOtp,
     resendOtp,
     pageNotFound,
-    account,
     getShop,
     logout
 }

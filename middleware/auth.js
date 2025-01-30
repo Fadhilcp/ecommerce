@@ -1,4 +1,5 @@
 const User = require('../model/userSchema')
+const Product = require('../model/productSchema')
 
 
 const userAuth = (req, res, next) => {
@@ -13,7 +14,6 @@ const userAuth = (req, res, next) => {
 
 
 const isBlock = async (req, res, next) => {
-    
     if (req.session.user) { 
         try { 
             const user = await User.findById(req.session.user)
@@ -50,10 +50,34 @@ const adminAuth = async (req,res,next) => {
 
 
 
+const productIsBlock = async (req,res,next) => {
+    try {
+        const productId = req.query.id
+
+        const product = await Product.findById(productId)
+
+        if(!product){
+            return res.redirect('/')
+        }
+
+        if(product.isBlocked){
+            return res.redirect('/')
+        }else{
+            next()
+        }
+
+    } catch (error) {
+        console.error('Product block middleware error',error)
+        res.status(500).json('Internal server error')
+    }
+}
+
+
 
 
 module.exports = {
     userAuth,
     adminAuth,
-    isBlock
+    isBlock,
+    productIsBlock
 }
