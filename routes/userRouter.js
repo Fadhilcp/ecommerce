@@ -21,13 +21,23 @@ router.post('/addReviews',isBlock,productController.addReviews)
 
 router.get('/productDetails',productIsBlock,isBlock,productController.productDetails)
 
+//google auth
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
 router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/register'}),(req,res)=>{
     res.redirect('/')
 })
 
+//profile management
 router.get('/account',userAuth,profileController.account)
 router.get('/changePassword',userAuth,profileController.getChangePassword)
 router.post('/changePassword',userAuth,profileController.changePassword)
+
+//address management
+router.get('/address',userAuth,profileController.getAddress)
+router.get('/createAddress',userAuth,profileController.getCreateAddress)
+router.post('/createAddress',userAuth,profileController.createAddress)
+router.get('/editAddress',userAuth,profileController.getEditAddress)
+router.post('/editAddress',userAuth,profileController.editAddress)
+router.get('/deleteAddress',userAuth,profileController.deleteAddress)
 
 module.exports = router

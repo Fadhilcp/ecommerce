@@ -1,0 +1,399 @@
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: #f5f5f5;
+    }
+
+    .header {
+        background: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+        font-size: 2rem;
+        color: #333;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .search-cart {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .search-box {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .search-button {
+        background: #ff6b00;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .cart {
+        text-decoration: none;
+        color: #333;
+    }
+
+    .main-content {
+        display: flex;
+    }
+
+    .sidebar {
+        width: 250px;
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .sidebar-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        color: #333;
+        text-decoration: none;
+        border-bottom: 1px solid #eee;
+    }
+
+    .sidebar-item.active {
+        background: #ef7c00;
+        color: white;
+    }
+
+    .profile-content {
+        flex: 1;
+        place-items: center;
+        background: white;
+        padding: 2rem;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+        background: #ddd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .profile-info h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-details {
+        margin-top: 2rem;
+    }
+
+    .profile-details p {
+        margin-bottom: 1rem;
+        color: #333;
+    }
+
+    .profile-details strong {
+        display: inline-block;
+        width: 100px;
+    }
+
+
+    /* Form css */
+    .forms {
+        width: 50%;
+    }
+    .forms input {
+                font-family: "Rokkitt", Georgia, serif;
+                width: 100%;
+                padding: 10px;
+                margin: 5px 0;
+                outline: none;
+                border: none;
+                background-color: #d9d9d9;
+            }
+    
+            .confirm-button {
+                margin: 5px 0;
+                text-align: center;
+            }
+  
+    
+            .confirm-button {
+                font-family: "Rokkitt", Georgia, serif;
+                font-size: x-large;
+                width: 100%;
+                background-color: #ef7c00;
+                color: rgb(0, 0, 0);
+                outline: none;
+                border: none;
+                cursor: pointer;
+            }
+    
+            .confirm-button:hover {
+                background-color: #884600;
+            }
+    
+            @media (min-width: 768px) {
+                .main-content {
+                    flex-direction: row;
+                    justify-content: center;
+                }
+            }
+
+            .msg{
+                text-align: center;
+                margin: 20px;
+            }
+</style>
+
+ 
+
+
+
+
+<!-- setting header -->
+<%- include("../../views/partials/user/header") %>
+
+
+
+
+    <div class="main-content">
+        <aside class="sidebar">
+            <a href="/account" class="sidebar-item">Profile</a>
+            <a href="/orders" class="sidebar-item">Orders</a>
+            <a href="/wallet" class="sidebar-item">Wallet</a>
+            <a href="/address" class="sidebar-item active">My Address</a>
+            <a href="/updateProfile" class="sidebar-item">Update Profile</a>
+            <a href="/changePassword" class="sidebar-item">Change Password</a>
+            <a href="/logout" class="sidebar-item">Logout</a>
+        </aside>
+
+        <main class="profile-content">
+
+            <div>
+                <h3>Create Address</h3>
+            </div>
+
+            <form action="/createAddress" method="post" class="forms" id="addressForm">
+    
+    
+                <input id="houseNo" name="houseNo" placeholder="HOUSE NO">
+                <p id="err1"></p>
+
+                <input id="street" name="street" placeholder="STREET">
+                <p id="err2"></p>
+
+                <input id="city" name="city" placeholder="CITY">
+                <p id="err3"></p>
+
+                <input id="country" name="country" placeholder="COUNTRY">
+                <p id="err4"></p>
+ 
+                <input id="phone" name="phone" placeholder="PHONE">
+                <p id="err5"></p>
+
+                <input id="pincode" name="pincode" placeholder="PINCODE">
+                <p id="err6"></p>
+    
+    
+                    <div class="alert text-danger text-center">
+                        <p id="errorMessage"></p>
+                    </div>
+                <p class="text-danger text-center" id="err-message" style="font-family: sans-serif;"></p>
+    
+    
+                <button type="submit" id="submit-btn" class="confirm-button">CREATE</button>
+            </form>
+    
+        </main>
+
+    </div>
+
+
+<!-- jQuery -->
+<script src="js/jquery.min.js"></script>
+<!-- popper -->
+<script src="js/popper.min.js"></script>
+<!-- bootstrap 4.1 -->
+<script src="js/bootstrap.min.js"></script>
+<!-- jQuery easing -->
+<script src="js/jquery.easing.1.3.js"></script>
+ <!-- Waypoints -->
+ <script src="js/jquery.waypoints.min.js"></script>
+ <!-- Flexslider -->
+ <script src="js/jquery.flexslider-min.js"></script>
+ <!-- Owl carousel -->
+ <script src="js/owl.carousel.min.js"></script>
+ <!-- Magnific Popup -->
+ <script src="js/jquery.magnific-popup.min.js"></script>
+ <script src="js/magnific-popup-options.js"></script>
+ <!-- Date Picker -->
+ <script src="js/bootstrap-datepicker.js"></script>
+ <!-- Stellar Parallax -->
+ <script src="js/jquery.stellar.min.js"></script>
+ <!-- Main -->
+ <script src="js/main.js"></script>
+
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+ <script>
+
+document.getElementById('addressForm').addEventListener('submit',async function (evnet) {
+
+    event.preventDefault()
+
+    const errorMessage = document.getElementById('errorMessage')
+
+
+    const houseNo = document.getElementById('houseNo').value.trim()
+    const street = document.getElementById('street').value.trim()
+    const city = document.getElementById('city').value.trim()
+    const country = document.getElementById('country').value.trim()
+    const phone = document.getElementById('phone').value.trim()
+    const pincode = document.getElementById('pincode').value.trim()
+
+    const err1 = document.getElementById('err1')
+    const err2 = document.getElementById('err2')
+    const err3 = document.getElementById('err3')
+    const err4 = document.getElementById('err4')
+    const err5 = document.getElementById('err5')
+    const err6 = document.getElementById('err6')
+
+    let isValid = true
+
+    err1.innerHTML = ''
+    err2.innerHTML = ''
+    err3.innerHTML = ''
+    err4.innerHTML = ''
+    err5.innerHTML = ''
+    err6.innerHTML = ''
+
+    if(!houseNo){
+        err1.innerHTML = 'House No. field is required'
+        isValid = false
+    }else if(!/^[A-Za-z0-9\s/-]{1,20}$/.test(houseNo)){
+        err1.innerHTML = 'Enter valid House no. or Name'
+        isValid = false
+    }
+
+    if(!street){
+        err2.innerHTML = 'Street is required'
+        isValid = false
+    }else if(!/^[A-Za-z0-9\s,-]{3,100}$/.test(street)){
+        err2.innerHTML = 'Enter a valid Street name'
+        isValid = false
+    }
+
+    if(!city){
+        err3.innerHTML = 'City is required'
+        isValid = false
+    }else if(!/^[A-Za-z\s-]{2,50}$/.test(city)){
+        err3.innerHTML = 'Enter a valid City name'
+        isValid = false
+    }
+
+    if(!country){
+        err4.innerHTML = 'Country is required'
+        isValid = false
+    }else if(!/^[A-Za-z\s]{2,50}$/.test(country)){
+        err4.innerHTML = 'Enter a valid Country name'
+        isValid = false
+    }
+
+    if(!phone){
+        err5.innerHTML = 'Phone is required'
+        isValid = false
+    }else if (!/^\d+$/.test(phone) || phone.length < 9) {
+        err5.innerHTML = "Enter a valid phone number."
+        isValid = false
+    }
+
+    if(!pincode){
+        err6.innerHTML = 'PINCODE is required'
+        isValid = false
+    }else if (!/^\d{4,10}$/.test(pincode)) {
+        err6.innerHTML = "Enter a valid pincode."
+        isValid = false
+    }
+
+    if(isValid){
+
+        try {
+        const response = await fetch("/createAddress", {
+            method: "POST",
+            headers: {
+                 "Content-Type": "application/json" 
+                },
+            body: JSON.stringify({houseNo,street,city,country,phone,pincode})
+        })
+
+        const data = await response.json()
+
+        if (response.ok) {
+            
+            if(data.redirectUrl){
+
+               await Swal.fire({
+                icon: "success",
+                title: "Address Created!",
+                text: "Your address has been successfully saved.",
+                showConfirmButton: false,
+                timer: 2000
+            })
+
+            window.location.href = data.redirectUrl
+
+            }else{
+                window.location.href = data.redirectUrl
+            }
+        } else {
+            errorMessage.innerHTML = data.message || "Something went wrong."
+        }
+    } catch (error) {
+        errorMessage.innerHTML = "Network error. Please try again."
+    }
+  }
+})
+
+ </script>
+</body>
+</html>

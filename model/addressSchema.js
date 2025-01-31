@@ -8,10 +8,6 @@ const addressSchema = new Schema({
         required:true
     },
     address : [{
-        addressType:{
-            type:String,
-            required:true
-        },
         houseNo:{
             type:String,
             required:true
@@ -28,12 +24,12 @@ const addressSchema = new Schema({
             type:String,
             required:true
         },
-        pincode:{
+        phone:{
             type:Number,
             required:true
         },
-        phone:{
-            type:String,
+        pincode:{
+            type:Number,
             required:true
         }
     }]

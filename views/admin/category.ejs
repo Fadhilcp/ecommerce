@@ -364,7 +364,6 @@
 
     async function listCategory(categoryId){
          try {
-            console.log(categoryId)
             const response = await fetch(`/admin/listCategory?id=${categoryId}`,{
             method:'GET',
             })

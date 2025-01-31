@@ -1,3 +1,4 @@
+const Address = require('../../model/addressSchema')
 const User = require('../../model/userSchema')
 const bcrypt = require('bcrypt')
 
@@ -65,8 +66,169 @@ const changePassword = async(req,res)=>{
 }
 
 
+const getAddress = async (req,res) => {
+    try {
+
+        const userId = req.session.user
+
+        const userData = await User.findById(userId)
+        const addressData = await Address.findOne({userId:userId})
+
+        res.render('user/myAddress',{user:userData,userAddress:addressData})
+        
+    } catch (error) {
+        console.error('Address page Error',error)
+        res.redirect('/pageError')
+    }
+}
+
+
+const getCreateAddress = async (req,res) => {
+    try {
+        
+        const user = req.session.user
+
+        res.render('user/createAddress',{user:user})
+    } catch (error) {
+        console.error('create address page error',error)
+        res.redirect('/pageError')
+    }
+}
+
+
+const createAddress = async (req,res) => {
+    try {
+        
+        const userId = req.session.user
+
+        const userData = await User.findOne({_id:userId})
+
+        const {houseNo,street,city,country,phone,pincode} = req.body
+
+        const userAddress = await Address.findOne({userId:userData._id})
+
+        if(!userAddress){
+            const newAddress = new Address({
+                userId:userData._id,
+                address:[{houseNo,street,city,country,phone,pincode}]
+            })
+
+            await newAddress.save()
+        }else{
+            userAddress.address.push({houseNo,street,city,country,phone,pincode})
+            await userAddress.save()
+        }
+
+        return res.json({status:true,redirectUrl:'/address'})
+
+    } catch (error) {
+        console.error('address creating error',error)
+        res.json({status:false,redirectUrl:'/pageError'})
+    }
+}
+
+
+
+const getEditAddress = async (req,res) => {
+    try {
+
+        const addressId = req.query.id
+        const userId = req.session.user
+
+        const currentAddress = await Address.findOne({
+            'address._id':addressId
+        })
+
+        if(!currentAddress){
+            return res.redirect('/pageError')
+        }
+
+        const addressData = currentAddress.address.find((item)=>{
+           return item._id.toString() === addressId.toString()
+        })
+
+        if(!addressData){
+            return res.redirect('/pageError')
+        }
+
+        res.render('user/editAddress',{address:addressData, user:userId})
+        
+    } catch (error) {
+        console.error('edit address page error',error)
+        res.redirect('/pageError')
+    }
+}
+
+
+const editAddress = async (req,res) => {
+    try {
+        
+        const {houseNo,street,city,country,phone,pincode} = req.body
+
+        const addressId = req.query.id
+        const userId = req.session.user
+
+        const findAddress = await Address.findOne({'address._id':addressId})
+
+        if(!findAddress){
+            return res.json({status:false,redirectUrl:'/pageError'})
+        }
+
+        await Address.updateOne(
+            {'address._id':addressId},
+            {$set : {
+                'address.$':{
+                    _id:addressId,
+                    houseNo:houseNo,
+                    street:street,
+                    city:city,
+                    country:country,
+                    phone:phone,
+                    pincode:pincode
+                }
+            }}
+        )
+
+        res.json({status:true,redirectUrl:'/address'})
+
+    } catch (error) {
+        console.error('edit address error',error)
+        res.json({status:false,redirectUrl:'/pageError'})
+    }
+}
+
+
+const deleteAddress = async(req,res) => {
+    try {
+        
+        const addressId = req.query.id
+
+        const findAddress = await Address.findOne({'address._id':addressId})
+
+        if(!findAddress){
+            return res.json({status:false,message:'Address not found'})
+        }
+
+        await Address.updateOne({'address._id':addressId},
+        {$pull:{address:{_id:addressId}}
+    })
+
+    res.json({status:true})
+
+    } catch (error) {
+        console.error('delete address error',error)
+        res.json({status:false,message:'Internal server issue'})
+    }
+}
+
 module.exports = {
     account,
     getChangePassword,
-    changePassword
+    changePassword,
+    getAddress,
+    getCreateAddress,
+    createAddress,
+    getEditAddress,
+    editAddress,
+    deleteAddress
 }
