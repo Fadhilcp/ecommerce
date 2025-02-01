@@ -178,11 +178,6 @@ function resendOtp() {
     }
    
     let timer = 60
-    document.getElementById('timerValue').textContent = timer
-    document.getElementById('otp').disabled = false
-    localStorage.removeItem('otpStartTime')
-    localStorage.setItem('otpStartTime', Date.now())
-    startTimer()
     const otpInput = document.getElementById('otp').value
 
 
@@ -207,6 +202,13 @@ function resendOtp() {
                     showConfirmButton: false,
                     timer: 1500,
                 })
+             
+                document.getElementById('timerValue').textContent = timer
+                document.getElementById('otp').disabled = false
+                localStorage.removeItem('otpStartTime')
+                localStorage.setItem('otpStartTime', Date.now())
+                startTimer()
+                
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -233,7 +235,7 @@ function resendOtp() {
       function validateOtpForm(){
         const otpInput = document.getElementById('otp').value
        
-        fetch('verifyOtp', {
+        fetch('/verifyOtp', {
             method:'POST',
             headers:{
                 'Content-Type':'application/json'

@@ -7,7 +7,10 @@ const profileController = require('../controller/user/profileController')
 const passport = require('passport')
 const {userAuth,isBlock,productIsBlock} = require('../middleware/auth')
 
+//home 
 router.get('/',userController.loadHomePage)
+
+//signup and login managaement
 router.get('/login',isBlock,userController.loadLogin)
 router.post('/login',isBlock,userController.login)
 router.get('/register',isBlock,userController.loadRegister)
@@ -15,10 +18,20 @@ router.post('/register',isBlock,userController.register)
 router.post('/verifyOtp',isBlock,userController.verifyOtp)
 router.post('/resendOtp',isBlock,userController.resendOtp)
 
-router.get('/logout',userAuth,userController.logout)
-router.get('/shop',isBlock,userController.getShop)
-router.post('/addReviews',isBlock,productController.addReviews)
+//forgot password
+router.get('/forgotPassword',isBlock,profileController.getForgotPassword)
+router.post('/forgotPassword',isBlock,profileController.forgotPasswordEmail)
+router.post('/forgotPasswordOtp',isBlock,profileController.passwordOtp)
+router.post('/resendPasswordOtp',isBlock,profileController.resendOtp)
+router.get('/resetPassword',isBlock,profileController.getResetPassword)
+router.post('/resetPassword',isBlock,profileController.newPassword)
 
+router.get('/logout',userAuth,userController.logout)
+
+router.get('/shop',isBlock,userController.getShop)
+
+//product //management
+router.post('/addReviews',isBlock,productController.addReviews)
 router.get('/productDetails',productIsBlock,isBlock,productController.productDetails)
 
 //google auth

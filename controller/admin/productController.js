@@ -29,7 +29,6 @@ const addProducts = async (req,res)=>{
     try {
        
         const products = req.body
-        console.log('This is products',products)
         const productExists = await Product.findOne({
             productName:products.productName,
         })

@@ -1,7 +1,65 @@
 const Address = require('../../model/addressSchema')
 const User = require('../../model/userSchema')
 const bcrypt = require('bcrypt')
+const nodeMailer = require('nodemailer')
+const env = require('dotenv').config()
+const otpGenerator = require('otp-generator')
 
+
+async function verificationEmail(email, otp) {
+    try {
+        const transporter = await nodeMailer.createTransport({
+            service: 'gmail',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: process.env.NODEMAILER_EMAIL,
+                pass: process.env.NODEMAILER_PASSWORD,
+            },
+        });
+
+        const info = await transporter.sendMail({
+            from: process.env.NODEMAILER_EMAIL,
+            to: email,
+            subject: 'OTP for reset Password',
+            text: `Your OTP is ${otp}`,
+            html: `<b>Your OTP: ${otp}</b>`,
+        })
+
+        return info.accepted.length > 0
+
+    } catch (error) {
+        console.error('Error sending email:', error.message);
+        return false;
+    }
+}
+
+
+
+function verificationOtp(){ 
+    const otp = otpGenerator.generate(6,{
+                digits:true,
+                lowerCaseAlphabets:false,
+                 upperCaseAlphabets:false,
+                specialChars:false
+})
+     return otp
+}
+
+
+async function securePassword(password){
+    try {
+
+        const  passwordHash = await bcrypt.hash(password,10) 
+
+        return passwordHash 
+        
+    } catch (error) {
+        console.error('Hash password',error)
+        res.status(500).json('Server internal error')
+    }
+}
 
 
 const account = async (req,res) =>{
@@ -221,6 +279,135 @@ const deleteAddress = async(req,res) => {
     }
 }
 
+
+const getForgotPassword = async (req,res) => {
+    try {
+
+        res.render('user/forgotPassword')
+    } catch (error) {
+        console.error('forgot password page error')
+        res.redirect('/pageError')
+    }
+}
+
+
+const forgotPasswordEmail = async (req,res) => {
+    try {
+        const {email} = req.body
+        const findUser = await User.findOne({email:email})
+
+        if(findUser){
+            const otp = verificationOtp()
+            const emailSent = verificationEmail(email, otp)
+
+            if(emailSent){
+                console.log('forgot pass Otp',otp)
+                req.session.userOtp = otp
+                req.session.email = email
+                return res.render('user/forgotPasswordOtp')
+            }else{
+                // return res.json({status:false,message:'Failed to sent OTP,Please try again'})
+                return res.render('user/forgotPassword',{message:'Failed to sent OTP,Please try again'})
+            }
+
+        }else{
+            // return res.json({status:false,message:'User with this email does not exist'})
+            return res.render('user/forgotPassword',{message:'User with this email does not exist'})
+        }
+    } catch (error) {
+        console.error('forgot password email page error',error)
+        res.json({status:false,message:'Internal server issue'})
+    }
+}
+
+
+
+const passwordOtp = async (req,res) => {
+    try {
+        
+        const {otp} = req.body
+
+        if(otp === req.session.userOtp){
+            req.session.isOtpVerified = true
+
+            return res.json({status:true,redirectUrl:'/resetPassword'})
+        }else{
+            return res.json({status:false,message:'OTP is not matching'})
+        }
+        
+    } catch (error) {
+        res.status(500).json({status:false,message:'An error occured,Please try again'})
+    }
+}
+
+
+const getResetPassword = async (req,res) => {
+    try {
+        if(req.session.isOtpVerified){
+
+            delete req.session.isOtpVerified
+
+            return res.render('user/resetPassword')
+        }else{
+            return res.redirect('/login')
+        }
+        
+    } catch (error) {
+        console.error('reset password page error')
+        res.redirect('/pageError')
+    }
+}
+
+
+const resendOtp = async (req,res) => {
+    try {
+
+        const otp = verificationOtp()
+        req.session.userOtp = otp
+        const email = req.session.email
+
+        const emailSent = await verificationEmail(email,otp)
+
+        if(emailSent){
+            console.log('Resent password OTP',otp)
+            return res.json({status:true,message:'OTP resend Successfully'})
+        }else{
+            res.json({status:false,message:'resend OTP error'})
+        }
+
+        
+    } catch (error) {
+        console.error('Otp resend error',error)
+        res.json({status:false,message:'Internal server error'})
+    }
+}
+
+
+const newPassword = async (req,res) => {
+    try {
+
+        const {newPassword,confirmPassword} = req.body
+
+        const email = req.session.email
+
+        if(newPassword === confirmPassword){
+            const passwordHash = await securePassword(newPassword)
+
+            await User.updateOne({email:email},
+                {$set:{password:passwordHash}}
+            )
+
+            return res.redirect('/login')
+        }else{
+            res.render('user/resetPassword')
+        }
+        
+    } catch (error) {
+        console.error('Password saving error',error)
+        res.redirect('/pageError')
+    }
+} 
+
 module.exports = {
     account,
     getChangePassword,
@@ -230,5 +417,11 @@ module.exports = {
     createAddress,
     getEditAddress,
     editAddress,
-    deleteAddress
+    deleteAddress,
+    getForgotPassword,
+    forgotPasswordEmail,
+    passwordOtp,
+    getResetPassword,
+    resendOtp,
+    newPassword
 }
