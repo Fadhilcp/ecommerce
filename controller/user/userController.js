@@ -7,12 +7,9 @@ const env = require('dotenv').config()
 const bcrypt = require('bcrypt')
 
 
-const pageNotFound = async (req,res)=>{
-    try {
-        res.render('user/page404')
-    } catch (error) {
-        res.redirect('/pageNotFound')
-    }
+
+const pageError = (req,res) => {
+    res.render('user/page404')
 }
 
 
@@ -20,6 +17,7 @@ const pageNotFound = async (req,res)=>{
 const loadHomePage = async (req,res)=>{
     try {
         const user = req.session.user
+        console.log('this is session',req.session)
 
         const categories = await Category.find({isListed:true})
         let productData = await Product.find(
@@ -311,7 +309,20 @@ const resendOtp = async (req,res)=>{
 }
 
 
+const passportToUser = (req,res) => {
+    try {
 
+        if(req.user){
+            req.session.user = req.session.passport.user
+            delete req.session.passport
+        }
+        res.redirect('/')
+        
+    } catch (error) {
+        console.error('Error in Google Auth callback',error)
+         res.redirect('/pageError')
+    }
+}
 
 
 const logout = async(req,res) => {
@@ -355,7 +366,8 @@ module.exports = {
     register,
     verifyOtp,
     resendOtp,
-    pageNotFound,
     getShop,
-    logout
+    passportToUser,
+    logout,
+    pageError
 }

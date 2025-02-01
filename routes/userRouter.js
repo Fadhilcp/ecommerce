@@ -9,6 +9,7 @@ const {userAuth,isBlock,productIsBlock} = require('../middleware/auth')
 
 //home 
 router.get('/',userController.loadHomePage)
+router.get('/pageError',userController.pageError)
 
 //signup and login managaement
 router.get('/login',isBlock,userController.loadLogin)
@@ -36,9 +37,7 @@ router.get('/productDetails',productIsBlock,isBlock,productController.productDet
 
 //google auth
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
-router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/register'}),(req,res)=>{
-    res.redirect('/')
-})
+router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/register'}),userController.passportToUser)
 
 //profile management
 router.get('/account',userAuth,profileController.account)

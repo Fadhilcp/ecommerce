@@ -65,9 +65,12 @@
             <div class="col-sm-8">
                 <div class="product-desc">
                     <h3><%= product.productName %></h3>
+                    <h6>Category: <%= category.name %></h6>
                     <p class="price">
-                        <span class="text-secondary h1"><%= product.regularPrice %></span> 
-                        <span><%= product.offerPrice %></span> 
+                        <%if(product.regularPrice != product.offerPrice){%>
+                        <span class="text-secondary h1" style="text-decoration: line-through;"><%= '₹' + product.regularPrice %></span>
+                        <%}%>
+                        <span><%= '₹' + product.offerPrice %></span> 
                         <span class="text-secondary h1">
                             <%if(!totalOffer){%>
                                 No Offer
@@ -88,13 +91,7 @@
                     <span class="text-warning h6">Stock:<%= quantity %></span>
                     <div class="size-wrap">
                         <div class="block-26 mb-2">
-                            <h4>Size</h4>
-                       <ul>
-                          <li><a href="#">7</a></li>
-                          <li><a href="#">7.5</a></li>
-                          <li><a href="#">8</a></li>
-                          <li><a href="#">8.5</a></li>
-                       </ul>
+                            <h4>Bottle Capacity: <%= product.capacity %></h4>
                     </div>
                     </div>
              <div class="input-group mb-4">

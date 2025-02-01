@@ -17,6 +17,9 @@ const isBlock = async (req, res, next) => {
     if (req.session.user) { 
         try { 
             const user = await User.findById(req.session.user)
+            if(!user){
+                return res.redirect('/pageError')
+            }
              if (!user.isBlocked) { 
                 next() 
             } else {

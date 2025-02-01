@@ -1,49 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 - Page Not Found</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f3f3f3;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      max-width: 600px;
-    }
-    h1 {
-      font-size: 72px;
-      margin: 0;
-      color: #ff6b6b;
-    }
-    p {
-      font-size: 18px;
-      margin: 20px 0;
-    }
-    a {
-      text-decoration: none;
-      color: #007bff;
-      font-weight: bold;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .container {
+            padding: 2rem;
+            max-width: 600px;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            margin: 0;
+            background: linear-gradient(45deg, #ef7c00, #ff9933, #ef7c00);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -moz-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            -moz-text-fill-color: transparent;
+            line-height: 1;
+        } 
+
+        .error-title {
+            font-size: 2rem;
+            color: #d86e00;
+            margin: 1rem 0;
+        }
+
+        .error-message {
+            color: #995000;
+            font-size: 1.1rem;
+            margin: 1rem 0 2rem;
+            line-height: 1.6;
+        }
+
+        .home-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #ef7c00, #ff9933);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .home-button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(45deg, #ff9933, #ef7c00);
+        }
+
+        @media (max-width: 480px) {
+            .error-code {
+                font-size: 6rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>404</h1>
-    <p>Oops! The page you're looking for doesn't exist.</p>
-    <a href="/home">Go Back Home</a>
-  </div>
+    <div class="container">
+        <h1 class="error-code">404</h1>
+        <h2 class="error-title">Page Not Found</h2>
+        <p class="error-message">
+            Oops! The page you're looking for seems to have wandered off into the digital wilderness. 
+            Don't worry, you can always find your way back home using the button below.
+        </p>
+        <a href="/" class="home-button">Back to Home</a>
+    </div>
 </body>
 </html>

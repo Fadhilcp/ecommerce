@@ -13,7 +13,6 @@ passport.use(new googleStrategy({
 
 async (accessToken,refreshToken,profile,done)=>{
     try {
-        
         let user = await User.findOne({googleId:profile.id})
         if(user){
             return done(null,user)
@@ -28,6 +27,7 @@ async (accessToken,refreshToken,profile,done)=>{
             return done(null,user)
         }
     } catch (error) {       
+        console.error('google auth error',error)
         return done(error,null)
     }
 }
