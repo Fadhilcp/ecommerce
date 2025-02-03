@@ -88,8 +88,9 @@
             }
 
             .msg{
-                text-align: center;
-                margin: 20px;
+               margin: 0px;
+               color: crimson;
+               font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
             }
     
         </style>  
@@ -102,7 +103,10 @@
 
 
             <input id="email" name="email" type="email" placeholder="EMAIL">
+            <span><p class="msg" id="msg1"></p></span>
+
             <input id="password" name="password" type="password" placeholder="PASSWORD">
+            <span><p class="msg" id="msg2"></p></span>
 
             <a href="/forgotPassword" class="forgot-password">Forgot Password?</a>
 
@@ -143,19 +147,27 @@ document.addEventListener('DOMContentLoaded',function(){
                     var email = document.getElementById('email').value.trim()
                     var password = document.getElementById('password').value.trim()
                     var msg = document.getElementById('err-message')
+                    var msg1 = document.getElementById('msg1')
+                    var msg2 = document.getElementById('msg2')
                     let isValid = true
 
                     msg.innerHTML = ''
 
 
+                    var emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
                     if (email == '') {
-                    msg.innerHTML = 'Email is required'
+                    msg1.innerHTML = 'Email is required'
                     isValid = false
-                   }else if (password == '') {
-                    msg.innerHTML = 'Password is required'
+                   }else if (email && !emailPattern.test(email)) {
+                    msg1.innerHTML = 'Please enter a valid email'
+                    isValid = false
+                   }
+
+                   if (password == '') {
+                    msg2.innerHTML = 'Password is required'
                     isValid = false
                    } else if (password.length < 8) {
-                    msg.innerHTML = 'Password must be at least 8 characters long'
+                    msg2.innerHTML = 'Password must be at least 8 characters long'
                     isValid = false
                    }
 
@@ -185,7 +197,7 @@ document.addEventListener('DOMContentLoaded',function(){
                         msg.innerHTML = 'Failed to connect to the server'
                         console.error('Fetch error',error)
                        }
-                   }
+                   }    
                 }
 </script>
 

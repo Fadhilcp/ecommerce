@@ -376,19 +376,12 @@ function validateForm() {
 
 
 
-
-
-
           function displayErrorMessage(elementId, message) {
               var errorElement = document.getElementById(elementId)
               errorElement.innerText = message
               errorElement.style.display = "block"
+              errorElement.style.color = "red"
           }
-  
-  
-
-
-
 
 
           function clearErrorMessages() {

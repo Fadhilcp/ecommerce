@@ -30,10 +30,10 @@ const loadHomePage = async (req,res)=>{
         productData = productData.slice(0,8)
 
         if(user){
-            const userData = await User.findOne({_id:user._id})
-            return res.render('user/home',{user:userData,products:productData})
+            const userData = await User.findOne({_id:user})
+            return res.render('user/home',{user:userData,products:productData,active:'active'})
         }else{
-            return res.render('user/home',{products:productData})
+            return res.render('user/home',{products:productData,active:'active'})
         }
     } catch (error) {
         console.log('Home Page not found',error)
@@ -47,10 +47,6 @@ const getShop = async (req,res) => {
     try {
 
         const user = req.session.user
-        
-        
-        
-
         const categories = await Category.find({isListed:true})
         const categoryIds = categories.map((category)=> category._id.toString())
         
@@ -75,7 +71,7 @@ const getShop = async (req,res) => {
 
 
         if(user){
-            const userData = await User.findOne({_id:user._id})
+            const userData = await User.findOne({_id:user})
             
             return res.render('user/shop',{
                 user:userData,
@@ -283,7 +279,6 @@ const verifyOtp = async (req,res)=>{
 
 const resendOtp = async (req,res)=>{
     try {
-        
         const {email} = req.session.userData
 
         if(!email){
@@ -311,7 +306,6 @@ const resendOtp = async (req,res)=>{
 
 const passportToUser = (req,res) => {
     try {
-
         if(req.user){
             req.session.user = req.session.passport.user
             delete req.session.passport
@@ -327,7 +321,6 @@ const passportToUser = (req,res) => {
 
 const logout = async(req,res) => {
     try {
-
         req.session.destroy((err)=>{
             if(err){
                 console.log('Session Destruction error',err.messsage)

@@ -96,14 +96,11 @@ const getAllProducts = async (req,res) => {
         .populate('category')
         .exec()
 
-
         const count = await Product.find({
             productName :{$regex:new RegExp('.*'+search+'.*','i')}
         }).countDocuments()
 
-
         const category = await Category.find({isListed:true})
-
 
         if(category){
            return res.render('admin/products',{
@@ -128,7 +125,6 @@ const getAllProducts = async (req,res) => {
 
 const addProductOffer = async (req,res) => {
     try {
-
         const {percentage,productId} = req.body
         const findProduct = await Product.findOne({_id:productId})
         const findCategory = await Category.findOne({_id:findProduct.category})
@@ -156,8 +152,7 @@ const addProductOffer = async (req,res) => {
 
 
 const removeProductOffer = async (req,res) => {
-    try {
-            
+    try { 
         const {productId} = req.body
 
         const findProduct = await Product.findOne({_id:productId})
@@ -180,7 +175,6 @@ const removeProductOffer = async (req,res) => {
 
 const blockProduct = async (req,res)=>{
     try {
-
         const id = req.query.id
 
         await Product.updateOne({_id:id},{$set:{isBlocked:true}},{new:true})
@@ -195,7 +189,6 @@ const blockProduct = async (req,res)=>{
 
 const unBlockProduct = async (req,res)=>{
     try {
-        
         const id = req.query.id
 
         await Product.updateOne({_id:id},{$set:{isBlocked:false}},{new:true})
@@ -213,12 +206,10 @@ const unBlockProduct = async (req,res)=>{
 
 const getEditProduct = async (req,res) => {
     try {
-        
         const id = req.query.id
 
         const product = await Product.findOne({_id:id})
         const category = await Category.find({})
-
 
         return res.render('admin/editProduct',{
             product:product,

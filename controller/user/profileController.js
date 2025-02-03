@@ -70,6 +70,7 @@ const account = async (req,res) =>{
         const userData = await User.findById(user)
         
         res.render('user/account',{
+            user:user,
             username:userData.username,
             email:userData.email
         })
@@ -84,8 +85,8 @@ const account = async (req,res) =>{
 
 const getChangePassword = async (req,res)=>{
     try {
-        
-      res.render('user/changePassword')  
+        const user = req.session.user
+      res.render('user/changePassword',{user:user})  
     } catch (error) {
         console.error('change password page error',error)
         res.status(500).json('internal server error')
@@ -209,7 +210,7 @@ const getEditAddress = async (req,res) => {
             return res.redirect('/pageError')
         }
 
-        res.render('user/editAddress',{address:addressData, user:userId})
+        res.render('user/editAddress',{address:addressData,user:userId})
         
     } catch (error) {
         console.error('edit address page error',error)

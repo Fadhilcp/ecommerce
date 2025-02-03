@@ -212,7 +212,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
 
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 
@@ -399,22 +399,14 @@
              }
    
    
-   
-   
-   
-   
              function displayErrorMessage(elementId, message) {
                  var errorElement = document.getElementById(elementId)
                  errorElement.innerText = message
                  errorElement.style.display = "block"
+                 errorElement.style.color = "red"
              }
      
      
-   
-   
-   
-   
-   
              function clearErrorMessages() {
                  const errorElements = document.getElementsByClassName('error-message')
                  
@@ -427,25 +419,54 @@
 
 
 
-                function deleteSingleImage(imageId,productId){
-                    fetch('/admin/deleteImage',{
-                        method:'POST',
-                        headers:{
-                            'content-type':'application/json'
-                        },
-                        body:JSON.stringify({
-                            imageId:imageId,
-                            productId:productId
-                        })
-
-                    }).then(response =>{
-                        if(response.status === true){
-                            window.location.reload()
+                function deleteSingleImage(imageId, productId) {
+                     Swal.fire({
+                         title: "Are you sure?",
+                         text: "You won't be able to revert this!",
+                         icon: "warning",
+                         showCancelButton: true,
+                         confirmButtonColor: "#d33",
+                         cancelButtonColor: "#3085d6",
+                         confirmButtonText: "Yes, delete it!"
+                     }).then((result) => {
+                       if (result.isConfirmed) {
+                              fetch('/admin/deleteImage', {
+                                 method: 'POST',
+                                 headers: {
+                                    'Content-Type': 'application/json'
+                               },
+                                 body: JSON.stringify({
+                                 imageId: imageId,
+                                 productId: productId
+                              })
+                           }).then(response => response.json()) 
+                             .then(data => {
+                                  if (data.status) { 
+                                      Swal.fire(
+                                          "Deleted!",
+                                          "Image has been deleted.",
+                                          "success"
+                            ).then(() => {
+                                  window.location.reload()
+                           })
+                               } else {
+                                   Swal.fire(
+                                      "Error!",
+                                      "Failed to delete the image.",
+                                      "error"
+                            )
+                          }
+                          }).catch(err => {
+                               console.error(err)
+                               Swal.fire(
+                               "Error!",
+                               "Something went wrong. Please try again.",
+                               "error"
+                             )
+                          })
                         }
-                    }).catch(err=>{
-                        console.error(err)
-                    })
-                }
+                      })  
+                    }
    
    </script>
 
