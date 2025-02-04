@@ -68,13 +68,13 @@
                             <li class="<%= active === 'login' ? 'active' : '' %>"><a href="/login">Login</a></li>
                             <%}%>
 
-                            <li class="user"><a href="#"><i class="icon-shopping-cart"></i> Cart [0]</a></li>
+                            <li class="user <%= active === 'cart' ? 'active' : '' %>"><a href="/cart"><i class="icon-shopping-cart"></i> Cart [1]</a></li>
 
                             <%if(locals.user){%>
                             <li class="user <%= active === 'account' ? 'active' : '' %>"><a href="/account"><i class="fa-regular fa-user"></i></a></li>
                             <%}%>
 
-                            <li class="user"><a href="#"><i class="fa-regular fa-heart"></i></a></li>
+                            <li class="user"><a href="/wishList"><i class="fa-regular fa-heart"></i></a></li>
                         </ul>
                     </div>
                 </div>

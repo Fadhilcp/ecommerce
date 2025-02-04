@@ -109,7 +109,11 @@
               </div>
               <div class="row">
                   <div class="col-sm-12 text-center">
-                            <p class="addtocart"><a href="/cart" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i> Add to Cart</a></p>
+                    <p class="addtocart d-flex">
+                        <button class="btn btn-primary btn-addtocart" onclick="addToCart('<%= product._id %>')">
+                            <i class="icon-shopping-cart" style="display: contents;"></i> Add to Cart
+                        </button>
+                    </p>
                         </div>
                     </div>
                 </div>
@@ -246,6 +250,9 @@
 
 
       <div class="row" style="margin-top: 20px;">
+        <div class="col-sm-8 offset-sm-2 text-center colorlib-heading colorlib-heading-sm" style="margin-bottom: 0px;">
+            <h2>Related Products</h2>
+        </div>
 
         <% similarProducts.forEach((product)=>{ %>
         <div class="col-md-3 col-lg-3 mb-4 text-center">
@@ -268,6 +275,8 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevateZoom.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 
@@ -326,6 +335,59 @@ document.addEventListener("DOMContentLoaded", function () {
         lens.style.backgroundPosition = `-${(offsetX * zoomLevel) - minX}px -${(offsetY * zoomLevel) - minY}px`;
     }
 });
+
+
+
+async function addToCart(productId) {
+
+    try {
+
+        let response = await fetch('/addToCart',{
+            method:'POST',
+            headers:{
+                'content-type':'application/json'
+            },
+            body:JSON.stringify({productId})
+        })
+
+        let data = await response.json()
+
+        if(response.ok && data.status){
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Product added to Cart',
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+        }else{
+            if(data.redirectUrl){
+                await Swal.fire({
+                    icon: 'warning',
+                    title:'Please Login',
+                    showConfirmButton: false,
+                    timer: 2000,
+                })
+
+                window.location.href = data.redirectUrl
+            }else{
+                Swal.fire({
+                    icon: 'warning',
+                    title: data.message || 'Please Login',
+                    showConfirmButton: false,
+                    timer: 2000,
+                })
+            }
+        }
+    } catch (error) {
+        console.error('Error adding product to cart',error)
+        Swal.fire({
+                    icon: 'error',
+                    title: 'Server Error',
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+    }
+}
 
 
 

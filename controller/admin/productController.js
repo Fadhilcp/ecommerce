@@ -26,11 +26,11 @@ const getAddProducts = async (req,res)=>{
 
 
 const addProducts = async (req,res)=>{
+
     try {
-       
         const products = req.body
         const productExists = await Product.findOne({
-            productName:products.productName,
+            productName:products.productName
         })
 
         if(!productExists){
@@ -49,7 +49,7 @@ const addProducts = async (req,res)=>{
             const categoryId = await Category.findOne({name:products.category})
 
             if(!categoryId){
-                return res.status(400).join('invalid category name')
+                return res.json({status:false,message:'Category not found'})
             }
             products.productOffer = Math.floor(((products.regularPrice - products.offerPrice) / products.regularPrice) * 100)
     
@@ -68,15 +68,16 @@ const addProducts = async (req,res)=>{
             })
     
             await newProduct.save()
-            return res.redirect('/admin/addProducts')
+
+            return res.json({status:true,redirectUrl:'/admin/addProducts'})
 
 
         }else{
-            return res.status(400).json('Product already exist,please try with another name')
+            return res.json({status:false,message:'Product already exist,please try with another name'})
         }
     } catch (error) {
         console.error('Error saving product',error)
-        return res.redirect('/admin/pageError')
+        return res.json({status:false,redirectUrl:'/admin/pageError'})
     }
 }
 
@@ -101,7 +102,7 @@ const getAllProducts = async (req,res) => {
         }).countDocuments()
 
         const category = await Category.find({isListed:true})
-console.log('this is page',page)
+
         if(category){
            return res.render('admin/products',{
                 data:productData,

@@ -1,0 +1,260 @@
+
+<!-- setting header -->
+<%- include("../../views/partials/user/header") %>
+
+
+
+
+<div class="breadcrumbs">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p class="bread"><span><a href="index.html">Home</a></span> / <span>Shopping Cart</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="colorlib-product">
+    <div class="container">
+        <div class="row row-pb-lg">
+                <div class="col-md-10 offset-md-1">
+                <div class="process-wrap">
+                    <div class="process text-center active">
+                        <p><span>01</span></p>
+                        <h3>Shopping Cart</h3>
+                    </div>
+                    <div class="process text-center">
+                        <p><span>02</span></p>
+                        <h3>Checkout</h3>
+                    </div>
+                    <div class="process text-center">
+                        <p><span>03</span></p>
+                        <h3>Order Complete</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row row-pb-lg">
+
+
+            <div class="col-md-12">
+                <div class="product-name d-flex">
+                    <div class="one-forth text-left px-4">
+                        <span>Product Details</span>
+                    </div>
+                    <div class="one-eight text-center">
+                        <span>Price</span>
+                    </div>
+                    <div class="one-eight text-center">
+                        <span>Capacity</span>
+                    </div>
+                    <div class="one-eight text-center">
+                        <span>Quantity</span>
+                    </div>
+                    <div class="one-eight text-center">
+                        <span>Total</span>
+                    </div>
+                    <div class="one-eight text-center px-4">
+                        <span>Remove</span>
+                    </div>
+                </div>
+
+                <% if (cartItems.length > 0) { %>
+                    <% cartItems.forEach(item => { %>
+                <div class="product-cart d-flex">
+                    <div class="one-forth">
+                        
+                        <img src="/uploads/reImage/<%= item.image %>" alt="Product Image" width="50">
+
+                        <div class="display-tc">
+                            <h3><%= item.name %></h3>
+                        </div>
+                    </div>
+                    <div class="one-eight text-center">
+                        <div class="display-tc">
+                            <span class="price" id="price-<%= item._id %>">₹<%= item.price %></span>
+                        </div>
+                    </div>
+                    <div class="one-eight text-center">
+                        <div class="display-tc">
+                            <span class="capacity"><%= item.capacity %></span>
+                        </div>
+                    </div>
+
+                    <div class="one-eight text-center">
+                        <div class="display-tc d-flex align-items-center justify-content-center gap-2">
+                            <button class="btn btn-sm btn-light border px-1" onclick="updateQuantity('<%= item._id %>', -1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            
+                            <input type="text" id="quantity-<%= item._id %>" 
+                                   name="quantity" class="form-control text-center mx-1"
+                                   value="<%= item.quantity %>" readonly style="width: 50px; min-width: 50px;">
+                    
+                            <button class="btn btn-sm btn-light border px-1" onclick="updateQuantity('<%= item._id %>', 1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="one-eight text-center">
+                        <div class="display-tc">
+                            <span class="totalPrice" id="totalPrice-<%= item._id %>">₹<%= item.price*item.quantity %></span>
+                        </div>
+                    </div>
+                    <div class="one-eight text-center">
+                        <div class="display-tc">
+                            <a class="closed" onclick="deleteItem('<%= item._id %>')"></a>
+                        </div>
+                    </div>
+                </div>
+                <%})%>
+
+                <%}%>
+  
+            </div>
+        </div>
+        <div class="row row-pb-lg">
+            <div class="col-md-12">
+                <div class="total-wrap">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <form action="#">
+                                <div class="row form-group">
+                                    <div class="col-sm-9">
+                                        <input type="text" name="quantity" class="form-control input-number" placeholder="Your Coupon Number...">
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <input type="submit" value="Apply Coupon" class="btn btn-primary">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-sm-4 text-center">
+                            <div class="total">
+                                <div class="sub">
+                                    
+                                    <% if (cartItems.length > 0) { %>
+                                        <% cartItems.forEach(item => { %>
+                                    <p><span><%= item.name %>:</span> <span class="totalPrice" id="subTotal-<%= item._id %>">₹<%= item.price*item.quantity %></span></p>
+                                    <%})}%>
+                                    <p><span>Delivery:</span> <span>$0.00</span></p>
+                                    <p><span>Discount:</span> <span>$45.00</span></p>
+                                </div>
+
+                                <div class="grand-total">
+                                    <p><span><strong>Total:</strong></span> <span id="grandTotal"><%= totalPrice %></span></p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+ 
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+    async function updateQuantity(productId,change) {
+
+        const quantityInput = document.getElementById(`quantity-${productId}`)
+        const price = parseFloat(document.getElementById(`price-${productId}`).innerText.replace('₹', ''))
+
+
+
+        const currentQuantity = parseInt(quantityInput.value)
+        const newQuantity = currentQuantity + change
+
+        if(newQuantity < 1 || newQuantity >5) return 
+
+        try {
+
+            let response = await fetch('/updateCartQuantity',{
+                method:'POST',
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify({productId,quantity:newQuantity})
+            })
+
+            let data = await response.json()
+
+            if(response.ok && data.status){
+                quantityInput.value = newQuantity
+                
+                var totalPriceElement = document.getElementById(`totalPrice-${productId}`)
+                var subTotalElement = document.getElementById(`subTotal-${productId}`)
+                subTotalElement.innerText = `₹${(price * newQuantity)}`
+                totalPriceElement.innerText = `₹${(price * newQuantity)}`
+
+                document.getElementById('grandTotal').innerText = `₹${data.newTotal}`
+            }else{
+                console.log(data)
+                alert('"Failed to update quantity"')
+            }
+            
+        } catch (error) {
+            console.error('Error updating quantity:', error)
+        }
+    }
+
+
+     function deleteItem(itemId) {
+                 Swal.fire({
+                         title: "Are you sure?",
+                         text: "Are you sure you want to delete this item?",
+                         icon: "warning",
+                         showCancelButton: true,
+                         confirmButtonColor: "#d33",
+                         cancelButtonColor: "#3085d6",
+                         confirmButtonText: "Yes, delete it!"
+                     }).then((result) => {
+                       if (result.isConfirmed) {
+                              fetch(`/deleteCartItem/${itemId}`, {
+                                 method: 'GET',
+                                 headers: {
+                                    'Content-Type': 'application/json'
+                               }
+                           }).then(response => response.json()) 
+                             .then(data => {
+                                  if (data.status) { 
+                                      Swal.fire(
+                                          "Deleted!",
+                                          "Item has been deleted.",
+                                          "success"
+                            ).then(() => {
+                                  window.location.reload()
+                           })
+                               } else {
+                                   Swal.fire(
+                                      "Error!",
+                                      "Failed to delete the Item.",
+                                      "error"
+                            )
+                          }
+                          }).catch(err => {
+                               console.error(err)
+                               Swal.fire(
+                               "Error!",
+                               "Something went wrong. Please try again.",
+                               "error"
+                             )
+                          })
+                        }
+                      })  
+    }
+</script>
+
+
+
+        <!-- setting footer -->
+        <%- include("../../views/partials/user/footer") %>

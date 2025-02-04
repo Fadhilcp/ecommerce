@@ -142,8 +142,8 @@
                                              
                            
                                
-                            
-                        <button class="btn btn-md rounded font-sm hover-up" type="button" onclick="validateAndSubmit()">Add</button>
+                             <p id="error-msg" class="error-message text-danger"></p>
+                        <button class="btn btn-md rounded font-sm hover-up" type="button" onclick="validateAndSubmit(event)">Add</button>
 
                     </form>
                 </div>
@@ -177,9 +177,38 @@
 
 
 
- function validateAndSubmit(){
+ async function validateAndSubmit(event){
     if(validateForm()){
-        document.getElementById('addProductForm').submit()
+
+        const msg = document.getElementById('error-msg')
+            event.preventDefault()
+            let form = document.getElementById('addProductForm')
+            let formData = new FormData(form)
+
+            try {
+                
+                let response = await fetch(`/admin/addProducts`,{
+                    method:'POST',
+                    body:formData
+                })
+
+                const data = await response.json()
+
+                        if(response.ok && data.status){
+                           if(data.redirectUrl){
+                            window.location.href = data.redirectUrl
+                           }else{
+                            msg.innerHTML = 'redirect Failed'
+                           }
+                        }else{
+                            msg.innerHTML = data.message
+                        }
+
+
+                       } catch (error) {
+                        msg.innerHTML = 'Failed to connect to the server'
+                        console.error('Fetch error',error)
+                       }
     }else{
         console.log('Form vaildation Failed')
     }
