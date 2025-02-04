@@ -2,6 +2,13 @@
 <!-- setting header -->
 <%- include("../../views/partials/admin/header") %>
 
+<style>
+    .msg{
+        margin: 0px;
+        color: crimson;
+    }
+</style>
+
 <section class="content-main">
     <div class="content-header">
         <div>
@@ -104,10 +111,12 @@
                         <div class="mb-4">
                             <label for="name" class="form-label">Name</label>
                             <input type="text" placeholder="Type here" class="form-control" name="name" id="name" />
+                            <span><p class="msg" id="name-error"></p></span>
                         </div>
                         <div class="mb-4">
                             <label for="description" class="form-label">Description</label>
                             <input type="text" placeholder="Type here" class="form-control" name="description" id="descriptionId" />
+                            <span><p class="msg" id="description-error"></p></span>
                         </div>
                         <p class="error-message" id="error-message"></p>
                         <button type="submit" class="form-control bg-success" id="order_customer_1">ADD</button>
@@ -150,11 +159,11 @@
 
 <script>
     
-    function handleFormSubmit(event){
+  function handleFormSubmit(event){
 
         event.preventDefault()
-        if(!validateForm()){
-            return
+       if(!validateForm()){
+            return 
         }
 
         const name = document.getElementById('name').value
@@ -214,10 +223,11 @@
 
 
         if(name === ''){
-            displayErrorMessage('name error','please enter a name')
+            displayErrorMessage('name-error','please enter a name')
             isValid = false
         }else if(!/^[a-zA-Z\s]+$/.test(name)){
             displayErrorMessage('name-error','category name should contain only alphabetic characters')
+            isValid = false
         }
 
         if(description === ''){
@@ -233,14 +243,14 @@
 
     function displayErrorMessage(elementId,message){
         var errorElement = document.getElementById(elementId)
-        errorElement.innerText = message
+        errorElement.innerHTML = message
         errorElement.style.display = 'block'
     }
 
 
     function clearErrorMessages(){
 
-        const errorElements = document.getElementsByClassName('error-message')
+        const errorElements = document.getElementsByClassName('msg')
         Array.from(errorElements).forEach((element)=>{
             element.innerText = ''
             element.style.display = 'none'

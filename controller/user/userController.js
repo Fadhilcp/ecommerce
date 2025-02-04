@@ -31,9 +31,9 @@ const loadHomePage = async (req,res)=>{
 
         if(user){
             const userData = await User.findOne({_id:user})
-            return res.render('user/home',{user:userData,products:productData,active:'active'})
+            return res.render('user/home',{user:userData,products:productData,active:'home'})
         }else{
-            return res.render('user/home',{products:productData,active:'active'})
+            return res.render('user/home',{products:productData,active:'home'})
         }
     } catch (error) {
         console.log('Home Page not found',error)
@@ -80,7 +80,7 @@ const getShop = async (req,res) => {
                 totalProducts:totalProducts,
                 currentPage:page,
                 totalPages:totalPages,
-                active:'active'
+                active:'shop'
             })
         }
 
@@ -89,7 +89,8 @@ const getShop = async (req,res) => {
             category:categoriesWithIds,
             totalProducts:totalProducts,
             currentPage:page,
-            totalPages:totalPages
+            totalPages:totalPages,
+            active:'shop'
         })
     } catch (error) {
         console.error('load shop error',error)
@@ -102,7 +103,7 @@ const loadLogin = async (req,res)=>{
     try {
 
     if(!req.session.user){
-        return res.render('user/login',{message:''})
+        return res.render('user/login',{message:'',active:'login'})
     }else{
         res.redirect('/')
     }
@@ -153,7 +154,7 @@ const login = async (req,res) =>{
 
 const loadRegister = async (req,res)=>{
     try {    
-        return res.render('user/register',{message:''})
+        return res.render('user/register',{message:'',active:'login'})
 
     } catch (error) {
         console.log('Register Page is not found')
@@ -222,7 +223,7 @@ const register = async (req,res)=>{
         req.session.userOtp = otp
         req.session.userData = {username,email,password}
         console.log(otp)
-        return res.render('user/verifyOtp', { message: 'OTP sent successfully. Please check your email.' })
+        return res.render('user/verifyOtp', { message: 'OTP sent successfully. Please check your email.',active:'login'})
         
     } catch (error) {
 
@@ -335,17 +336,6 @@ const logout = async(req,res) => {
         res.redirect('/pageNotFound')
     }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

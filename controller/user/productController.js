@@ -18,13 +18,24 @@ const productDetails = async (req,res) => {
         const categoryOffer = findCategory ?.category || 0
         const productOffer = product.productOffer || 0
         const totalOffer = categoryOffer + productOffer
-        
+
+        if(!product){
+           return res.redirect('/pageError')
+        }
+
+        const similarProducts = await Product.find({
+            category: product.category._id,
+            _id: { $ne: productId }
+        }).limit(5)
+
        return res.render('user/productDetails',{
             user:userData,
             product:product,
             quantity:product.quantity,
             totalOffer:totalOffer,
-            category:findCategory
+            category:findCategory,
+            similarProducts:similarProducts,
+            active:'shop'
         })
 
     } catch (error) {

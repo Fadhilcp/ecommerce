@@ -1,5 +1,6 @@
 const User = require('../model/userSchema')
 const Product = require('../model/productSchema')
+const mongoose = require('mongoose')
 
 
 const userAuth = (req, res, next) => {
@@ -57,17 +58,21 @@ const productIsBlock = async (req,res,next) => {
     try {
         const productId = req.query.id
 
+        if (!mongoose.Types.ObjectId.isValid(productId)) {
+            console.error('Invalid Product ID:', productId);
+            return res.redirect('/pageError')
+        }
+
         const product = await Product.findById(productId)
 
         if(!product){
-            return res.redirect('/')
+            return res.redirect('/pageError')
         }
 
         if(product.isBlocked){
             return res.redirect('/')
-        }else{
-            next()
         }
+            next()
 
     } catch (error) {
         console.error('Product block middleware error',error)

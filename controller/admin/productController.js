@@ -101,7 +101,7 @@ const getAllProducts = async (req,res) => {
         }).countDocuments()
 
         const category = await Category.find({isListed:true})
-
+console.log('this is page',page)
         if(category){
            return res.render('admin/products',{
                 data:productData,
@@ -227,14 +227,18 @@ const editProduct = async (req,res)=>{
 
         const id = req.params.id
         const product = await Product.findOne({_id:id})
+
         const data = req.body
+
         const existingProduct = await Product.findOne({
             productName:data.productName,
             _id:{$ne:id}
         })
 
+        const category = await Category.findOne({_id:data.category})
+
         if(existingProduct){
-            return res.status(400).json({error:'Product with this name is already exists,please try with another name'})
+            return res.json({status:false,message:'Product with this name is already exists'})
         }
 
         const images = []
@@ -250,7 +254,7 @@ const editProduct = async (req,res)=>{
         const updateFields = {
             productName:data.productName,
             description:data.description,
-            category:product.category,
+            category:category._id,
             regularPrice:data.regularPrice,
             capacity:data.capacity,
             offerPrice:data.offerPrice,
@@ -264,7 +268,7 @@ const editProduct = async (req,res)=>{
 
         await Product.findByIdAndUpdate(id,updateFields,{new:true})
 
-        return res.redirect('/admin/products')
+        return res.json({status:true,redirectUrl:'/admin/products'})
     } catch (error) {
         console.error('edit product error',error)
         res.redirect('/admin/pageError')
@@ -273,9 +277,11 @@ const editProduct = async (req,res)=>{
 }
 
 
+
+
 const deleteSingleImage = async (req,res) => {
     try {
-        console.log('delete')
+
         const {imageId,productId} = req.body
         const product = await Product.findByIdAndUpdate({_id:productId},{$pull:{productImage:imageId}})
 

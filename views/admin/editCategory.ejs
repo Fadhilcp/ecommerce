@@ -1,7 +1,12 @@
 <!-- setting header -->
 <%- include("../../views/partials/admin/header") %>
 
-
+<style>
+    .msg{
+               margin: 0px;
+               color: crimson;
+            }
+</style>
 
 <section class="content-main">
     <div class="content-header">
@@ -15,17 +20,19 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="mb-3">Edit</h5>
-                    <form action="/admin/editCategory/<%= category._id %>" method="post" onsubmit="return handleFormSubmit(event)">
+                    <form action="/admin/editCategory/<%= category._id %>" method="post" id="editCategoryForm">
                         <div class="mb-4">
                             <label for="name" class="form-label">Name</label>
                             <input type="text" placeholder="Type here" class="form-control" name="categoryName" id="name" value="<%= category.name %>" />
+                            <span><p class="msg" id="msg1"></p></span>
                         </div>
                         <div class="mb-4">
                             <label for="description" class="form-label">Description</label>
-                            <textarea type="text" placeholder="Type here" class="form-control" name="description" id="descriptionId" ><%= category.description %></textarea>
+                            <textarea type="text" placeholder="Type here" class="form-control" name="description" id="description" ><%= category.description %></textarea>
+                            <span><p class="msg" id="msg2"></p></span>
                         </div>
-                        <p class="error-message" id="error-message"></p>
-                        <button type="submit" class="form-control bg-success" id="order_customer_1">ADD</button>
+                        <p class="error-message text-danger" id="error-message"></p>
+                        <button type="submit" class="form-control bg-success" id="submit-btn">CONFIRM</button>
                        
                     </form>
                 </div>
@@ -49,6 +56,70 @@
     </div>
 </footer>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded',function(){
+                    document.getElementById('submit-btn').addEventListener('click',formValidate)
+                })
+
+                async function formValidate(e) {
+                    e.preventDefault()
+
+                 const categoryName = document.getElementById('name').value.trim()
+                 const description = document.getElementById('description').value.trim()
+                 const msg1 = document.getElementById('msg1')
+                 const msg2 = document.getElementById('msg2')
+                 const msg = document.getElementById('error-message')
+                 let isValid = true
+
+                 msg1.innerHTML = ''
+                 msg2.innerHTML = ''
+
+                 const alphaCommaRegex = /^[a-zA-Z,]+$/
+
+                 if(categoryName === '') {
+                 msg1.innerHTML = 'Please enter Category name'
+                 isValid = false
+                }else if (!alphaCommaRegex.test(categoryName)) {
+                 msg1.innerHTML = 'Category name can only contain alphabets and commas'
+                 isValid = false
+                }
+
+                 if(description === '') {
+                 msg2.innerHTML = 'Please fill description'
+                 isValid = false
+                }
+
+
+                 if(isValid){
+                    try {                    
+                        const response = await fetch(`/admin/editCategory/<%= category._id %>`,{
+                            method:'POST',
+                            headers:{
+                                'content-type':'application/json'
+                            },
+                            body:JSON.stringify({categoryName,description})
+                        })
+
+                        const data = await response.json()
+
+                        if(response.ok && data.status){
+                           if(data.redirectUrl){
+                            window.location.href = data.redirectUrl
+                           }else{
+                            msg.innerHTML = 'redirect Failed'
+                           }
+                        }else{
+                            msg.innerHTML = data.message
+                        }
+                       } catch (error) {
+                        msg.innerHTML = 'Failed to connect to the server'
+                        console.error('Fetch error',error)
+                       }
+
+                 }
+                }
+</script>
 
 <!-- setting footer -->
 <%- include("../../views/partials/admin/footer") %>
