@@ -15,18 +15,26 @@ const getCart = async (req,res) => {
 
         const cart = await Cart.findOne({userId}).populate('products.productId')
 
+        if(!cart){
+            return res.redirect('/pageError')
+        }
+
+        const cartItems = cart.products.map(item => ({
+            _id: item.productId._id,
+            name: item.productId.productName,
+            image: item.productId.productImage[0],
+            price: item.productId.offerPrice,
+            capacity:item.productId.capacity,
+            quantity: item.quantity,
+            total: item.productId.offerPrice * item.quantity
+        }))
+
+        const totalPrice = cartItems.reduce((sum,item) => sum + item.total,0) 
+
         return res.render('user/cart',{
             active: 'shop',
-            cartItems: cart ? cart.products.map(item => ({
-                _id: item.productId._id,
-                name: item.productId.productName,
-                image: item.productId.productImage[0],
-                price: item.productId.offerPrice,
-                capacity:item.productId.capacity,
-                quantity: item.quantity,
-                total: item.productId.offerPrice * item.quantity
-            })) : [],
-            totalPrice: cart ? cart.products.reduce((sum, item) => sum + (item.productId.offerPrice * item.quantity), 0) : 0,
+            cartItems:cartItems,
+            totalPrice:totalPrice,
             active:'cart',
             user:userId
         })
@@ -47,7 +55,7 @@ const addToCart = async (req,res) => {
             return res.json({status:false,redirectUrl:'/login'})
         }
 
-        const {productId} = req.body
+        const {productId,quantity} = req.body
 
 
         const product = await Product.findById(productId)
@@ -65,16 +73,23 @@ const addToCart = async (req,res) => {
         let existingProduct = cart.products.find(item => item.productId.toString() === productId)
 
         if(existingProduct){
-            if (existingProduct.quantity < 5) {
-                existingProduct.quantity += 1
-            } else {
+            if(existingProduct.quantity < 5){
+                if ((existingProduct.quantity+quantity) <= 5) {
+                    existingProduct.quantity += quantity
+    
+                }else {
+                    return res.json({status:false,message:'Reduce the quantity'})
+                }
+                
+
+            }else{
                 return res.json({status:false,message:'Maximum quantity reached(5)'})
             }
-            
+
         }else{
             cart.products.push({ 
                 productId,
-                quantity: 1,
+                quantity: quantity,
                 price:product.offerPrice
              })
         }
@@ -149,6 +164,7 @@ const deleteCartItem = async (req,res) => {
         return res.status(500).json({status:false,message:'Internal server error'})
     }
 }
+
 
 module.exports = {
     getCart,

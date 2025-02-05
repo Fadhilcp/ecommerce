@@ -1,0 +1,406 @@
+
+<!-- setting header -->
+<%- include("../../views/partials/user/header") %>
+
+
+<style>
+        .address-card {
+        border: 2px solid transparent;
+        padding: 15px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .address-card.selected {
+        border-color: #ef7c00;
+        background-color: #f8f9fa;
+        box-shadow: 0 0 10px rgba(207, 152, 0, 0.3);
+    }
+
+    .custom-radio {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid #ef7c00;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .custom-radio::after {
+        content: "";
+        width: 10px;
+        height: 10px;
+        background-color: #ef7c00;
+        border-radius: 50%;
+        display: none;
+    }
+
+    .selected .custom-radio::after {
+        display: block;
+    }
+</style>
+
+<div class="breadcrumbs">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p class="bread"><span><a href="/shop">Shop</a></span> / <span>Checkout</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="colorlib-product">
+    <div class="container">
+        <div class="row row-pb-lg">
+            <div class="col-sm-10 offset-md-1">
+                <div class="process-wrap">
+                    <div class="process text-center active">
+                        <p><span>01</span></p>
+                        <h3>Shopping Cart</h3>
+                    </div>
+                    <div class="process text-center active">
+                        <p><span>02</span></p>
+                        <h3>Checkout</h3>
+                    </div>
+                    <div class="process text-center">
+                        <p><span>03</span></p>
+                        <h3>Order Complete</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+        <div class="row">
+            <div class="col-lg-8">
+                <% if (userAddress && userAddress.address.length > 0) { %>
+                    <% userAddress.address.forEach((address,index) => { %>
+                        <div class="cart-detail address-card" onclick="selectAddress('<%= address._id %>','<%= index %>')" 
+                            id="card-<%= index %>" <%= index === 0 ? 'class="selected"' : '' %>
+                            data-id="<%= address._id %>">
+                            <div class="custom-radio"></div>
+                            <p class="mb-1"><strong>House No:</strong> <%= address.houseNo %></p>
+                            <p class="mb-1"><strong>Street:</strong> <%= address.street %></p>
+                            <p class="mb-1"><strong>City:</strong> <%= address.city %></p>
+                            <p class="mb-1"><strong>State:</strong> <%= address.state %></p>
+                            <p class="mb-1"><strong>Phone:</strong> <%= address.phone %></p>
+                            <p class="mb-1"><strong>PINCODE:</strong> <%= address.pincode %></p>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p>No address found. Please add one.</p>
+                <% } %>
+
+                <button type="button" class="btn btn-primary mt-2" id="toggleAddressForm">Create Address</button>
+        
+                <!-- address form -->
+                <form method="post" class="colorlib-form mt-1" id="addressForm" style="display: none;">
+                    <h2>Create Address</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="houseNo">HOUSE NO.</label>
+                                <input type="text" id="houseNo" class="form-control" placeholder="House No.">
+                                <p id="err1" class="text-danger"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="street">STREET</label>
+                                <input type="text" id="street" class="form-control" placeholder="Street">
+                                <p id="err2" class="text-danger"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="city">CITY</label>
+                                <input type="text" id="city" class="form-control" placeholder="City">
+                                <p id="err3" class="text-danger"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="state">STATE</label>
+                                <input type="text" id="state" class="form-control" placeholder="State">
+                                <p id="err4" class="text-danger"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="phone">PHONE</label>
+                                <input type="text" id="phone" class="form-control" placeholder="Phone">
+                                <p id="err5" class="text-danger"></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="pincode">PINCODE</label>
+                                <input type="text" id="pincode" class="form-control" placeholder="Pincode">
+                                <p id="err6" class="text-danger"></p>
+                            </div>
+                        </div>
+                        <div class="container">
+                            <button type="button" class="btn btn-primary" id="createAddressBtn">CREATE</button>
+                        </div>
+                    </div>
+                </form>
+                <!-- address form end -->
+            </div>
+        
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="cart-detail">
+                            <h2>Cart Total</h2>
+                            <ul>
+                                <%if(cartItems.length > 0){%>
+                                    <% cartItems.forEach(item=>{ %>
+                                <li>
+                                    <span><%= item.name %> x <%= item.quantity %></span> <span>₹<%= item.total %></span>
+                                </li>
+                                <%})%>
+                                <%}%>
+                                <li><span>Shipping</span> <span>$0.00</span></li>
+                                <li><span>Order Total</span> <span>₹<%= orderTotal %></span></li>
+                            </ul>
+                        </div>
+                    </div>
+        
+                    <div class="w-100"></div>
+        
+                    <div class="col-md-12">
+                        <div class="cart-detail">
+                            <h2>Payment Method</h2>
+                            <div class="form-group">
+                                <div class="col-md-12">
+                                    <div class="radio">
+                                        <label><input type="radio" name="optradio"> Cash on Delivery</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                         <button type="button" class="btn btn-primary" id="placeOrder">Place an Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    
+    let selectedAddressId = document.querySelector('.address-card.selected')?.dataset.id
+
+function selectAddress(addressId,index) {
+    selectedAddressId = addressId
+
+    document.querySelectorAll('.address-card').forEach(card => {
+        card.classList.remove('selected')
+    })
+    document.getElementById('card-' + index).classList.add('selected')
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    let firstAddressCard = document.getElementById("card-0")
+    if (firstAddressCard) {
+        firstAddressCard.classList.add("selected");
+        selectedAddressId = firstAddressCard.dataset.id
+    }
+})
+
+
+
+document.getElementById('placeOrder').addEventListener('click', () => {
+    if (selectedAddressId === null) {
+        alert('Please select an address first!')
+        return
+    }
+   
+       const addressId = selectedAddressId
+
+    fetch('/placeOrder', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({addressId}),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status) {
+            if(data.redirectUrl){
+                window.location.href = data.redirectUrl
+            }
+        } else {
+            alert('Error placing the order!')
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error)
+        alert('There was an error with the request.')
+    })
+})
+
+
+
+      document.getElementById("toggleAddressForm").addEventListener("click", function () {
+        var form = document.getElementById("addressForm");
+        if (form.style.display === "none" || form.style.display === "") {
+            form.style.display = "block";
+        } else {
+            form.style.display = "none";
+        }
+    })
+
+
+
+    
+document.getElementById('createAddressBtn').addEventListener('click',async function (event) {
+  console.log('function is working')
+event.preventDefault()
+
+
+
+const houseNo = document.getElementById('houseNo').value.trim()
+const street = document.getElementById('street').value.trim()
+const city = document.getElementById('city').value.trim()
+const state = document.getElementById('state').value.trim()
+const phone = document.getElementById('phone').value.trim()
+const pincode = document.getElementById('pincode').value.trim()
+
+const err1 = document.getElementById('err1')
+const err2 = document.getElementById('err2')
+const err3 = document.getElementById('err3')
+const err4 = document.getElementById('err4')
+const err5 = document.getElementById('err5')
+const err6 = document.getElementById('err6')
+
+let isValid = true
+
+err1.innerHTML = ''
+err2.innerHTML = ''
+err3.innerHTML = ''
+err4.innerHTML = ''
+err5.innerHTML = ''
+err6.innerHTML = ''
+
+if(!houseNo){
+    err1.innerHTML = 'House No. field is required'
+    isValid = false
+}else if(!/^[A-Za-z0-9\s/-]{1,20}$/.test(houseNo)){
+    err1.innerHTML = 'Enter valid House no. or Name'
+    isValid = false
+}
+
+if(!street){
+    err2.innerHTML = 'Street is required'
+    isValid = false
+}else if(!/^[A-Za-z0-9\s,-]{3,100}$/.test(street)){
+    err2.innerHTML = 'Enter a valid Street name'
+    isValid = false
+}
+
+if(!city){
+    err3.innerHTML = 'City is required'
+    isValid = false
+}else if(!/^[A-Za-z\s-]{2,50}$/.test(city)){
+    err3.innerHTML = 'Enter a valid City name'
+    isValid = false
+}
+
+if(!state){
+    err4.innerHTML = 'Country is required'
+    isValid = false
+}else if(!/^[A-Za-z\s]{2,50}$/.test(state)){
+    err4.innerHTML = 'Enter a valid Country name'
+    isValid = false
+}
+
+if(!phone){
+    err5.innerHTML = 'Phone is required'
+    isValid = false
+}else if (!/^\d+$/.test(phone) || phone.length < 9) {
+    err5.innerHTML = "Enter a valid phone number."
+    isValid = false
+}
+
+if(!pincode){
+    err6.innerHTML = 'PINCODE is required'
+    isValid = false
+}else if (!/^\d{4,10}$/.test(pincode)) {
+    err6.innerHTML = "Enter a valid pincode."
+    isValid = false
+}
+
+if(isValid){
+
+    try {
+    const response = await fetch("/createAddress", {
+        method: "POST",
+        headers: {
+             "Content-Type": "application/json" 
+            },
+        body: JSON.stringify({houseNo,street,city,state,phone,pincode})
+    })
+
+    const data = await response.json()
+
+    if (response.ok) {
+        
+        if(data.status){
+
+           await Swal.fire({
+            icon: "success",
+            title: "Address Created!",
+            text: "Your address has been successfully saved.",
+            showConfirmButton: false,
+            timer: 2000
+        })
+
+        window.location.reload()
+
+        }else{
+            Swal.fire({
+            icon: "Error",
+            title: "Error!",
+            text: "Error while creating address!.",
+            showConfirmButton: false,
+            timer: 2000
+        })
+        }
+    } else {
+        errorMessage.innerHTML = data.message || "Something went wrong."
+    }
+} catch (error) {
+    errorMessage.innerHTML = "Network error. Please try again."
+}
+}
+})
+
+
+
+</script>
+
+
+        <!-- setting footer -->
+        <%- include("../../views/partials/user/footer") %>

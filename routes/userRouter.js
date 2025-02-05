@@ -5,6 +5,7 @@ const userController = require('../controller/user/userController')
 const productController = require('../controller/user/productController')
 const profileController = require('../controller/user/profileController')
 const cartController = require('../controller/user/cartController')
+const checkoutController = require('../controller/user/checkoutController')
 
 const passport = require('passport')
 const {userAuth,isBlock,productIsBlock} = require('../middleware/auth')
@@ -59,4 +60,12 @@ router.get('/cart',isBlock,userAuth,cartController.getCart)
 router.post('/addToCart',isBlock,cartController.addToCart)
 router.post('/updateCartQuantity',userAuth,cartController.updateCartQuantity)
 router.get('/deleteCartItem/:id',userAuth,cartController.deleteCartItem)
+
+//checkout management
+router.get('/checkout',isBlock,userAuth,checkoutController.getCheckout)
+
+//place order
+router.post('/placeOrder',isBlock,userAuth,checkoutController.placeOrder)
+
+
 module.exports = router 

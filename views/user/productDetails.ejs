@@ -95,17 +95,21 @@
                     </div>
                     </div>
              <div class="input-group mb-4">
+
                  <span class="input-group-btn">
-                    <button type="button" class="quantity-left-minus btn"  data-type="minus" data-field="">
+
+                    <button type="button" class="quantity-left-minus btn"  id="quantityMinus" onclick="changeQuantity('<%= product._id %>',-1)">
                    <i class="icon-minus2"></i>
                     </button>
                     </span>
-                 <input type="text" id="quantity" name="quantity" class="form-control input-number col-md-2" value="1" min="1" max="100">
+                 <input type="text" id="quantity" name="quantity" class="form-control input-number col-md-2" value="1">
                  <span class="input-group-btn ml-1">
-                    <button type="button" class="quantity-right-plus btn" data-type="plus" data-field="">
+                    <button type="button" class="quantity-right-plus btn" id="quantityPlus" onclick="changeQuantity('<%= product._id %>',1)">
                      <i class="icon-plus2"></i>
                  </button>
+
                  </span>
+
               </div>
               <div class="row">
                   <div class="col-sm-12 text-center">
@@ -341,13 +345,25 @@ document.addEventListener("DOMContentLoaded", function () {
 async function addToCart(productId) {
 
     try {
+        let quantityInput = document.getElementById(`quantity`)
+        let quantity = parseInt(quantityInput.value)
+
+        if(quantity < 1 || quantity > 5){
+            Swal.fire({
+                icon: 'warning',
+                title: 'Quantity must be between 1 and 5',
+                showConfirmButton: false,
+                timer: 2000,
+            })
+            return
+        }
 
         let response = await fetch('/addToCart',{
             method:'POST',
             headers:{
                 'content-type':'application/json'
             },
-            body:JSON.stringify({productId})
+            body:JSON.stringify({productId,quantity})
         })
 
         let data = await response.json()
@@ -388,6 +404,36 @@ async function addToCart(productId) {
                 })
     }
 }
+
+
+function changeQuantity(productId,amount) {
+    let quantityInput = document.getElementById('quantity')
+    let currentQuantity = parseInt(quantityInput.value)
+    let newQuantity = currentQuantity + amount
+
+    if (newQuantity < 1 || newQuantity > 5) return
+
+    quantityInput.value = newQuantity
+}
+
+    // fetch("/updateCartQuantity", {
+    //     method: "POST",
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({productId, quantity:newQuantity}),
+    // }).then(response => response.json())
+    // .then(result => {
+    //     if (result.status) {
+    //         quantityInput.value = newQuantity
+    //         console.log("Cart updated successfully. New total:", result.newTotal)
+    //     } else {
+    //         console.error("Failed to update cart:", result.message)
+    //     }
+    // })
+    // .catch(error => console.error('Error',error))
+ 
+
 
 
 

@@ -217,22 +217,22 @@
                 <input type="hidden" id="addressId" name="addressId" value="<%= address._id %>">
     
                 <input id="houseNo" name="houseNo" placeholder="HOUSE NO" value="<%= address.houseNo %>">
-                <p id="err1"></p>
+                <p id="err1" class="text-danger"></p>
 
                 <input id="street" name="street" placeholder="STREET" value="<%= address.street %>">
-                <p id="err2"></p>
+                <p id="err2" class="text-danger"></p>
 
                 <input id="city" name="city" placeholder="CITY" value="<%= address.city %>">
-                <p id="err3"></p>
+                <p id="err3" class="text-danger"></p>
 
-                <input id="country" name="country" placeholder="COUNTRY" value="<%= address.country %>">
-                <p id="err4"></p>
+                <input id="state" name="state" placeholder="STATE" value="<%= address.state %>">
+                <p id="err4" class="text-danger"></p>
  
                 <input id="phone" name="phone" placeholder="PHONE" value="<%= address.phone %>">
-                <p id="err5"></p>
+                <p id="err5" class="text-danger"></p>
 
                 <input id="pincode" name="pincode" placeholder="PINCODE" value="<%= address.pincode %>">
-                <p id="err6"></p>
+                <p id="err6" class="text-danger"></p>
     
     
                     <div class="alert text-danger text-center">
@@ -289,7 +289,7 @@ document.getElementById('addressForm').addEventListener('submit',async function 
     const houseNo = document.getElementById('houseNo').value.trim()
     const street = document.getElementById('street').value.trim()
     const city = document.getElementById('city').value.trim()
-    const country = document.getElementById('country').value.trim()
+    const state = document.getElementById('state').value.trim()
     const phone = document.getElementById('phone').value.trim()
     const pincode = document.getElementById('pincode').value.trim()
 
@@ -333,10 +333,10 @@ document.getElementById('addressForm').addEventListener('submit',async function 
         isValid = false
     }
 
-    if(!country){
+    if(!state){
         err4.innerHTML = 'Country is required'
         isValid = false
-    }else if(!/^[A-Za-z\s]{2,50}$/.test(country)){
+    }else if(!/^[A-Za-z\s]{2,50}$/.test(state)){
         err4.innerHTML = 'Enter a valid Country name'
         isValid = false
     }
@@ -365,7 +365,7 @@ document.getElementById('addressForm').addEventListener('submit',async function 
             headers: {
                  "Content-Type": "application/json" 
                 },
-            body: JSON.stringify({houseNo,street,city,country,phone,pincode})
+            body: JSON.stringify({houseNo,street,city,state,phone,pincode})
         })
 
         const data = await response.json()

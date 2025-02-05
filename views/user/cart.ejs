@@ -9,7 +9,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <p class="bread"><span><a href="index.html">Home</a></span> / <span>Shopping Cart</span></p>
+                <p class="bread"><span><a href="/shop">Shop</a></span> / <span>Shopping Cart</span></p>
             </div>
         </div>
     </div>
@@ -117,22 +117,10 @@
   
             </div>
         </div>
-        <div class="row row-pb-lg">
+        <div class="row row-pb-lg" >
             <div class="col-md-12">
                 <div class="total-wrap">
                     <div class="row">
-                        <div class="col-sm-8">
-                            <form action="#">
-                                <div class="row form-group">
-                                    <div class="col-sm-9">
-                                        <input type="text" name="quantity" class="form-control input-number" placeholder="Your Coupon Number...">
-                                    </div>
-                                    <div class="col-sm-3">
-                                        <input type="submit" value="Apply Coupon" class="btn btn-primary">
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
                         <div class="col-sm-4 text-center">
                             <div class="total">
                                 <div class="sub">
@@ -148,7 +136,9 @@
                                 <div class="grand-total">
                                     <p><span><strong>Total:</strong></span> <span id="grandTotal"><%= totalPrice %></span></p>
                                 </div>
-
+                                <div>
+                                    <button class="btn btn-primary" onclick="window.location.href = '/checkout'">PROCEED TO CHECKOUT</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -211,12 +201,12 @@
      function deleteItem(itemId) {
                  Swal.fire({
                          title: "Are you sure?",
-                         text: "Are you sure you want to delete this item?",
+                         text: "Are you sure you want to remove this item?",
                          icon: "warning",
                          showCancelButton: true,
                          confirmButtonColor: "#d33",
                          cancelButtonColor: "#3085d6",
-                         confirmButtonText: "Yes, delete it!"
+                         confirmButtonText: "Yes, remove it!"
                      }).then((result) => {
                        if (result.isConfirmed) {
                               fetch(`/deleteCartItem/${itemId}`, {
@@ -229,7 +219,7 @@
                                   if (data.status) { 
                                       Swal.fire(
                                           "Deleted!",
-                                          "Item has been deleted.",
+                                          "Item has been removed.",
                                           "success"
                             ).then(() => {
                                   window.location.reload()
@@ -237,7 +227,7 @@
                                } else {
                                    Swal.fire(
                                       "Error!",
-                                      "Failed to delete the Item.",
+                                      "Failed to remove the Item.",
                                       "error"
                             )
                           }
@@ -255,6 +245,8 @@
 </script>
 
 
-
         <!-- setting footer -->
         <%- include("../../views/partials/user/footer") %>
+
+
+

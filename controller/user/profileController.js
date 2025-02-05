@@ -163,19 +163,19 @@ const createAddress = async (req, res) => {
 
         const userData = await User.findOne({ _id: userId })
 
-        const { houseNo, street, city, country, phone, pincode } = req.body
+        const { houseNo, street, city, state, phone, pincode } = req.body
 
         const userAddress = await Address.findOne({ userId: userData._id })
 
         if (!userAddress) {
             const newAddress = new Address({
                 userId: userData._id,
-                address: [{ houseNo, street, city, country, phone, pincode }]
+                address: [{ houseNo, street, city, state, phone, pincode }]
             })
 
             await newAddress.save()
         } else {
-            userAddress.address.push({ houseNo, street, city, country, phone, pincode })
+            userAddress.address.push({ houseNo, street, city, state, phone, pincode })
             await userAddress.save()
         }
 
@@ -223,7 +223,7 @@ const getEditAddress = async (req, res) => {
 const editAddress = async (req, res) => {
     try {
 
-        const { houseNo, street, city, country, phone, pincode } = req.body
+        const { houseNo, street, city, state, phone, pincode } = req.body
 
         const addressId = req.query.id
         const userId = req.session.user
@@ -243,7 +243,7 @@ const editAddress = async (req, res) => {
                         houseNo: houseNo,
                         street: street,
                         city: city,
-                        country: country,
+                        state: state,
                         phone: phone,
                         pincode: pincode
                     }
