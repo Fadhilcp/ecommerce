@@ -1,9 +1,11 @@
 const Address = require('../../model/addressSchema')
 const User = require('../../model/userSchema')
+const Order = require('../../model/orderSchema')
 const bcrypt = require('bcrypt')
 const nodeMailer = require('nodemailer')
 const env = require('dotenv').config()
 const otpGenerator = require('otp-generator')
+const moment = require('moment')
 
 
 async function verificationEmail(email, otp) {
@@ -413,6 +415,32 @@ const newPassword = async (req, res) => {
     }
 }
 
+
+
+
+
+const getOrders = async(req,res) => {
+    try {
+
+        const userId = req.session.user
+        const orderData = await Order.find({userId:userId})
+
+        orderData.forEach((order) => {
+            order.date = moment(order.createdAt).format('DD/MM/YYYY')
+        })
+
+        res.render('user/orders',{
+            user:userId,
+            active:'account',
+            orders:orderData
+        })
+        
+    } catch (error) {
+        console.error('orders page error',error)
+        res.redirect('pageError')
+    }
+}
+
 module.exports = {
     account,
     getChangePassword,
@@ -428,5 +456,6 @@ module.exports = {
     passwordOtp,
     getResetPassword,
     resendOtp,
-    newPassword
+    newPassword,
+    getOrders
 }

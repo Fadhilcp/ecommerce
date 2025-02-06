@@ -16,7 +16,7 @@ const getCart = async (req,res) => {
         const cart = await Cart.findOne({userId}).populate('products.productId')
 
         if(!cart){
-            return res.redirect('/pageError')
+            return res.redirect('/shop')
         }
 
         const cartItems = cart.products.map(item => ({
@@ -48,7 +48,6 @@ const getCart = async (req,res) => {
 
 const addToCart = async (req,res) => {
     try {
-
         const userId = req.session.user
 
         if(!userId){
@@ -56,8 +55,6 @@ const addToCart = async (req,res) => {
         }
 
         const {productId,quantity} = req.body
-
-
         const product = await Product.findById(productId)
 
         if(!product){
@@ -72,26 +69,33 @@ const addToCart = async (req,res) => {
 
         let existingProduct = cart.products.find(item => item.productId.toString() === productId)
 
-        if(existingProduct){
-            if(existingProduct.quantity < 5){
-                if ((existingProduct.quantity+quantity) <= 5) {
-                    existingProduct.quantity += quantity
-    
-                }else {
-                    return res.json({status:false,message:'Reduce the quantity'})
-                }
-                
 
-            }else{
-                return res.json({status:false,message:'Maximum quantity reached(5)'})
+        if (existingProduct) {
+            let totalQuantity = existingProduct.quantity + quantity;
+
+            if (totalQuantity > 5) {
+                return res.json({ status: false, message: 'Maximum quantity reached (5)' })
+            }
+            if (totalQuantity > product.quantity) {
+                return res.json({ status: false, message: 'Not enough stock available' })
             }
 
-        }else{
+            existingProduct.quantity += quantity;
+
+        } else {
+            if (quantity > 5) {
+                return res.json({ status: false, message: 'Maximum quantity per product is 5' })
+            }
+
+            if (quantity > product.quantity) {
+                return res.json({ status: false, message: 'Not enough stock available' })
+            }
+
             cart.products.push({ 
                 productId,
                 quantity: quantity,
-                price:product.offerPrice
-             })
+                price: product.offerPrice
+            })
         }
 
         await cart.save()
@@ -104,35 +108,50 @@ const addToCart = async (req,res) => {
 }
 
 
-const updateCartQuantity = async (req,res) => {
-    try {
 
-        const { productId, quantity } = req.body
-        const userId = req.session.user
 
-        let cart = await Cart.findOne({userId:userId})
 
-        if(!cart){
-            return res.json({status:false,message:'Cart not found'})
-        }
-        let product = cart.products.find(item => item.productId.toString() === productId)
-        
-        if(product){
+    const updateCartQuantity = async (req,res) => {
+        try {
+
+            const { productId, quantity } = req.body
+            const userId = req.session.user
+
+
+            let cart = await Cart.findOne({userId:userId})
+            if(!cart){
+                return res.json({status:false,message:'Cart not found'})
+            }
+
+            let product = cart.products.find(item => item.productId.toString() === productId)
+            if (!product) {
+                return res.json({ status: false, message: "Product not found in cart" })
+            }
+
+
+            let productData = await Product.findById(productId) 
+            if (!productData) {
+                return res.json({ status: false, message: "Product not found" })
+            }
+
+            if (quantity > productData.quantity) {
+                return res.json({ status: false, message: "Not enough stock available",availableStock: productData.quantity})
+            }
+
             product.quantity = quantity
-            await cart.save()
 
-            let newTotalPrice = cart.products.reduce((sum, item) => 
-                sum + (item.price * item.quantity),0)
+                await cart.save()
 
-            return res.json({ status: true,newTotal:newTotalPrice})
+                let newTotalPrice = cart.products.reduce((sum, item) => 
+                    sum + (item.price * item.quantity),0)
+
+                return res.json({ status: true,newTotal:newTotalPrice})
+            
+        } catch (error) {
+            console.error('Error updating cart:', error)
+            res.status(500).json({ status: false, message: "Internal server error" })
         }
-
-        res.json({ status: false, message: "Product not found in cart" })
-    } catch (error) {
-        console.error('Error updating cart:', error)
-        res.status(500).json({ status: false, message: "Internal server error" })
     }
-}
 
 
 

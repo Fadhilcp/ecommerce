@@ -83,20 +83,24 @@
                         </div>
                     </div>
 
-                    <div class="one-eight text-center">
-                        <div class="display-tc d-flex align-items-center justify-content-center gap-2">
-                            <button class="btn btn-sm btn-light border px-1" onclick="updateQuantity('<%= item._id %>', -1)">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            
-                            <input type="text" id="quantity-<%= item._id %>" 
-                                   name="quantity" class="form-control text-center mx-1"
-                                   value="<%= item.quantity %>" readonly style="width: 50px; min-width: 50px;">
-                    
-                            <button class="btn btn-sm btn-light border px-1" onclick="updateQuantity('<%= item._id %>', 1)">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
+                    <div class="display-tc d-flex align-items-center justify-content-center gap-2">
+                        <button id="decrease-<%= item._id %>" 
+                                class="btn btn-sm btn-light border px-1" 
+                                onclick="updateQuantity('<%= item._id %>', -1)"
+                                <%= item.quantity <= 1 ? 'disabled' : '' %>>
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        
+                        <input type="text" id="quantity-<%= item._id %>" 
+                               name="quantity" class="form-control text-center mx-1"
+                               value="<%= item.quantity %>" readonly style="width: 50px; min-width: 50px;">
+                        
+                        <button id="increase-<%= item._id %>" 
+                                class="btn btn-sm btn-light border px-1" 
+                                onclick="updateQuantity('<%= item._id %>', 1)"
+                                <%= item.quantity >= item.availableStock ? 'disabled' : '' %>>
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                     
                     
@@ -111,9 +115,7 @@
                         </div>
                     </div>
                 </div>
-                <%})%>
-
-                <%}%>
+                <%})}%>
   
             </div>
         </div>
@@ -122,25 +124,29 @@
                 <div class="total-wrap">
                     <div class="row">
                         <div class="col-sm-4 text-center">
+                            
+                            <% if (cartItems.length > 0) { %>
                             <div class="total">
                                 <div class="sub">
                                     
-                                    <% if (cartItems.length > 0) { %>
+                                    
                                         <% cartItems.forEach(item => { %>
                                     <p><span><%= item.name %>:</span> <span class="totalPrice" id="subTotal-<%= item._id %>">₹<%= item.price*item.quantity %></span></p>
-                                    <%})}%>
+                                    <%})%>
                                     <p><span>Delivery:</span> <span>$0.00</span></p>
                                     <p><span>Discount:</span> <span>$45.00</span></p>
                                 </div>
 
                                 <div class="grand-total">
-                                    <p><span><strong>Total:</strong></span> <span id="grandTotal"><%= totalPrice %></span></p>
+                                    <p><span><strong>Total:</strong></span> <span id="grandTotal">₹<%= totalPrice %></span></p>
                                 </div>
                                 <div>
                                     <button class="btn btn-primary" onclick="window.location.href = '/checkout'">PROCEED TO CHECKOUT</button>
                                 </div>
+                                
                             </div>
                         </div>
+                        <%}%>
                     </div>
                 </div>
             </div>
@@ -154,49 +160,57 @@
 
 <script>
 
-    async function updateQuantity(productId,change) {
 
-        const quantityInput = document.getElementById(`quantity-${productId}`)
-        const price = parseFloat(document.getElementById(`price-${productId}`).innerText.replace('₹', ''))
+async function updateQuantity(productId, change) {
 
+    let quantityInput = document.getElementById(`quantity-${productId}`)
+    let increaseButton = document.getElementById(`increase-${productId}`)
+    let decreaseButton = document.getElementById(`decrease-${productId}`)
+    const price = parseFloat(document.getElementById(`price-${productId}`).innerText.replace('₹', ''))
 
+    let currentQuantity = parseInt(quantityInput.value)
+    let newQuantity = currentQuantity + change
 
-        const currentQuantity = parseInt(quantityInput.value)
-        const newQuantity = currentQuantity + change
+    if (newQuantity < 1 || newQuantity >5) return
+    try {
+        let response = await fetch('/updateCartQuantity', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ productId, quantity: newQuantity })
+        });
 
-        if(newQuantity < 1 || newQuantity >5) return 
+        let data = await response.json()
 
-        try {
+        if (response.ok && data.status) {
+            quantityInput.value = newQuantity
 
-            let response = await fetch('/updateCartQuantity',{
-                method:'POST',
-                headers:{
-                    'content-type':'application/json'
-                },
-                body:JSON.stringify({productId,quantity:newQuantity})
-            })
+            document.getElementById(`totalPrice-${productId}`).innerText = `₹${(price * newQuantity)}`
+            document.getElementById(`subTotal-${productId}`).innerText = `₹${(price * newQuantity)}`
+            document.getElementById('grandTotal').innerText = `₹${data.newTotal}`
 
-            let data = await response.json()
+            console.log('data',data)
 
-            if(response.ok && data.status){
-                quantityInput.value = newQuantity
-                
-                var totalPriceElement = document.getElementById(`totalPrice-${productId}`)
-                var subTotalElement = document.getElementById(`subTotal-${productId}`)
-                subTotalElement.innerText = `₹${(price * newQuantity)}`
-                totalPriceElement.innerText = `₹${(price * newQuantity)}`
+            if (newQuantity >= data.availableStock) {
+                increaseButton.disabled = true
 
-                document.getElementById('grandTotal').innerText = `₹${data.newTotal}`
-            }else{
-                console.log(data)
-                alert('"Failed to update quantity"')
+            } else {
+                increaseButton.disabled = false
             }
-            
-        } catch (error) {
-            console.error('Error updating quantity:', error)
-        }
-    }
 
+
+            decreaseButton.disabled = newQuantity <= 1
+        }else{
+                Swal.fire({
+                    icon: 'warning',
+                    title:data.message,
+                    showConfirmButton: false,
+                    timer: 2000,
+                })
+        }
+    } catch (error) {
+        console.error('Error updating quantity:', error)
+    }
+}
 
      function deleteItem(itemId) {
                  Swal.fire({

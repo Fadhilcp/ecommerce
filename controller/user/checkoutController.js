@@ -4,6 +4,8 @@ const Cart = require('../../model/cartSchema')
 const Address = require('../../model/addressSchema')
 const Order = require('../../model/orderSchema')
 
+
+
 const getCheckout = async (req,res) => {
 
     try {
@@ -17,7 +19,7 @@ const getCheckout = async (req,res) => {
         const cart = await Cart.findOne({userId:userId}).populate('products.productId')
 
         if(!cart){
-            return res.redirect('/pageError')
+            return res.redirect('/login')
         }
 
         const addressData = await Address.findOne({userId:userId})
@@ -47,30 +49,11 @@ const getCheckout = async (req,res) => {
 }
 
 
-const placeOrder = async (req,res) => {
-    try {
-        
-        const userId = req.session.user
-
-        const {addressId} = req.body
-
-
-
-        console.log('this is id',addressId)
-
-        res.json({status:true,redirectUrl:'/orderComplete'})
-
-    } catch (error) {
-        console.log('place order error',error)
-        res.json({status:true,message:'Internal server issue'})
-    }
-}
 
 
 
 
 
 module.exports = {
-    getCheckout,
-    placeOrder
+    getCheckout
 }
