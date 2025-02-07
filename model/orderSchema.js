@@ -43,6 +43,10 @@ const orderSchema = new Schema({
         required: true 
       },
       address: {
+        name:{
+          type:String,
+          required:true
+        },
         houseNo: { 
           type: String, 
           required: true 
@@ -73,16 +77,23 @@ const orderSchema = new Schema({
         enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
         default: 'Pending'
       },
+      paymentStatus: {
+        type: String, 
+        enum: ['PaymentPending', 'Pending', 'Paid', 'Failed'], 
+        default: 'PaymentPending' 
+      },
+      orderCancelReason: {
+        type: String,
+        default:''
+      },
       paymentMethod: {
         type: String,
-        enum: ['COD', 'Online'],
+        enum: ['COD', 'RazorPay'],
         required: true
       },
-      createdAt: {
-        type: Date,
-        default: Date.now
-      }
-})
+    },
+    { timestamps: true }
+)
 
 
 

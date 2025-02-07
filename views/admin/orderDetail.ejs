@@ -1,0 +1,297 @@
+<!-- setting header -->
+<%- include("../../views/partials/admin/header") %>
+
+<style>
+    :root {
+        --primary-color: #dc6708;
+        --secondary-color: #ffa719;
+        --success-color: #10b981;
+        --bg-color: #f9fafb;
+        --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+    
+    body {
+        background-color: var(--bg-color);
+        font-family: system-ui, -apple-system, sans-serif;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        border-bottom: none;
+        padding: 1.5rem;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+    
+    .order-summary {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .product-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+    }
+    
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table th {
+        border-top: none;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+    
+    .info-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .info-value {
+        font-weight: 500;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+
+
+    <section class="content-main">
+   
+
+        <div class="container py-5">
+            <!-- Order Summary Header -->
+            <div class="order-summary">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h2 class="mb-3">Order #<%= order._id %></h2>
+                        <div class="d-flex gap-3">
+                            <span class="status-badge bg-secondary"><%= order.status %></span>
+                            <span class="status-badge bg-white text-dark"><%= order.date %></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                        <h3 class="mb-2">Total Amount</h3>
+                        <h2 class="mb-0">₹<%= order.totalPrice %></h2>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="row g-4">
+                <!-- Customer Information -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-secondary">
+                            <h5 class="mb-0">Customer Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-label">Name</div>
+                            <div class="info-value"><%= order.address.name %></div>
+
+                            <div class="info-label">Email</div>
+                            <div class="info-value"><%= user.email %></div>
+                            
+                            <div class="info-label">Phone</div>
+                            <div class="info-value"><%= order.address.phone %></div>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Shipping Details -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-secondary">
+                            <h5 class="mb-0">Shipping Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-label">Address</div>
+                            <div class="info-value">
+                                <%= order.address.houseNo %><br>
+                                <%= order.address.street %><br>
+                                <%= order.address.city %><br>
+                                <%= order.address.state %><br>
+                                <%= order.address.pincode %>
+                            </div>
+                            
+                            
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Order Items -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-secondary">
+                            <h5 class="mb-0">Order Items</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="ps-4">Product</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th class="text-end pe-4">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <% order.products.forEach((product) => { %>
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <img src="/uploads/reImage/<%= product.productImage %>" alt="Product" class="product-image me-3">
+                                                    <div>
+                                                        <h6 class="mb-0"><%= product.productName %></h6>
+                                                        <small class="text-muted"><%= product.capacity %></small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>₹<%= product.price %></td>
+                                            <td><%= product.quantity %></td>
+                                            <td class="text-end pe-4">₹<%= product.price*product.quantity %></td>
+                                        </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Admin Actions -->
+            <div class="d-flex justify-content-end gap-3 mt-4">
+                <button class="btn btn-light">Print Order</button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
+                    Update Status
+                </button>
+            </div>
+            
+        </div>
+
+
+        <!-- Update Status Modal =============================-->
+<div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateStatusLabel">Update Order Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="orderStatus" class="form-label">Select Status:</label>
+                <select id="orderStatus" class="form-select">
+                    <option value="Pending">Pending</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveStatusBtn" onclick="updateStatus('<%= order._id %>')">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- update Status modal ============================================== -->
+
+    </section>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+
+        async function updateStatus(orderId) {
+            
+            const updateStatus = document.getElementById('orderStatus').value
+
+            try {
+
+                const response = await fetch(`/admin/updateOrderStatus/${orderId}`,{
+                    method:'POST',
+                    headers:{
+                        'content-type':'application/json'
+                    },
+                    body:JSON.stringify({updateStatus})
+                })
+
+                const data = await response.json()
+
+                if(response.ok && data.status){
+                    
+                  await Swal.fire({
+                    icon:'success',
+                    title:'Status updated',
+                    text:'Status updated',
+                    customClass: {
+                       title: 'swal-title-black'
+                    }
+                })
+
+                window.location.reload()
+
+                }else{
+                    Swal.fire({
+                    icon:'error',
+                    title:'Oops',
+                    text: data.message
+                })
+                }
+                
+                
+            } catch (error) {
+                console.error('error while updating order status')
+            }
+        }
+
+    </script>
+
+
+ <!-- setting footer -->
+ <%- include("../../views/partials/admin/footer") %>

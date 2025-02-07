@@ -54,11 +54,40 @@ const getShop = async (req,res) => {
         const limit = 9
         const skip = (page - 1) * limit
 
+
+        let sortOption = {}
+        
+        if (req.query.sort) {
+            switch (req.query.sort) {
+                case "name-asc":
+                    sortOption = { productName: 1 } // A to Z
+                    break
+                case "name-desc":
+                    sortOption = { productName: -1 } // Z to A
+                    break
+                case "price-asc":
+                    sortOption = { offerPrice: 1 } // Low to High
+                    break
+                case "price-desc":
+                    sortOption = { offerPrice: -1 } // High to Low
+                    break
+                default:
+                    sortOption = { createdAt: -1 } // Default: Newest First
+            }
+        }
+
+
+
+
         let products = await Product.find(
-            {isBlocked:false,
-                category:{$in:categoryIds},
-                quantity:{$gt:0}}
-        ).sort({createdAt:-1}).skip(skip).limit(limit)
+            {
+                isBlocked:false,
+                category:{$in:categoryIds}
+            }
+        )
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limit)
 
         let totalProducts = await Product.countDocuments({
             isBlocked:false,
@@ -80,7 +109,8 @@ const getShop = async (req,res) => {
                 totalProducts:totalProducts,
                 currentPage:page,
                 totalPages:totalPages,
-                active:'shop'
+                active:'shop',
+                sort: req.query.sort || ""
             })
         }
 
@@ -90,7 +120,8 @@ const getShop = async (req,res) => {
             totalProducts:totalProducts,
             currentPage:page,
             totalPages:totalPages,
-            active:'shop'
+            active:'shop',
+            sort: req.query.sort || ""
         })
     } catch (error) {
         console.error('load shop error',error)

@@ -60,12 +60,29 @@
     </div>
 </div>
 
+
+
+<!-- filter bar =========================================================== -->
 <div class="colorlib-product">
     <div class="container">
         <div class="row">
             <div class="col-lg-3 col-xl-3">
                 <div class="row">
                     <div class="col-sm-12">
+                        <div class="side border mb-1">
+                            <h3>Sort By</h3>
+                            <ul id="sortList" class="list-unstyled">
+                                <li><a data-sort="">Default</a></li>
+                                <li><a data-sort="name-asc">A to Z</a></li>
+                                <li><a data-sort="name-desc">Z to A</a></li>
+                                <li><a data-sort="price-asc">Low to High Price</a></li>
+                                <li><a data-sort="price-desc">High to Low Price</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- <div class="col-sm-12">
                         <div class="side border mb-1">
                             <h3>Category</h3>
                             <ul>
@@ -74,8 +91,8 @@
                                 <% } %>
                             </ul>
                         </div>
-                    </div>
-                    <div class="col-sm-12">
+                    </div> -->
+                    <!-- <div class="col-sm-12">
                         <div class="side border mb-1">
                             <h3>Bottle capacity</h3>
                             <div class="block-26 mb-2">
@@ -88,8 +105,8 @@
                            </ul>
                         </div>
                         </div>
-                    </div>
-                    <div class="col-sm-12">
+                    </div> -->
+                    <!-- <div class="col-sm-12">
                         <div class="side border mb-1">
                             <h3>Price</h3>
                             <ul>
@@ -100,9 +117,13 @@
                                 <li><a href="#">2500-Above</a></li>
                             </ul>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
+<!-- filter bar =========================================================== -->
+
+
+
             <div class="col-lg-9 col-xl-9">
                 <div class="row row-pb-md">
 
@@ -145,6 +166,40 @@
         </div>
     </div>
 </div>
+
+
+<script>
+
+document.querySelectorAll("#sortList a").forEach(link => {
+        link.addEventListener("click", function (e) {
+            e.preventDefault()
+            const sortValue = this.getAttribute("data-sort")
+            const urlParams = new URLSearchParams(window.location.search)
+            
+            if (sortValue) {
+                urlParams.set("sort", sortValue) // Set sorting query parameter
+            } else {
+                urlParams.delete("sort") // Remove sort if default is selected
+            }
+
+            window.location.search = urlParams.toString() // Reload page with new query
+        })
+    })
+
+    // Highlight active sort option
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search)
+        const activeSort = urlParams.get("sort") || ""
+        
+        document.querySelectorAll("#sortList a").forEach(link => {
+            if (link.getAttribute("data-sort") === activeSort) {
+                link.style.fontWeight = "bold"
+                link.style.color = "#ef7c00"
+            }
+        })
+    })
+
+</script>
 
 
 <!-- setting footer -->

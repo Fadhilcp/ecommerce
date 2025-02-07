@@ -228,9 +228,9 @@
                             </ul>
                         </td>
                         <td style="vertical-align: middle;"><%= order.date %></td>
-                        <td style="vertical-align: middle;"><span class="badge bg-success"><%= order.paymentMethod %></span></td>
+                        <td style="vertical-align: middle;"><span class="badge bg-success"><%= order.paymentStatus %></span></td>
                         <td style="vertical-align: middle;"><span class="badge bg-success"><%= order.status %></span></td>
-                        <td style="vertical-align: middle;"><button class="btn-view" onclick="viewOrderDetails(12345)">View Details</button></td>
+                        <td style="vertical-align: middle;"><button class="btn-view" onclick="window.location.href = '/orderDetails/<%= order._id %>'" >View Details</button></td>
                     </tr>
                 <% }) %>
             <%}else{%>

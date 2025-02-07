@@ -20,7 +20,10 @@ const getCheckout = async (req,res) => {
 
         if(!cart){
             return res.redirect('/login')
+        }else if(cart.products.length === 0){
+            return res.redirect('/cart')
         }
+
 
         const addressData = await Address.findOne({userId:userId})
 

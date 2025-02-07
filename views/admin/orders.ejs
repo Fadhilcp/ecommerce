@@ -1,0 +1,83 @@
+<!-- setting header -->
+<%- include("../../views/partials/admin/header") %>
+
+
+
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Orders List</h2>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <header class="card-header">
+                <div class="row align-items-center">
+                    <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                        <input class="form-control" type="search" name="search" id="" placeholder="search">
+                    </div>
+                </div>
+            </header>
+            <!-- card-header end// -->
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th class="text-center">Customer</th>
+                            <th class="text-center">Amount</th>
+                            <th class="text-center">Payment Status</th>
+                            <th class="text-center">Item No.</th>
+                            <th class="text-center">Order Status</th>
+                            <th class="">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       <% orders.forEach((item) => { %>
+                        <tr>
+                            <td><%= item._id %></td>
+                            <td><%= item.date %></td>
+                            <td class="text-center"><%= item.address.name %></td>
+                            <td class="text-center"><%= item.totalPrice %></td>
+                            <td class="text-center"><%= item.paymentStatus %></td>
+                            <td class="text-center"><%= item.products.length %></td>
+                            <td class="text-center"><%= item.status %></td>
+                            <td class="text-center">
+                                <button class="btn btn-info" style="font-size: small;">
+                                    <a href="/admin/orderDetail/<%= item._id %>" class="text-white" style="text-decoration: none;">Details</a>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <% }) %>
+                    
+                    </tbody>
+                </table>           
+            </div>
+            <!-- card-body end// -->
+        </div>
+        <!-- card end// -->
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+ <!-- setting footer -->
+ <%- include("../../views/partials/admin/footer") %>

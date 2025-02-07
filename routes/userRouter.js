@@ -58,7 +58,8 @@ router.get('/deleteAddress',userAuth,profileController.deleteAddress)
 
 //orders details list
 router.get('/orders',isBlock,userAuth,profileController.getOrders)
-
+router.get('/orderDetails/:id',isBlock,userAuth,profileController.getOrderDetail)
+router.post('/cancelOrder/:id',isBlock,userAuth,orderController.cancelOrder)
 
 //cart management
 router.get('/cart',isBlock,userAuth,cartController.getCart)

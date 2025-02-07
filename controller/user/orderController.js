@@ -13,10 +13,19 @@ const placeOrder = async (req,res) => {
 
         const {addressId,paymentMethod} = req.body
 
+        const user = await User.findById(userId)
         const addressData = await Address.findOne({userId:userId})
         const selectedAddress = addressData.address.find(item => item._id.toString() === addressId)
 
         const cart = await Cart.findOne({userId:userId}).populate('products.productId')
+
+        for (const item of cart.products) {
+            const product = await Product.findById(item.productId._id)
+            
+            if (product.quantity < item.quantity) {
+                return res.json({status: false,message: `Insufficient stock for ${item.productId.productName}`})
+            }
+        }
 
         const cartItems = cart.products.map(item => ({
             product: item.productId._id,
@@ -34,6 +43,7 @@ const placeOrder = async (req,res) => {
             products:cartItems,
             totalPrice:totalPrice,
             address:{
+                name:user.username,
                 houseNo:selectedAddress.houseNo,
                 street:selectedAddress.street,
                 city:selectedAddress.city,
@@ -88,7 +98,42 @@ const getOrderComplete = async (req,res) => {
     }
 }
 
+
+const cancelOrder = async (req,res) => {
+    try {
+
+        const orderId = req.params.id 
+        const {reason} = req.body
+
+        const order = await Order.findById(orderId)
+
+        if(!order){
+            return res.json({status:false,message:'Order not found'})
+        }
+
+        order.status = 'Cancelled'
+        order.orderCancelReason = reason
+
+        await order.save()
+
+
+        for(const item of order.products){
+            await Product.findByIdAndUpdate(item.product ,{
+                $inc:{ quantity: item.quantity}
+            })
+        }
+
+        return res.json({status:true,redirectUrl:'/orders'})
+
+        
+    } catch (error) {
+        console.error('error while cancel order',error)
+        res.json({status:false,message:'error while cancel order'})
+    }
+}
+
 module.exports = {
     placeOrder,
-    getOrderComplete
+    getOrderComplete,
+    cancelOrder
 }

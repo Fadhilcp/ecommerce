@@ -441,6 +441,35 @@ const getOrders = async(req,res) => {
     }
 }
 
+
+
+const getOrderDetail = async (req,res) => {
+    try {
+
+        const userId = req.session.user
+
+        const orderId = req.params.id
+
+        console.log('thsi is orderid',orderId)
+
+        const orderData = await Order.findById(orderId)
+
+        orderData.date = moment(orderData.createdAt).format('DD/MM/YYYY')
+
+        console.log('this isorder data',orderData)
+
+        return res.render('user/orderDetails',{
+            order:orderData,
+            user:userId,
+            active:'account'
+        })
+        
+    } catch (error) {
+        console.error('order detail page Error',error)
+        res.redirect('/pageError')
+    }
+}
+
 module.exports = {
     account,
     getChangePassword,
@@ -457,5 +486,6 @@ module.exports = {
     getResetPassword,
     resendOtp,
     newPassword,
-    getOrders
+    getOrders,
+    getOrderDetail
 }
