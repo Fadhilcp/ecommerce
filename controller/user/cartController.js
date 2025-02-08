@@ -1,6 +1,7 @@
 const Product = require('../../model/productSchema')
 const User = require('../../model/userSchema')
 const Cart = require('../../model/cartSchema')
+const Wishlist = require('../../model/wishlistSchema')
 
 
 
@@ -135,7 +136,15 @@ const addToCart = async (req,res) => {
             }
 
             if (quantity > productData.quantity) {
-                return res.json({ status: false, message: "Not enough stock available",availableStock: productData.quantity})
+
+                product.quantity = productData.quantity
+
+                await cart.save()
+
+                let totalPrice = cart.products.reduce((sum, item) => 
+                    sum + (item.price * item.quantity),0)
+
+                return res.json({ status: false, message: "Not enough stock available", newTotal:totalPrice , availableStock: productData.quantity})
             }
 
             product.quantity = quantity
@@ -145,7 +154,7 @@ const addToCart = async (req,res) => {
                 let newTotalPrice = cart.products.reduce((sum, item) => 
                     sum + (item.price * item.quantity),0)
 
-                return res.json({ status: true,newTotal:newTotalPrice})
+                return res.json({ status: true,newTotal:newTotalPrice, availableStock: productData.quantity})
             
         } catch (error) {
             console.error('Error updating cart:', error)
@@ -185,9 +194,85 @@ const deleteCartItem = async (req,res) => {
 }
 
 
+
+
+
+
+
+
+const getWishlist = async (req,res) => {
+    try {
+
+        const userId = req.session.user
+
+        if(!userId) return res.redirect('/login')
+
+        const wishlist = await Wishlist.findOne({userId:userId}).populate('products.productId')
+
+        
+        
+        res.render('user/wishlist',{
+            user:userId,
+            active:'wishlist',
+            products: wishlist ? wishlist.products : []
+        })
+        
+    } catch (error) {
+        console.error('wishlist page error',error)
+        res.redirect('/pageError')
+    }
+}
+
+
+const addToWishlist = async (req,res) => {
+    try {
+
+        const {productId} = req.body
+        const userId = req.session.user
+
+        if(!userId){
+            return res.json({status:false,message:'Please Login!'})
+        }
+
+        let wishlist = await Wishlist.findOne({userId:userId})
+
+        if(!wishlist){
+            wishlist = new Wishlist({userId,products:[]})
+        }
+
+        const existProduct = wishlist.products.some(product => 
+            product.productId.toString() === productId.toString()
+        )
+
+        if (existProduct){
+            return res.json({status:false,message:'"Product already in wishlist" '})
+        }
+
+        wishlist.products.push({
+            productId:productId
+    })
+
+        await wishlist.save()
+
+        res.json({status:true,message:'Product added to Wishlist'})
+        
+    } catch (error) {
+        console.error('Error while adding product to wishlist',error)
+        res.json({status:false,message:'Internal sever Error'})
+    }
+}
+
+
+
+
+
+
+
 module.exports = {
     getCart,
     addToCart,
     updateCartQuantity,
-    deleteCartItem
+    deleteCartItem,
+    getWishlist,
+    addToWishlist
 }

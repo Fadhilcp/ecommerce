@@ -103,7 +103,7 @@
             <div class="order-summary">
                 <div class="row align-items-center">
                     <div class="col-md-6">
-                        <h2 class="mb-3">Order #<%= order._id %></h2>
+                        <h2 class="mb-3">Order #<%= order.orderId %></h2>
                         <div class="d-flex gap-3">
                             <span class="status-badge bg-secondary"><%= order.status %></span>
                             <span class="status-badge bg-white text-dark"><%= order.date %></span>
@@ -203,9 +203,11 @@
             <!-- Admin Actions -->
             <div class="d-flex justify-content-end gap-3 mt-4">
                 <button class="btn btn-light">Print Order</button>
+                <% if(order.status !== 'Cancelled') {%>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
                     Update Status
                 </button>
+            <% } %>
             </div>
             
         </div>

@@ -17,7 +17,6 @@ const pageError = (req,res) => {
 const loadHomePage = async (req,res)=>{
     try {
         const user = req.session.user
-        console.log('this is session',req.session)
 
         const categories = await Category.find({isListed:true})
         let productData = await Product.find(
@@ -230,7 +229,7 @@ function verificationOtp(){
     const otp = otpGenerator.generate(6,{
                 digits:true,
                 lowerCaseAlphabets:false,
-                 upperCaseAlphabets:false,
+                upperCaseAlphabets:false,
                 specialChars:false
 })
      return otp

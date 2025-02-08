@@ -67,6 +67,10 @@ router.post('/addToCart',isBlock,cartController.addToCart)
 router.post('/updateCartQuantity',userAuth,cartController.updateCartQuantity)
 router.get('/deleteCartItem/:id',userAuth,cartController.deleteCartItem)
 
+//wishlist management 
+router.get('/wishlist',isBlock,userAuth,cartController.getWishlist)
+router.post('/addToWishlist',isBlock,cartController.addToWishlist)
+
 //checkout management
 router.get('/checkout',isBlock,userAuth,checkoutController.getCheckout)
 

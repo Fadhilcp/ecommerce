@@ -202,7 +202,7 @@
                                 <h5 class="mb-0">Order Summary</h5>
                             </div>
                             <div class="card-body">
-                                <h6>ID: <small><%= order._id %></small></h6>
+                                <h6>ID: <small><%= order.orderId %></small></h6>
                                 <h6>Order Date: <small><%= order.date %></small></h6>
                                 <h6>Payment Status: <small><%= order.paymentStatus %></small></h6>
                                 <h6>Total Amount: <small><strong>₹<%= order.totalPrice %></strong></small></h6>
@@ -242,9 +242,11 @@
                                             <td style="vertical-align: middle;"><%= item.quantity %></td>
                                             <td style="vertical-align: middle;">₹<%= item.price %></td>
                                             <td style="vertical-align: middle;">
+                                                <% if(order.status !== 'Cancelled' && order.status !== 'Delivered'){ %>
                                                 <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal<%= item._id %>">
                                                     Cancel
                                                 </button>
+                                                <% } %>
                                             </td>
                                         </tr>
                                         <% }) %>

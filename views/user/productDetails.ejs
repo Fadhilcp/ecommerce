@@ -117,6 +117,9 @@
                         <button class="btn btn-primary btn-addtocart" onclick="addToCart('<%= product._id %>')">
                             <i class="icon-shopping-cart" style="display: contents;"></i> Add to Cart
                         </button>
+                        <button class="btn btn-addtocart" style="background-color: #ef7c00; color: white;" onclick="addToWishlist('<%= product._id %>')">
+                            <i class="fa-regular fa-heart" style="display: contents;"></i> Add to Wishlist
+                        </button>   
                     </p>
                         </div>
                     </div>
@@ -404,6 +407,51 @@ async function addToCart(productId) {
                 })
     }
 }
+
+
+async function addToWishlist(productId){
+    try {
+
+        const response = await fetch('/addToWishlist',{
+            method:'POST',
+            headers:{
+                'content-type' : 'application/json'
+            },
+            body:JSON.stringify({productId})
+        })
+
+        const data = await response.json()
+
+        if(response.ok && data.status){
+            Swal.fire({
+                icon: 'success',
+                title: 'Added to Wishlist!',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        }else{
+            Swal.fire({
+                icon: 'warning',
+                title: data.message,
+                showConfirmButton: false,
+                timer: 2000
+            })
+        }
+
+
+
+        
+    } catch (error) {
+        console.error('Error adding to wishlist:', error)
+        Swal.fire({
+            icon: 'error',
+            title: 'Something went wrong!',
+            showConfirmButton: false,
+            timer: 2000
+        })
+    }
+}
+
 
 
 function changeQuantity(productId,amount) {

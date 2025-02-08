@@ -422,15 +422,27 @@ const newPassword = async (req, res) => {
 const getOrders = async(req,res) => {
     try {
 
+        const page = parseInt(req.query.page) || 1
+        const limit = 5
+        const skip = (page - 1)*limit
+
         const userId = req.session.user
         const orderData = await Order.find({userId:userId})
+        .sort({createdAt:-1})
+        .skip(skip)
+        .limit(limit)
 
         orderData.forEach((order) => {
             order.date = moment(order.createdAt).format('DD/MM/YYYY')
         })
 
+        const totalOrders = await Order.countDocuments({userId})
+        const totalPages = Math.ceil(totalOrders / limit)
+
         res.render('user/orders',{
             user:userId,
+            totalPages:totalPages,
+            currentPage:page,
             active:'account',
             orders:orderData
         })
@@ -450,16 +462,16 @@ const getOrderDetail = async (req,res) => {
 
         const orderId = req.params.id
 
-        console.log('thsi is orderid',orderId)
-
         const orderData = await Order.findById(orderId)
 
         orderData.date = moment(orderData.createdAt).format('DD/MM/YYYY')
 
-        console.log('this isorder data',orderData)
+       
+        
 
         return res.render('user/orderDetails',{
             order:orderData,
+            
             user:userId,
             active:'account'
         })

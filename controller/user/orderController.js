@@ -6,6 +6,14 @@ const Order = require('../../model/orderSchema')
 
 
 
+function customOrderId(){
+    const timestamp = Date.now().toString().slice(-6)
+    const randomNum = Math.floor(1000 + Math.random() * 9000)
+    return `ORD-${timestamp}-${randomNum}`
+}
+
+
+
 const placeOrder = async (req,res) => {
     try {
         
@@ -23,7 +31,7 @@ const placeOrder = async (req,res) => {
             const product = await Product.findById(item.productId._id)
             
             if (product.quantity < item.quantity) {
-                return res.json({status: false,message: `Insufficient stock for ${item.productId.productName}`})
+                return res.json({status: false,message: `Insufficient stock for product ${item.productId.productName}`})
             }
         }
 
@@ -40,6 +48,7 @@ const placeOrder = async (req,res) => {
 
         const order = new Order({
             userId:userId,
+            orderId:customOrderId(),
             products:cartItems,
             totalPrice:totalPrice,
             address:{

@@ -160,7 +160,7 @@
 
 .btn-view {
     padding: 8px 16px;
-    background: #4F46E5;
+    background: #ef7c00;
     color: white;
     border: none;
     border-radius: 6px;
@@ -172,7 +172,7 @@
 }
 
 .btn-view:hover {
-    background: #4338CA;
+    background: #ca6138;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
 }
@@ -238,6 +238,29 @@
             <% } %>
         </tbody>
     </table>
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                    </li>
+                <% } %>
+    
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= i == currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+    
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                    </li>
+                <% } %> 
+            </ul>
+        </nav>
+    </div>
 </div>
 
 

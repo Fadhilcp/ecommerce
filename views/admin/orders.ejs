@@ -36,7 +36,7 @@
                     <tbody>
                        <% orders.forEach((item) => { %>
                         <tr>
-                            <td><%= item._id %></td>
+                            <td><%= item.orderId %></td>
                             <td><%= item.date %></td>
                             <td class="text-center"><%= item.address.name %></td>
                             <td class="text-center"><%= item.totalPrice %></td>
@@ -44,8 +44,8 @@
                             <td class="text-center"><%= item.products.length %></td>
                             <td class="text-center"><%= item.status %></td>
                             <td class="text-center">
-                                <button class="btn btn-info" style="font-size: small;">
-                                    <a href="/admin/orderDetail/<%= item._id %>" class="text-white" style="text-decoration: none;">Details</a>
+                                <button class="btn btn-info" style="font-size: small;" onclick="window.location.href = '/admin/orderDetail/<%= item._id %>'">
+                                    <a class="text-white" style="text-decoration: none;">Details</a>
                                 </button>
                             </td>
                         </tr>
@@ -56,22 +56,39 @@
                 </table>           
             </div>
             <!-- card-body end// -->
+
+            
         </div>
         <!-- card end// -->
+
+
+
+
+        <!-- pagination ============================================ -->
+        <div class="pagination-area mt-15 mb-50">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-start">
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage - 1 %>"><</a>
+                        </li>
+                    <% } %>
+        
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= i == currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+        
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage + 1 %>">></a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
       
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     </section>
 

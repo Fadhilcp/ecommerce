@@ -8,6 +8,9 @@ const orderSchema = new Schema({
         ref: 'User', 
         required: true 
       },
+      orderId: {
+        type:String
+      },
       products: [
         {
           product: { 

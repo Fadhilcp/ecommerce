@@ -83,7 +83,7 @@
                         </div>
                     </div>
 
-                    <div class="display-tc d-flex align-items-center justify-content-center gap-2">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
                         <button id="decrease-<%= item._id %>" 
                                 class="btn btn-sm btn-light border px-1" 
                                 onclick="updateQuantity('<%= item._id %>', -1)"
@@ -190,22 +190,29 @@ async function updateQuantity(productId, change) {
 
             console.log('data',data)
 
-            if (newQuantity >= data.availableStock) {
-                increaseButton.disabled = true
+            let availableStock = data.availableStock
+            decreaseButton.disabled = false
 
-            } else {
-                increaseButton.disabled = false
-            }
+            increaseButton.disabled = newQuantity >= availableStock
 
 
-            decreaseButton.disabled = newQuantity <= 1
         }else{
+
+            
                 Swal.fire({
                     icon: 'warning',
                     title:data.message,
                     showConfirmButton: false,
                     timer: 2000,
                 })
+                if(data.availableStock){
+                    quantityInput.value = data.availableStock
+
+                    document.getElementById(`totalPrice-${productId}`).innerText = `₹${(price * data.availableStock)}`
+                    document.getElementById(`subTotal-${productId}`).innerText = `₹${(price * data.availableStock)}`
+                    document.getElementById('grandTotal').innerText = `₹${data.newTotal}`
+                }
+
         }
     } catch (error) {
         console.error('Error updating quantity:', error)
