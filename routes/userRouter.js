@@ -69,7 +69,8 @@ router.get('/deleteCartItem/:id',userAuth,cartController.deleteCartItem)
 
 //wishlist management 
 router.get('/wishlist',isBlock,userAuth,cartController.getWishlist)
-router.post('/addToWishlist',isBlock,cartController.addToWishlist)
+router.post('/addToWishlist',isBlock,userAuth,cartController.addToWishlist)
+router.get('/deleteWishlistItem/:id',isBlock,userAuth,cartController.deleteWishlistItem)
 
 //checkout management
 router.get('/checkout',isBlock,userAuth,checkoutController.getCheckout)

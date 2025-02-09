@@ -72,7 +72,7 @@ const addToCart = async (req,res) => {
 
 
         if (existingProduct) {
-            let totalQuantity = existingProduct.quantity + quantity;
+            let totalQuantity = existingProduct.quantity + quantity
 
             if (totalQuantity > 5) {
                 return res.json({ status: false, message: 'Maximum quantity reached (5)' })
@@ -207,14 +207,18 @@ const getWishlist = async (req,res) => {
 
         if(!userId) return res.redirect('/login')
 
+
+
         const wishlist = await Wishlist.findOne({userId:userId}).populate('products.productId')
 
-        
+        const cart = await Cart.findOne({userId:userId})
+
+        let wishlistProducts = wishlist ? wishlist.products : []
         
         res.render('user/wishlist',{
             user:userId,
             active:'wishlist',
-            products: wishlist ? wishlist.products : []
+            products: wishlistProducts
         })
         
     } catch (error) {
@@ -232,6 +236,12 @@ const addToWishlist = async (req,res) => {
 
         if(!userId){
             return res.json({status:false,message:'Please Login!'})
+        }
+
+        const cart = await Cart.findOne({userId:userId})
+
+        if(cart && cart.products.some(item => item.productId.toString() === productId.toString())){
+            return res.json({status:false,message:'Product already in the cart'})
         }
 
         let wishlist = await Wishlist.findOne({userId:userId})
@@ -264,7 +274,35 @@ const addToWishlist = async (req,res) => {
 
 
 
+const deleteWishlistItem = async (req,res) => {
+    try {
 
+        const productId = req.query.id
+        const userId = req.session.user
+
+        const wishlist = await Wishlist.findOne({userId:userId})
+
+        if(!wishlist){
+            return res.json({status:false,message:'Wishlist not found'})
+        }
+
+        const itemIndex = await wishlist.products.findIndex(item => item.productId.toString() === productId)
+
+        if(!itemIndex) {
+            return res.json({status:false,message:'Product not found'})
+        }
+
+        wishlist.products.splice(itemIndex,1)
+
+        await wishlist.save()
+
+        return res.json({status:true,message:'product removed successfully'})
+        
+    } catch (error) {
+        console.error('wishlist product remove error',error)
+        res.status(500).json({status:false,message:'Internal Server Error'})
+    }
+}
 
 
 
@@ -274,5 +312,6 @@ module.exports = {
     updateCartQuantity,
     deleteCartItem,
     getWishlist,
-    addToWishlist
+    addToWishlist,
+    deleteWishlistItem
 }

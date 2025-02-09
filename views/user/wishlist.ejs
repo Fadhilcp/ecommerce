@@ -45,6 +45,9 @@
                         <span>Price</span>
                     </div>
                     <div class="one-eight text-center">
+                        <span>Stock Status</span>
+                    </div>
+                    <div class="one-eight text-center">
                         <span>Add to Cart</span>
                     </div>
                     <div class="one-eight text-center px-4">
@@ -65,19 +68,28 @@
                     </div>
                     <div class="one-eight text-center">
                         <div class="display-tc">
-                            <span class="price"><%= item.productId.offerPrice %></span>
+                            
+                            <span class="price">₹<%= item.productId.offerPrice %></span>
                         </div>
                     </div>
 
                     <div class="one-eight text-center">
                         <div class="display-tc">
-                            <span class="price"><%= item.productId.offerPrice %></span>
+                            <span class="price">Stock: <%= item.productId.quantity %></span>
+                        </div>
+                    </div>
+
+                    <div class="one-eight text-center">
+                        <div class="display-tc">
+                            <button class="btn btn-secondary" onclick="addToCart('<%= item.productId._id %>')">
+                                <a class="icon-shopping-cart text-white"></a>
+                            </button>
                         </div>
                     </div>
                   
                     <div class="one-eight text-center">
                         <div class="display-tc">
-                            <a href="#" class="closed"></a>
+                            <a onclick="deleteItem('<%= item.productId._id %>')" class="closed"></a>
                         </div>
                     </div>
                 </div>
@@ -114,7 +126,91 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script>
+
+
+    async function addToCart(productId){
+        try {
+
+            const response = await fetch('/addToCart',{
+                method:'POST',
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify({productId})
+            })
+
+            const data = await response.json()
+
+            if(reponse.ok && data.status){
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Product added to Cart',
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+            }else{
+                Swal.fire({
+                    icon: 'warning',
+                    title: data.message ,
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+            }
+            
+        } catch (error) {
+            console.error('add to cart',error)
+        }
+    }
+
+
+    function deleteItem(itemId) {
+                 Swal.fire({
+                         title: "Are you sure?",
+                         text: "Are you sure you want to remove this item?",
+                         icon: "warning",
+                         showCancelButton: true,
+                         confirmButtonColor: "#d33",
+                         cancelButtonColor: "#3085d6",
+                         confirmButtonText: "Yes, remove it!"
+                     }).then((result) => {
+                       if (result.isConfirmed) {
+                              fetch(`/deleteWishlistItem/${itemId}`, {
+                                 method: 'GET',
+                                 headers: {
+                                    'Content-Type': 'application/json'
+                               }
+                           }).then(response => response.json()) 
+                             .then(data => {
+                                  if (data.status) { 
+                                      Swal.fire(
+                                          "Deleted!",
+                                          "Item has been removed.",
+                                          "success"
+                            ).then(() => {
+                                  window.location.reload()
+                           })
+                               } else {
+                                   Swal.fire(
+                                      "Error!",
+                                      "Failed to remove the Item.",
+                                      "error"
+                            )
+                          }
+                          }).catch(err => {
+                               console.error(err)
+                               Swal.fire(
+                               "Error!",
+                               "Something went wrong. Please try again.",
+                               "error"
+                             )
+                          })
+                        }
+                      })  
+    }
+</script>
 
 
 <!-- setting footer -->
