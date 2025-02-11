@@ -154,7 +154,9 @@
             <a href="/wallet" class="sidebar-item">Wallet</a>
             <a href="/address" class="sidebar-item">My Address</a>
             <a href="/updateProfile" class="sidebar-item">Update Profile</a>
+            <% if(!user.googleId){ %>
             <a href="/changePassword" class="sidebar-item">Change Password</a>
+            <% } %>
             <a href="/logout" class="sidebar-item">Logout</a>
         </aside>
 

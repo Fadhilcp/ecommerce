@@ -133,15 +133,15 @@
                                         <% cartItems.forEach(item => { %>
                                     <p><span><%= item.name %>:</span> <span class="totalPrice" id="subTotal-<%= item._id %>">₹<%= item.price*item.quantity %></span></p>
                                     <%})%>
-                                    <p><span>Delivery:</span> <span>$0.00</span></p>
-                                    <p><span>Discount:</span> <span>$45.00</span></p>
+                                    <!-- <p><span>Delivery:</span> <span>$0.00</span></p>
+                                    <p><span>Discount:</span> <span>$45.00</span></p> -->
                                 </div>
 
                                 <div class="grand-total">
                                     <p><span><strong>Total:</strong></span> <span id="grandTotal">₹<%= totalPrice %></span></p>
                                 </div>
                                 <div>
-                                    <button class="btn btn-primary" onclick="window.location.href = '/checkout'">PROCEED TO CHECKOUT</button>
+                                    <button class="btn btn-primary" onclick="toCheckout()">PROCEED TO CHECKOUT</button>
                                 </div>
                                 
                             </div>
@@ -171,7 +171,14 @@ async function updateQuantity(productId, change) {
     let currentQuantity = parseInt(quantityInput.value)
     let newQuantity = currentQuantity + change
 
-    if (newQuantity < 1 || newQuantity >5) return
+    if (newQuantity < 1 || newQuantity >5) {
+        return Swal.fire({
+                    icon: 'info',
+                    title:'Quantity must between 1 to 5',
+                    showConfirmButton: false,
+                    timer: 2000,
+                })
+    }
     try {
         let response = await fetch('/updateCartQuantity', {
             method: 'POST',
@@ -263,6 +270,43 @@ async function updateQuantity(productId, change) {
                         }
                       })  
     }
+
+
+   function toCheckout() {
+
+    const response = fetch('/checkStock',{
+        method:'GET',
+        headers:{
+            'content-type':'application/json'
+        }
+    }).then(response => response.json())
+    .then(data => {
+        if(data.status){
+            window.location.href = '/checkout'
+        }else{
+            Swal.fire({
+                icon: 'warning',
+                title: data.message || 'Please Try again',
+                text: data.text || 'Insufficient stock for product',
+                showConfirmButton: false,
+                timer: 2000,
+            })
+        }
+    })
+    .catch(err => {
+        console.error(err)
+            Swal.fire(
+                "Error!",
+                "Something went wrong. Please try again.",
+                "error"
+            )
+    })
+    
+}
+
+
+
+
 </script>
 
 

@@ -203,7 +203,9 @@
             <a href="/wallet" class="sidebar-item">Wallet</a>
             <a href="/address" class="sidebar-item active">My Address</a>
             <a href="/updateProfile" class="sidebar-item">Update Profile</a>
-            <a href="/changePassword" class="sidebar-item">Change Password</a>
+            <% if(!user.googleId){ %>
+                <a href="/changePassword" class="sidebar-item">Change Password</a>
+                <% } %>
             <a href="/logout" class="sidebar-item">Logout</a>
         </aside>
 
@@ -318,7 +320,7 @@ document.getElementById('addressForm').addEventListener('submit',async function 
     if(!street){
         err2.innerHTML = 'Street is required'
         isValid = false
-    }else if(!/^[A-Za-z0-9\s,-]{3,100}$/.test(street)){
+    }else if(!/^[A-Za-z0-9\s-]{3,100}$/.test(street)){
         err2.innerHTML = 'Enter a valid Street name'
         isValid = false
     }

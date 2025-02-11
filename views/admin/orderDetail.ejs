@@ -169,9 +169,9 @@
                                     <thead>
                                         <tr>
                                             <th class="ps-4">Product</th>
-                                            <th>Price</th>
+                                            
                                             <th>Quantity</th>
-                                            <th class="text-end pe-4">Total</th>
+                                            <th>Price</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -187,9 +187,9 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>₹<%= product.price %></td>
+                                            
                                             <td><%= product.quantity %></td>
-                                            <td class="text-end pe-4">₹<%= product.price*product.quantity %></td>
+                                            <td>₹<%= product.price %></td>
                                         </tr>
                                         <% }) %>
                                     </tbody>
@@ -202,8 +202,7 @@
     
             <!-- Admin Actions -->
             <div class="d-flex justify-content-end gap-3 mt-4">
-                <button class="btn btn-light">Print Order</button>
-                <% if(order.status !== 'Cancelled') {%>
+                <% if(order.status !== 'Cancelled' && order.status !== 'Delivered') {%>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
                     Update Status
                 </button>
@@ -280,10 +279,11 @@
 
                 }else{
                     Swal.fire({
-                    icon:'error',
+                    icon:'warning',
                     title:'Oops',
                     text: data.message
                 })
+
                 }
                 
                 

@@ -459,7 +459,14 @@ function changeQuantity(productId,amount) {
     let currentQuantity = parseInt(quantityInput.value)
     let newQuantity = currentQuantity + amount
 
-    if (newQuantity < 1 || newQuantity > 5) return
+    if (newQuantity < 1 || newQuantity > 5){
+         return Swal.fire({
+                    icon: 'info',
+                    title:'Quantity must between 1 to 5',
+                    showConfirmButton: false,
+                    timer: 2000,
+                })
+    } 
 
     quantityInput.value = newQuantity
 }

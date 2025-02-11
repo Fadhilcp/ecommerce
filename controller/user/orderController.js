@@ -23,6 +23,11 @@ const placeOrder = async (req,res) => {
 
         const user = await User.findById(userId)
         const addressData = await Address.findOne({userId:userId})
+
+        if(!addressData){
+            return res.json({status:false,message:'Please add Address'})
+        }
+        
         const selectedAddress = addressData.address.find(item => item._id.toString() === addressId)
 
         const cart = await Cart.findOne({userId:userId}).populate('products.productId')
@@ -71,6 +76,7 @@ const placeOrder = async (req,res) => {
         }
         await Cart.findOneAndUpdate({ userId: userId }, { products: [] })
 
+        delete req.session.checkout
         req.session.orderId = order._id
 
         res.json({status:true,redirectUrl:'/orderComplete'})
@@ -118,6 +124,9 @@ const cancelOrder = async (req,res) => {
 
         if(!order){
             return res.json({status:false,message:'Order not found'})
+        }
+        if(order.status === 'Cancelled' || order.status === 'Delivered'){
+            return res.json({status:false,message:`Order already ${order.status}`})
         }
 
         order.status = 'Cancelled'

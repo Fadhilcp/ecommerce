@@ -69,12 +69,18 @@ const updateOrderStatus = async (req,res) => {
 
         const orderId = req.params.id
 
+        const existingOrder = await Order.findById(orderId)
 
-        const updateOrder = await Order.findByIdAndUpdate(orderId, {status:updateStatus},{new:true})
-
-        if(!updateOrder){
+        if(!existingOrder){
             return res.json({status:false,message:'Order not found'})
         }
+
+        if(existingOrder.status === 'Cancelled'){
+            return res.json({status:false,message:'Order is already Cancelled'})
+        }
+        
+
+        const updateOrder = await Order.findByIdAndUpdate(orderId, {status:updateStatus},{new:true})
 
         if(updateOrder.status === 'Cancelled'){
             for(const item of updateOrder.products){

@@ -72,7 +72,7 @@ const account = async (req, res) => {
         const userData = await User.findById(user)
 
         res.render('user/account', {
-            user: user,
+            user: userData,
             username: userData.username,
             email: userData.email,
             active: 'account'
@@ -89,7 +89,12 @@ const account = async (req, res) => {
 const getChangePassword = async (req, res) => {
     try {
         const user = req.session.user
-        res.render('user/changePassword', { user: user, active: 'account' })
+        const userData = await User.findById(user)
+
+        if(userData.googleId){
+            return res.redirect('/account')
+        }
+        res.render('user/changePassword', { user: userData, active: 'account' })
     } catch (error) {
         console.error('change password page error', error)
         res.status(500).json('internal server error')
@@ -150,7 +155,9 @@ const getCreateAddress = async (req, res) => {
 
         const user = req.session.user
 
-        res.render('user/createAddress', { user: user, active: 'account' })
+        const userData = await User.findById(user)
+
+        res.render('user/createAddress', { user: userData, active: 'account' })
     } catch (error) {
         console.error('create address page error', error)
         res.redirect('/pageError')
@@ -197,6 +204,8 @@ const getEditAddress = async (req, res) => {
         const addressId = req.query.id
         const userId = req.session.user
 
+        const userData = await User.findById(userId)
+
         const currentAddress = await Address.findOne({
             'address._id': addressId
         })
@@ -213,7 +222,7 @@ const getEditAddress = async (req, res) => {
             return res.redirect('/pageError')
         }
 
-        res.render('user/editAddress', { address: addressData, user: userId, active: 'account' })
+        res.render('user/editAddress', { address: addressData, user: userData, active: 'account' })
 
     } catch (error) {
         console.error('edit address page error', error)
@@ -290,9 +299,15 @@ const deleteAddress = async (req, res) => {
 const getForgotPassword = async (req, res) => {
     try {
 
-        res.render('user/forgotPassword', { active: 'login' })
+        const userId = req.session.user
+        const userData = await User.findById(userId)
+
+        res.render('user/forgotPassword', { 
+            active:'login',
+            user:userData
+        })
     } catch (error) {
-        console.error('forgot password page error')
+        console.error('forgot password page error',error)
         res.redirect('/pageError')
     }
 }
@@ -303,6 +318,7 @@ const forgotPasswordEmail = async (req, res) => {
         const { email } = req.body
         const findUser = await User.findOne({ email: email })
 
+
         if (findUser) {
             const otp = verificationOtp()
             const emailSent = verificationEmail(email, otp)
@@ -311,14 +327,15 @@ const forgotPasswordEmail = async (req, res) => {
                 console.log('forgot pass Otp', otp)
                 req.session.userOtp = otp
                 req.session.email = email
-                return res.render('user/forgotPasswordOtp')
+                return res.render('user/forgotPasswordOtp',{
+                    active:'login',
+                    user:'user'
+                })
             } else {
-                // return res.json({status:false,message:'Failed to sent OTP,Please try again'})
                 return res.render('user/forgotPassword', { message: 'Failed to sent OTP,Please try again' })
             }
 
         } else {
-            // return res.json({status:false,message:'User with this email does not exist'})
             return res.render('user/forgotPassword', { message: 'User with this email does not exist' })
         }
     } catch (error) {
@@ -427,6 +444,7 @@ const getOrders = async(req,res) => {
         const skip = (page - 1)*limit
 
         const userId = req.session.user
+        const userData = await User.findById(userId)
         const orderData = await Order.find({userId:userId})
         .sort({createdAt:-1})
         .skip(skip)
@@ -440,7 +458,7 @@ const getOrders = async(req,res) => {
         const totalPages = Math.ceil(totalOrders / limit)
 
         res.render('user/orders',{
-            user:userId,
+            user:userData,
             totalPages:totalPages,
             currentPage:page,
             active:'account',
@@ -459,6 +477,7 @@ const getOrderDetail = async (req,res) => {
     try {
 
         const userId = req.session.user
+        const userData = await User.findById(userId)
 
         const orderId = req.params.id
 
@@ -470,9 +489,8 @@ const getOrderDetail = async (req,res) => {
         
 
         return res.render('user/orderDetails',{
-            order:orderData,
-            
-            user:userId,
+            order:orderData, 
+            user:userData,
             active:'account'
         })
         
@@ -481,6 +499,29 @@ const getOrderDetail = async (req,res) => {
         res.redirect('/pageError')
     }
 }
+
+
+
+
+const getWallet = async (req,res) => {
+    try {
+
+        const userId = req.session.user
+        const userData = await User.findById(userId)
+
+        res.render('user/wallet',{
+            user:userData,
+            active:'account'
+        })
+        
+    } catch (error) {
+        console.error('Wallet page Error',error)
+        res.redirect('/pageError')
+    }
+}
+
+
+
 
 module.exports = {
     account,
@@ -499,5 +540,6 @@ module.exports = {
     resendOtp,
     newPassword,
     getOrders,
-    getOrderDetail
+    getOrderDetail,
+    getWallet
 }

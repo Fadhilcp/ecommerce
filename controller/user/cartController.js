@@ -30,6 +30,8 @@ const getCart = async (req,res) => {
             total: item.productId.offerPrice * item.quantity
         }))
 
+        cartItems.reverse()
+
         const totalPrice = cartItems.reduce((sum,item) => sum + item.total,0) 
 
         return res.render('user/cart',{

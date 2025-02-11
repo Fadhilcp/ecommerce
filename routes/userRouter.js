@@ -61,11 +61,15 @@ router.get('/orders',isBlock,userAuth,profileController.getOrders)
 router.get('/orderDetails/:id',isBlock,userAuth,profileController.getOrderDetail)
 router.post('/cancelOrder/:id',isBlock,userAuth,orderController.cancelOrder)
 
+//wallet
+router.get('/wallet',isBlock,profileController.getWallet)
+
 //cart management
 router.get('/cart',isBlock,userAuth,cartController.getCart)
 router.post('/addToCart',isBlock,cartController.addToCart)
 router.post('/updateCartQuantity',userAuth,cartController.updateCartQuantity)
 router.get('/deleteCartItem/:id',userAuth,cartController.deleteCartItem)
+
 
 //wishlist management 
 router.get('/wishlist',isBlock,userAuth,cartController.getWishlist)
@@ -73,6 +77,7 @@ router.post('/addToWishlist',isBlock,userAuth,cartController.addToWishlist)
 router.get('/deleteWishlistItem/:id',isBlock,userAuth,cartController.deleteWishlistItem)
 
 //checkout management
+router.get('/checkStock',isBlock,userAuth,checkoutController.checkStock)
 router.get('/checkout',isBlock,userAuth,checkoutController.getCheckout)
 
 //place order
