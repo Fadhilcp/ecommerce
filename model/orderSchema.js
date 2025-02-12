@@ -38,6 +38,22 @@ const orderSchema = new Schema({
           price: { 
             type: Number, 
             required: true 
+          },
+          cancelStatus:{
+            type:String,
+            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled','Requested','Approved','Rejected'], 
+            default: 'Pending' 
+          },
+          itemCancelReason: {
+            type: String,
+            default:''
+          },
+          refundStatus: {
+            type:String,
+            enum:['Requested','Approved','Rejected']
+          },
+          refundReason: {
+            type:String
           }
         }
       ],
@@ -77,13 +93,20 @@ const orderSchema = new Schema({
       },
       status: {
         type: String,
-        enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
+        enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Requested', 'Approved', 'Rejected'],
         default: 'Pending'
       },
       paymentStatus: {
         type: String, 
-        enum: ['PaymentPending', 'Pending', 'Paid', 'Failed'], 
-        default: 'PaymentPending' 
+        enum: ['Pending', 'Paid', 'Failed'], 
+        default: 'Pending'
+      },
+      refundStatus: {
+        type:String,
+        enum:['Requested','Approved','Rejected']
+      },
+      refundReason: {
+        type:String
       },
       orderCancelReason: {
         type: String,
@@ -101,4 +124,4 @@ const orderSchema = new Schema({
 
 
 const Order = mongoose.model('Order',orderSchema)
-module.exports = Order 
+module.exports = Order

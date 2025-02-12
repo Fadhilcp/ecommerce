@@ -208,7 +208,6 @@
 
    async function validateAndSubmit(event,productId){
        if(validateForm()){
-        //    document.getElementById('addProductForm').submit()
 
         const msg = document.getElementById('error-msg')
             event.preventDefault()
@@ -385,13 +384,13 @@
       }
      
      
-              
-     
-     
-                 if ( parseInt(quantity) < 0) {
-                     displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.')
-                     isValid = false
-                 }
+     if (isNaN(quantity)) {
+             displayErrorMessage('quantity-error', 'Please enter numbers only.')
+             isValid = false
+     }else if ( parseInt(quantity) < 0) {
+            displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.')
+            isValid = false
+    }
      
      
      

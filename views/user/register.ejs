@@ -90,6 +90,27 @@
                 color: crimson;
                 font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
             }
+
+
+            .password-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .password-container input {
+        width: 100%;
+        padding-right: 40px;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 10px;
+        cursor: pointer;
+        user-select: none;
+        font-size: 18px;
+    }
+       
     
         </style>
     
@@ -107,9 +128,15 @@
                         <span><p class="msg" id="msg1"></p></span>
                         <input id="email" name="email" type="email" placeholder="EMAIL">
                         <span><p class="msg" id="msg2"></p></span>
-                        <input id="password" name="password" type="password" placeholder="PASSWORD">
+                        <div class="password-container">
+                            <input id="password" name="password" type="password" placeholder="PASSWORD">
+                            <span class="toggle-password" onclick="togglePassword('password')"><i class="fa fa-eye" aria-hidden="true"></i></span>
+                        </div>
                         <span><p class="msg" id="msg3"></p></span>
-                        <input id="confirmPassword" name="confirmPassword" type="password" placeholder="CONFIRM PASSWORD">
+                        <div class="password-container">
+                            <input id="confirmPassword" name="confirmPassword" type="password" placeholder="CONFIRM PASSWORD">
+                            <span class="toggle-password" onclick="togglePassword('confirmPassword')"><i class="fa fa-eye" aria-hidden="true"></i></span>
+                        </div>
                         <span><p class="msg" id="msg4"></p></span>
                         <p id="msg"></p>
                         <%if(locals.message && message.length > 0){%>
@@ -140,6 +167,11 @@
     
 
             <script>
+
+function togglePassword(inputId) {
+        let input = document.getElementById(inputId);
+        input.type = input.type === "password" ? "text" : "password";
+    }
 
 
                 document.addEventListener('DOMContentLoaded',function(){

@@ -170,6 +170,10 @@ const deleteCartItem = async (req,res) => {
     try {
 
         const userId = req.session.user
+
+        if(!userId){
+            return res.redirect({status:false,message:'Please Login'})
+        }
         const itemId = req.params.id
 
         const cart = await Cart.findOne({userId:userId})
@@ -216,11 +220,17 @@ const getWishlist = async (req,res) => {
         const cart = await Cart.findOne({userId:userId})
 
         let wishlistProducts = wishlist ? wishlist.products : []
+
+        //to Find the similar products
+        const wishlistProductIds = wishlist ? wishlist.products.map(item => item.productId._id) : []
+        const similarProducts = await Product.find({_id:{$nin: wishlistProductIds }}).limit(4)
+
         
         res.render('user/wishlist',{
             user:userId,
             active:'wishlist',
-            products: wishlistProducts
+            products: wishlistProducts,
+            similarProducts:similarProducts
         })
         
     } catch (error) {
@@ -276,6 +286,65 @@ const addToWishlist = async (req,res) => {
 
 
 
+const wishlistToCart = async (req,res) => {
+    try {
+
+        const {productId} = req.body
+
+        const userId = req.session.user
+
+        const product = await Product.findById(productId)
+
+        if(!product){
+            return res.json({status:false,message:'Product not found'})
+        }
+
+        const cart = await Cart.findOne({userId:userId})
+
+        if(!cart){
+            cart = new Cart({userId,products:[]})
+        }
+
+        let existingProduct = cart.products.find(item => item.productId.toString() === productId)
+        if(existingProduct){
+            let totalQuantity = existingProduct.quantity + 1
+
+            if (totalQuantity > product.quantity) {
+                return res.json({ status: false, message: 'Not enough stock available' })
+            }
+
+            if (totalQuantity > 5) {
+                return res.json({ status: false, message: 'Maximum quantity reached (5)' })
+            }
+            
+            existingProduct.quantity += 1
+        }else{
+            cart.products.push({ 
+                productId,
+                price: product.offerPrice
+            })
+        }
+
+        const wishlist = await Wishlist.findOne({userId:userId})
+
+        const itemIndex = await wishlist.products.findIndex(item => item.productId.toString() === productId)
+
+        wishlist.products.splice(itemIndex,1)
+
+        await cart.save()
+        await wishlist.save()
+
+        return res.json({status:true})
+
+        
+    } catch (error) {
+        console.error('add product to cart from wishlist error',error)
+        res.redirect('/pageError')
+    }
+}
+
+
+
 const deleteWishlistItem = async (req,res) => {
     try {
 
@@ -308,6 +377,11 @@ const deleteWishlistItem = async (req,res) => {
 
 
 
+
+
+
+
+
 module.exports = {
     getCart,
     addToCart,
@@ -315,5 +389,6 @@ module.exports = {
     deleteCartItem,
     getWishlist,
     addToWishlist,
-    deleteWishlistItem
+    deleteWishlistItem,
+    wishlistToCart
 }

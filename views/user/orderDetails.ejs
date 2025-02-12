@@ -244,10 +244,16 @@
                                             <td style="vertical-align: middle;"><%= item.quantity %></td>
                                             <td style="vertical-align: middle;">₹<%= item.price %></td>
                                             <td style="vertical-align: middle;">
-                                                <% if(order.status !== 'Cancelled' && order.status !== 'Delivered'){ %>
-                                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal<%= item._id %>">
-                                                    Cancel
-                                                </button>
+                                                <% if (order.status !== 'Cancelled' && order.status !== 'Delivered') { %>
+                                                    <% if (item.cancelStatus === 'Delivered') { %>
+                                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#returnItemModal<%= item.product %>">
+                                                            Return
+                                                        </button>
+                                                    <% } else if (item.cancelStatus !== 'Cancelled') { %>
+                                                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal<%= item.product %>">
+                                                            Cancel
+                                                        </button>
+                                                    <% } %>
                                                 <% } %>
                                             </td>
                                         </tr>
@@ -277,13 +283,90 @@
                 </div>
 
               <!-- Cancel Order Button ========================================== -->
-               <% if(order.status !== 'Cancelled' && order.status !== 'Delivered'){ %>
+               <% if(order.status === 'Pending' || order.status === 'Shipped'){ %>
 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
     Cancel Order
 </button>
     <% } %>
 
+    <% if(order.status === 'Delivered'){ %>
+        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#returnOrderModal">
+            Return
+        </button>
+            <% } %>
+
             </div>
+
+
+
+            <!-- Return Item Modal =====================================================-->
+            <% order.products.forEach((item) => { %>
+<div class="modal fade" id="returnItemModal<%= item.product %>" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Return Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark">Select Reason for Cancellation</label>
+                        <select class="form-select custom-select" id="returnItemReason">
+                            <option value="">Choose a reason</option>
+                            <option value="Received Damaged Item">Received Damaged Item</option>
+                            <option value="Wrong Product Delivered">Wrong Product Delivered</option>
+                            <option value="Defective Item">Defective Item</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger confirm-cancel" onclick="returnOrder('<%= order._id %>')">
+                    Confirm Cancellation
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<% }) %>
+<!-- Return item modal ------------------------------------------------------------------ -->
+
+
+                   
+<!-- Return Order Modal =====================================================-->
+<div class="modal fade" id="returnOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Return Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark">Select Reason for Cancellation</label>
+                        <select class="form-select custom-select" id="returnReason">
+                            <option value="">Choose a reason</option>
+                            <option value="Received Damaged Item">Received Damaged Item</option>
+                            <option value="Wrong Product Delivered">Wrong Product Delivered</option>
+                            <option value="Defective Item">Defective Item</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger confirm-cancel" onclick="returnOrder('<%= order._id %>')">
+                    Confirm Cancellation
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Return order modal ------------------------------------------------------------------ -->
+
 
             
 <!-- Cancel Order Modal =====================================================-->
@@ -300,7 +383,7 @@
                         <label class="form-label fw-bold text-dark">Select Reason for Cancellation</label>
                         <select class="form-select custom-select" id="cancelReason">
                             <option value="">Choose a reason</option>
-                            <option value="Ordered Wrong Item">Ordered Wrong Item</option>
+                            <option value="Ordered Wrong Item">Ordered Wrong Items</option>
                             <option value="Changed My Mind">Changed My Mind</option>
                             <option value="Delivery Time Too Long">Delivery Time Too Long</option>
                             <option value="Found Better Price">Found Better Price</option>
@@ -324,22 +407,21 @@
 
 <!----------------- For individual order cancel ---------------------------- -->
             <% order.products.forEach((item) => { %>
-            <div class="modal fade" id="cancelModal<%= item._id %>" tabindex="-1">
+            <div class="modal fade" id="cancelModal<%= item.product %>" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Cancel Item</h5>
+                            <h5 class="modal-title">Cancel Product</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
                             <form>
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-dark">Select Reason for Cancellation</label>
-                                    <select class="form-select custom-select">
+                                    <select class="form-select custom-select" id="cancelReason<%= item.product %>">
                                         <option value="">Choose a reason</option>
                                         <option value="Ordered Wrong Item">Ordered Wrong Item</option>
                                         <option value="Changed My Mind">Changed My Mind</option>
-                                        <option value="Delivery Time Too Long">Delivery Time Too Long</option>
                                         <option value="Found Better Price">Found Better Price</option>
                                         <option value="other">Other</option>
                                     </select>
@@ -348,7 +430,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-danger">Confirm Cancellation</button>
+                            <button type="button" class="btn btn-danger" onclick="cancelItem('<%= item.product %>','<%= order._id %>')">Confirm Cancellation</button>
                         </div>
                     </div>
                 </div>
@@ -371,7 +453,7 @@
 
             const reason = document.getElementById('cancelReason').value
 
-            if(reason === ''){
+            if(!reason){
                 Swal.fire({
                              icon: 'info',
                              title:'Please choose a reason!',
@@ -394,7 +476,7 @@
             if(result.isConfirmed){
 
                 const response = await fetch(`/cancelOrder/${orderId}`,{
-                method:'POST',
+                method:'PATCH',
                 headers:{
                     'content-type':'application/json'
                 },
@@ -429,6 +511,131 @@
             console.error('order cancel error',error)
         }
     }
+
+
+    async function returnOrder(orderId){
+        try {
+
+            const reason = document.getElementById('returnReason').value
+
+            if(reason === ''){
+                Swal.fire({
+                             icon: 'info',
+                             title:'Please choose a reason!',
+                             showConfirmButton: false,
+                             timer: 2000,
+                         })
+                         return 
+            }
+
+           const result = await Swal.fire({
+                title: "Return Order",
+                text: "Are you sure you want to return this order?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#42ce00",
+                cancelButtonColor: "#c52300",
+                confirmButtonText: "Yes, return the order!"
+            })
+
+            if(result.isConfirmed){
+
+                const response = await fetch(`/returnOrder/${orderId}`,{
+                method:'PATCH',
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify({reason})
+            })
+
+            const data = await response.json()
+
+            if(response.ok && data.status){
+
+                await Swal.fire({
+                title: "Return Requested",
+                text: "Your return request has been submitted successfully.",
+                icon: "success",
+                showCancelButton: false,
+            })
+
+            window.location.href = data.redirectUrl
+
+            }else{
+                Swal.fire({
+                title: "warning",
+                text: data.message || 'Something went wrong. Please try again!',
+                icon: "info",
+                showCancelButton: false,
+            })
+            }
+
+            }
+        
+        } catch (error) {
+            console.error('order cancel error',error)
+        }
+    }
+
+
+    async function cancelItem(productId,orderId) {
+    try {
+        const reason = document.getElementById(`cancelReason${productId}`).value
+
+        if (!reason) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Please choose a reason!',
+                showConfirmButton: false,
+                timer: 2000,
+            })
+            return
+        }
+
+        const result = await Swal.fire({
+            title: "Cancel Item",
+            text: "Are you sure you want to cancel this item?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#dc3545",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, Cancel Item"
+        })
+
+        if (result.isConfirmed) {
+            const response = await fetch(`/cancelItem/${orderId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({productId , reason})
+            })
+
+            const data = await response.json()
+
+            if (response.ok && data.status) {
+                await Swal.fire({
+                    title: "Canceled",
+                    text: "Item has been canceled successfully",
+                    icon: "success",
+                    showCancelButton: false,
+                })
+
+                window.location.reload()
+            } else {
+                Swal.fire({
+                    title: "Error",
+                    text: data.message,
+                    icon: "error",
+                    showCancelButton: false,
+                })
+            }
+        }
+    } catch (error) {
+        console.error('Item cancellation error:', error)
+    }
+}
+
 </script>
 
 

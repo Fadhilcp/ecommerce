@@ -3,7 +3,7 @@ const User = require('../../model/userSchema')
 const Cart = require('../../model/cartSchema')
 const Address = require('../../model/addressSchema')
 const Order = require('../../model/orderSchema')
-
+const Wallet = require('../../model/walletSchema')
 
 
 function customOrderId(){
@@ -117,6 +117,7 @@ const getOrderComplete = async (req,res) => {
 const cancelOrder = async (req,res) => {
     try {
 
+        const userId = req.session.user
         const orderId = req.params.id 
         const {reason} = req.body
 
@@ -125,6 +126,7 @@ const cancelOrder = async (req,res) => {
         if(!order){
             return res.json({status:false,message:'Order not found'})
         }
+
         if(order.status === 'Cancelled' || order.status === 'Delivered'){
             return res.json({status:false,message:`Order already ${order.status}`})
         }
@@ -134,6 +136,20 @@ const cancelOrder = async (req,res) => {
 
         await order.save()
 
+        let wallet = await Wallet.findOne({userId:userId})
+
+        if(!wallet){
+            wallet = new Wallet({userId,transaction:[]})
+        }
+
+        wallet.balance += order.totalPrice
+
+        wallet.transaction.push({
+            transactionType: 'payment',
+            amount: order.totalPrice 
+        })
+
+        await wallet.save()
 
         for(const item of order.products){
             await Product.findByIdAndUpdate(item.product ,{
@@ -150,8 +166,71 @@ const cancelOrder = async (req,res) => {
     }
 }
 
+const cancelItem = async (req,res) => {
+    try {
+
+        const orderId = req.params.id 
+        const {productId,reason} = req.body
+
+        const order = await Order.findById(orderId)
+
+            const productIndex = order.products.findIndex(item => item.product.toString() === productId)
+
+            if (productIndex === -1) {
+                return res.json({ status: false, message: 'Product not found in order' })
+            }
+            
+            if (order.products[productIndex].cancelStatus === 'Cancelled') {
+                return res.json({ status: false, message: 'Product already cancelled' })
+            }
+
+            order.products[productIndex].cancelStatus = 'Cancelled'
+            order.products[productIndex].itemCancelReason = reason
+
+            await Product.findByIdAndUpdate(productId, {
+                $inc: { quantity: order.products[productIndex].quantity }
+            })
+
+            await order.save()
+            return res.json({ status:true, message:'Product cancelled successfully'})
+        
+    } catch (error) {
+        console.error('Error while cancel individual Product',error)
+        res.redirect('/pageError')
+    }
+}
+
+
+const returnOrder = async (req,res) => {
+    try {
+
+        const orderId = req.params.id 
+        const {reason} = req.body
+
+        const order = await Order.findById(orderId)
+
+        if(!order){
+            return res.json({status:false,message:'Order not found'})
+        }
+        order.status = 'Requested'
+        order.refundStatus = 'Requested'
+        order.refundReason = reason
+
+        await order.save()
+
+        return res.json({status:true,redirectUrl:'/orders'})
+
+        
+    } catch (error) {
+        console.error('error while return order',error)
+        res.json({status:false,message:'error while cancel order'})
+    }
+}
+
 module.exports = {
     placeOrder,
     getOrderComplete,
-    cancelOrder
+    cancelOrder,
+    returnOrder,
+    cancelItem
 }

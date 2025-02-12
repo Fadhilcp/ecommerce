@@ -1,6 +1,7 @@
 const Address = require('../../model/addressSchema')
 const User = require('../../model/userSchema')
 const Order = require('../../model/orderSchema')
+const Wallet = require('../../model/walletSchema')
 const bcrypt = require('bcrypt')
 const nodeMailer = require('nodemailer')
 const env = require('dotenv').config()
@@ -483,7 +484,7 @@ const getOrderDetail = async (req,res) => {
 
         const orderData = await Order.findById(orderId)
 
-        orderData.date = moment(orderData.createdAt).format('DD/MM/YYYY')
+        orderData.date = moment(orderData.createdAt).format('MMMM Do YYYY, h:mm:ss A')
 
        
         
@@ -509,9 +510,24 @@ const getWallet = async (req,res) => {
         const userId = req.session.user
         const userData = await User.findById(userId)
 
+        let wallet = await Wallet.findOne({userId:userId})
+
+        if(!wallet){
+            wallet = new Wallet({userId,transaction:[]})
+        }
+
+        wallet.transaction.forEach((item) => {
+            item.Date = moment(item.date).format('MMMM Do YYYY, h:mm:ss A')
+        })
+
+        wallet.update = moment(wallet.updatedAt).format('MMMM Do YYYY, h:mm:ss A')
+
+        console.log('this wallet',wallet)
+
         res.render('user/wallet',{
             user:userData,
-            active:'account'
+            active:'account',
+            wallet:wallet
         })
         
     } catch (error) {

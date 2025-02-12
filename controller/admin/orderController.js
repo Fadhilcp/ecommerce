@@ -2,6 +2,7 @@ const User = require('../../model/userSchema')
 const Order = require('../../model/orderSchema')
 const Product = require('../../model/productSchema')
 const moment = require('moment')
+const Wallet = require('../../model/walletSchema')
 
 
 
@@ -98,8 +99,55 @@ const updateOrderStatus = async (req,res) => {
     }
 }
 
+
+const returnStatus = async (req,res) => {
+    try {
+
+        const {result} = req.body
+
+        const orderId = req.params.id
+
+        console.log('this reslt',result)
+
+        const order = await Order.findById(orderId)
+
+        if(!order){
+            return res.json({status:false,message:'Order not found'})
+        }
+
+        order.status = result
+        order.refundStatus = result === 'Approved' ? 'Approved' : 'Rejected'
+
+        let wallet = await Wallet.findOne({userId:order.userId})
+
+        if(!wallet){
+            wallet = new Wallet({userId:order.userId,transaction:[]})
+        }
+
+        if(order.refundStatus === 'Approved'){
+            wallet.balance += order.totalPrice
+
+            wallet.transaction.push({
+                transactionType:'refund',
+                amount: order.totalPrice
+            })
+        }
+        await wallet.save()
+
+        await order.save()
+
+        res.json({status:true})
+        
+    } catch (error) {
+        console.error('return status Error',error)
+        res.redirect('/admin/redirect')
+    }
+}
+
+
 module.exports = {
     getOrder,
     getOrderDetail,
-    updateOrderStatus
+    updateOrderStatus,
+    returnStatus
 }

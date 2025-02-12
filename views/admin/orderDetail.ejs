@@ -92,6 +92,12 @@
         font-size: 1rem;
         margin-bottom: 1rem;
     }
+
+    .refund-reason-box {
+    max-width: 400px;
+    border-left: 4px solid #007bff;
+    background-color: #f8f9fa;
+}
 </style>
 
 
@@ -202,14 +208,41 @@
     
             <!-- Admin Actions -->
             <div class="d-flex justify-content-end gap-3 mt-4">
-                <% if(order.status !== 'Cancelled' && order.status !== 'Delivered') {%>
+                <% if(order.status === 'Pending' || order.status === 'Shipped') {%>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
                     Update Status
                 </button>
             <% } %>
             </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
+
+                <% if(order.status === 'Requested') {%>
+    <div class="refund-reason-box p-3 border rounded bg-light">
+        <strong>Refund Reason:</strong>
+        <p class="mb-0"><%= order.refundReason %></p>
+    </div>
+
+    <div class="d-flex gap-3">
+        <button class="btn btn-success px-4" onclick="returnStatus('Approved','<%= order._id %>')">
+            Approve
+        </button>
+        <button class="btn btn-danger px-4" onclick="returnStatus('Rejected','<%= order._id %>')">
+            Reject
+        </button>
+    </div>
+
+</div>
+<% } %>
+
+
             
         </div>
+
+
+
+        
+
 
 
         <!-- Update Status Modal =============================-->
@@ -288,7 +321,47 @@
                 
                 
             } catch (error) {
-                console.error('error while updating order status')
+                console.error('error while updating order status',error)
+            }
+        }
+
+
+        async function returnStatus(result,orderId){
+            try {
+
+                const response = await fetch(`/admin/returnStatus/${orderId}`,{
+                    method:'PATCH',
+                    headers:{
+                        'content-type':'application/json'
+                    },
+                    body:JSON.stringify({result})
+                })
+
+                const data = await response.json()
+
+                if(data.status){
+                    await Swal.fire({
+                    icon:'success',
+                    title:'Status updated',
+                    text:'Status updated',
+                    customClass: {
+                       title: 'swal-title-black'
+                    }
+                })
+                window.location.reload()
+                }else{
+                    Swal.fire({
+                    icon:'error',
+                    title:'Error',
+                    text:'Something went wrong',
+                    customClass: {
+                       title: 'swal-title-black'
+                    }
+                    })
+                }
+                
+            } catch (error) {
+                console.error('error while updating return order status',error)
             }
         }
 

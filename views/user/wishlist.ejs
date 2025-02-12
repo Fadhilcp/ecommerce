@@ -81,7 +81,7 @@
 
                     <div class="one-eight text-center">
                         <div class="display-tc">
-                            <button class="btn btn-secondary" onclick="addToCart('<%= item.productId._id %>')">
+                            <button class="btn btn-secondary" onclick="wishlistToCart('<%= item.productId._id %>')">
                                 <a class="icon-shopping-cart text-white"></a>
                             </button>
                         </div>
@@ -109,17 +109,21 @@
         <div class="row">
 
 
-            <div class="col-md-3 col-lg-3 mb-4 text-center">
-                <div class="product-entry border">
-                    <a href="#" class="prod-img">
-                        <img src="images/item-1.jpg" class="img-fluid" alt="Free html5 bootstrap 4 template">
-                    </a>
-                    <div class="desc">
-                        <h2><a href="#">Women's Boots Shoes Maca</a></h2>
-                        <span class="price">$139.00</span>
+            <% if(similarProducts.length > 0) { %>
+                <% similarProducts.forEach((item) => { %>
+                    <div class="col-md-3 col-lg-3 mb-4 text-center">
+                        <div class="product-entry border">
+                            <a href="/productDetails?id=<%= item._id %>" class="prod-img">
+                                <img src="/uploads/reImage/<%= item.productImage[0] %>" class="img-fluid" alt="Free html5 bootstrap 4 template">
+                            </a>
+                            <div class="desc">
+                                <h2><a href="#"><%= item.productName %></a></h2>
+                                <span class="price"><%= item.offerPrice %></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                    <% }) %>
+                    <% } %>
             
             
         </div>
@@ -131,10 +135,11 @@
 <script>
 
 
-    async function addToCart(productId){
+    async function wishlistToCart(productId){
+        console.log('this is fun')
         try {
 
-            const response = await fetch('/addToCart',{
+            const response = await fetch('/wishlistToCart',{
                 method:'POST',
                 headers:{
                     'content-type':'application/json'
@@ -144,13 +149,15 @@
 
             const data = await response.json()
 
-            if(reponse.ok && data.status){
-                Swal.fire({
+            if(response.ok && data.status){
+               await Swal.fire({
                     icon: 'success',
                     title: 'Product added to Cart',
                     showConfirmButton: false,
                     timer: 1500,
                 })
+
+                window.location.reload()
             }else{
                 Swal.fire({
                     icon: 'warning',
@@ -210,6 +217,14 @@
                         }
                       })  
     }
+
+
+
+
+
+
+
+
 </script>
 
 

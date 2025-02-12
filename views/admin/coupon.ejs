@@ -1,0 +1,141 @@
+
+
+
+<!-- setting header -->
+<%- include("../../views/partials/admin/header") %>
+
+
+<style>
+
+        .badge-active {
+            background-color: #28a745;
+        }
+        .badge-expired {
+            background-color: #dc3545;
+        }
+
+        .coupons-container {
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+        .coupon {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #006100;
+        }
+        .coupon-code {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .copy-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .copy-btn:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Products List</h2>
+        </div>
+    </div>
+
+<div class="container">
+    
+    <div class="row">
+        <!-- Coupon Creation Form -->
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Create New Coupon</h5>
+                </div>
+                <div class="card-body">
+                    <form id="couponForm">
+                        <div class="mb-3">
+                            <label for="couponCode" class="form-label">Coupon Code</label>
+                            <input type="text" class="form-control" id="couponCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="discountAmount" class="form-label">Discount Amount (%)</label>
+                            <input type="number" class="form-control" id="discountAmount" min="0" max="100" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="startDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="endDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" rows="2" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Create Coupon</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coupons List -->
+        <div class="col-md-8">
+            <div class="coupons-container">
+                <h2>Available Coupons</h2>
+                <div class="row" id="couponsList">
+                    <div class="coupon">
+                        <div>
+                            <p><strong>10% OFF</strong></p>
+                            <p class="coupon-code">SAVE10</p>
+                            <p>Expires: 2025-03-01</p>
+                        </div>
+                        <button class="copy-btn">
+                            <i class="fa-solid fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    
+                    <div class="coupon">
+                        <div>
+                            <p><strong>Free Shipping</strong></p>
+                            <p class="coupon-code">FREESHIP</p>
+                            <p>Expires: 2025-04-15</p>
+                        </div>
+                        <button class="copy-btn">
+                            <i class="fa-solid fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    
+                    <div class="coupon">
+                        <div>
+                            <p><strong>20% OFF</strong></p>
+                            <p class="coupon-code">WELCOME20</p>
+                            <p>Expires: 2025-05-10</p>
+                        </div>
+                        <button class="copy-btn">
+                            <i class="fa-solid fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</section>
+
+
+
+
+    <!-- setting footer -->
+    <%- include("../../views/partials/admin/footer") %>

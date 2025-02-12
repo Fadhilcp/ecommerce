@@ -53,37 +53,38 @@ const getShop = async (req,res) => {
         const limit = 9
         const skip = (page - 1) * limit
 
+        
+        let filterCondition = {
+            isBlocked:false,
+            category:{$in:categoryIds}
+        }
 
         let sortOption = {}
         
+        //for filter
         if (req.query.sort) {
+
+            filterCondition.quantity = { $gt: 0 }
+
             switch (req.query.sort) {
                 case "name-asc":
-                    sortOption = { productName: 1 } // A to Z
+                    sortOption = { productName: 1 } 
                     break
                 case "name-desc":
-                    sortOption = { productName: -1 } // Z to A
+                    sortOption = { productName: -1 } 
                     break
                 case "price-asc":
-                    sortOption = { offerPrice: 1 } // Low to High
+                    sortOption = { offerPrice: 1 } 
                     break
                 case "price-desc":
-                    sortOption = { offerPrice: -1 } // High to Low
+                    sortOption = { offerPrice: -1 } 
                     break
-                default:
-                    sortOption = { createdAt: -1 } // Default: Newest First
+                case "new-arrivals":
+                    sortOption = { createdAt: -1 } 
             }
         }
 
-
-
-
-        let products = await Product.find(
-            {
-                isBlocked:false,
-                category:{$in:categoryIds}
-            }
-        )
+        let products = await Product.find(filterCondition)
         .sort(sortOption)
         .skip(skip)
         .limit(limit)

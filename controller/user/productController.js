@@ -26,7 +26,7 @@ const productDetails = async (req,res) => {
         const similarProducts = await Product.find({
             category: product.category._id,
             _id: { $ne: productId }
-        }).limit(5)
+        }).limit(4)
 
        return res.render('user/productDetails',{
             user:userData,

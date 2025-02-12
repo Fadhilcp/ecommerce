@@ -59,10 +59,10 @@ router.get('/deleteAddress',userAuth,profileController.deleteAddress)
 //orders details list
 router.get('/orders',isBlock,userAuth,profileController.getOrders)
 router.get('/orderDetails/:id',isBlock,userAuth,profileController.getOrderDetail)
-router.post('/cancelOrder/:id',isBlock,userAuth,orderController.cancelOrder)
+
 
 //wallet
-router.get('/wallet',isBlock,profileController.getWallet)
+router.get('/wallet',isBlock,userAuth,profileController.getWallet)
 
 //cart management
 router.get('/cart',isBlock,userAuth,cartController.getCart)
@@ -75,6 +75,7 @@ router.get('/deleteCartItem/:id',userAuth,cartController.deleteCartItem)
 router.get('/wishlist',isBlock,userAuth,cartController.getWishlist)
 router.post('/addToWishlist',isBlock,userAuth,cartController.addToWishlist)
 router.get('/deleteWishlistItem/:id',isBlock,userAuth,cartController.deleteWishlistItem)
+router.post('/wishlistToCart',isBlock,userAuth,cartController.wishlistToCart)
 
 //checkout management
 router.get('/checkStock',isBlock,userAuth,checkoutController.checkStock)
@@ -83,6 +84,10 @@ router.get('/checkout',isBlock,userAuth,checkoutController.getCheckout)
 //place order
 router.post('/placeOrder',isBlock,userAuth,orderController.placeOrder)
 router.get('/orderComplete',isBlock,userAuth,orderController.getOrderComplete)
+router.patch('/cancelOrder/:id',isBlock,userAuth,orderController.cancelOrder)
+router.patch('/returnOrder/:id',isBlock,userAuth,orderController.returnOrder) 
+router.patch('/cancelItem/:id',isBlock,userAuth,orderController.cancelItem)
+
 
 
 module.exports = router 
