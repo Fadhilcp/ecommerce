@@ -2,7 +2,9 @@ const Product = require('../../model/productSchema')
 const User = require('../../model/userSchema')
 const Cart = require('../../model/cartSchema')
 const Address = require('../../model/addressSchema')
-const Order = require('../../model/orderSchema')
+const Coupon = require('../../model/couponSchema')
+const moment = require('moment')
+
 
 
 
@@ -43,6 +45,15 @@ const getCheckout = async (req,res) => {
             return res.redirect('/login')
         }
 
+        const coupons = await Coupon.find()
+
+        coupons.forEach((item) => {
+                item.expire = moment(item.endDate).format('DD-MM-YYYY')
+                item.valid = moment(item.startDate).format('DD-MM-YYYY')
+        })
+        
+                coupons.reverse()
+
         const cart = await Cart.findOne({userId:userId}).populate('products.productId')
 
         if(!cart){
@@ -61,12 +72,21 @@ const getCheckout = async (req,res) => {
             total: item.productId.offerPrice * item.quantity
         }))
 
-        const orderTotal = cartItems.reduce((sum,item) => sum + item.total,0) 
+        const orderTotal = cart.totalPrice
+
+        let finalPrice = req.session.finalPrice ? req.session.finalPrice : orderTotal
+
+        console.log('final',finalPrice)
+        console.log(req.session.finalPrice)
+        req.session.couponCode = null
+        // req.session.final
 
         return res.render('user/checkout',{
             userAddress:addressData,
             cartItems:cartItems,
             orderTotal:orderTotal,
+            finalTotal:finalPrice,
+            coupons:coupons,
             user:userId,
             active:'cart'
         })
@@ -80,10 +100,76 @@ const getCheckout = async (req,res) => {
 
 
 
+const applyCoupon = async (req,res) => {
+    try {
+
+        const {couponCode} = req.body
+
+        const userId = req.session.user
+
+        const coupon = await Coupon.findOne({code:couponCode,
+            isActive:true,
+            totalUsageLimit:{$gt:0}
+        })
+
+        const cart = await Cart.findOne({userId:userId})
+
+        if(!coupon){
+            return res.json({status:true,message:'Invalid or Expired Coupon',finalTotal:cart.totalPrice})
+        }
+
+        
+        if(cart.totalPrice > coupon.maxValue || cart.totalPrice < coupon.minValue){
+            return res.json({status:false,
+                message:`The coupon is valid for orders between ${coupon.minValue} and ${coupon.maxValue}`
+            })
+        }
+
+        const discountAmount = Number(((cart.totalPrice * coupon.discountValue) / 100).toFixed(2))
+        const finalPrice = Number((cart.totalPrice - discountAmount).toFixed(2))
+
+        req.session.finalPrice = finalPrice
+        req.session.couponCode = couponCode
+
+        return res.json({status:true,message:'Coupon applied',finalTotal:finalPrice,discountAmount:discountAmount})
+        
+    } catch (error) {
+        console.error('Coupon applying error',error)
+        res.json({status:false,message:'Internal Server Error'})
+    }
+}
+
+
+
+const removeCoupon = async (req,res) => {
+    try {
+
+        const userId = req.session.user
+
+        if(!req.session.couponCode){
+            return res.json({status:false,message:'No coupon applied'})
+        }
+
+        req.session.couponCode = null
+        req.session.finalTotal = null
+
+        const cart = await Cart.findOne({userId:userId})
+
+        res.json({status:true,message:'Coupon removed',finalTotal:cart.totalPrice})
+        
+    } catch (error) {
+        console.error('remove coupon Error')
+        res.json({status:false,message:'Server internal Error'})
+    }
+}
+
+
 
 
 
 module.exports = {
     getCheckout,
-    checkStock
+    checkStock,
+    applyCoupon,
+    removeCoupon
 }

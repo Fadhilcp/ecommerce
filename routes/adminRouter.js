@@ -57,5 +57,6 @@ router.patch('/returnStatus/:id',adminAuth,orderController.returnStatus)
 
 //coupon management
 router.get('/coupon',adminAuth,couponController.getCoupon)
+router.post('/createCoupon',adminAuth,couponController.createCoupon)
 
 module.exports = router 

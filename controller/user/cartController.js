@@ -34,6 +34,8 @@ const getCart = async (req,res) => {
 
         const totalPrice = cartItems.reduce((sum,item) => sum + item.total,0) 
 
+        await Cart.updateOne({ _id: cart._id }, { $set: { totalPrice: totalPrice } })
+        
         return res.render('user/cart',{
             active: 'shop',
             cartItems:cartItems,
@@ -141,20 +143,25 @@ const addToCart = async (req,res) => {
 
                 product.quantity = productData.quantity
 
-                await cart.save()
-
                 let totalPrice = cart.products.reduce((sum, item) => 
                     sum + (item.price * item.quantity),0)
+
+                cart.totalPrice = totalPrice
+
+                await cart.save()
 
                 return res.json({ status: false, message: "Not enough stock available", newTotal:totalPrice , availableStock: productData.quantity})
             }
 
             product.quantity = quantity
 
-                await cart.save()
-
                 let newTotalPrice = cart.products.reduce((sum, item) => 
                     sum + (item.price * item.quantity),0)
+
+                cart.totalPrice = newTotalPrice
+
+                await cart.save()
+
 
                 return res.json({ status: true,newTotal:newTotalPrice, availableStock: productData.quantity})
             

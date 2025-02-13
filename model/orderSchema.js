@@ -61,6 +61,10 @@ const orderSchema = new Schema({
         type: Number, 
         required: true 
       },
+      finalPrice: { 
+        type: Number,
+        required: true
+      },
       address: {
         name:{
           type:String,
@@ -117,6 +121,9 @@ const orderSchema = new Schema({
         enum: ['COD', 'RazorPay'],
         required: true
       },
+      coupon: {
+          type:String
+      }
     },
     { timestamps: true }
 )

@@ -4,6 +4,7 @@ const Cart = require('../../model/cartSchema')
 const Address = require('../../model/addressSchema')
 const Order = require('../../model/orderSchema')
 const Wallet = require('../../model/walletSchema')
+const Coupon = require('../../model/couponSchema')
 
 
 function customOrderId(){
@@ -49,13 +50,23 @@ const placeOrder = async (req,res) => {
             price: item.productId.offerPrice * item.quantity
         }))
 
-        const totalPrice = cartItems.reduce((total,item) => total + item.price,0)
+        const totalPrice = cart.totalPrice
+
+        const finalPrice = req.session.finalPrice ? req.session.finalPrice : totalPrice
+        const couponCode = req.session.couponCode
+
+        if(couponCode){
+            await Coupon.findOneAndUpdate({code:couponCode},{ $inc: { totalUsageLimit: -1 }})
+
+            req.session.couponCode = null
+        }
 
         const order = new Order({
             userId:userId,
             orderId:customOrderId(),
             products:cartItems,
             totalPrice:totalPrice,
+            finalPrice:finalPrice,
             address:{
                 name:user.username,
                 houseNo:selectedAddress.houseNo,
@@ -65,9 +76,11 @@ const placeOrder = async (req,res) => {
                 phone:selectedAddress.phone,
                 pincode:selectedAddress.pincode
             },
+            coupon:couponCode,
             paymentMethod:paymentMethod
         })
 
+        req.session.finalPrice = null
 
         await order.save()
 

@@ -81,6 +81,10 @@ router.post('/wishlistToCart',isBlock,userAuth,cartController.wishlistToCart)
 router.get('/checkStock',isBlock,userAuth,checkoutController.checkStock)
 router.get('/checkout',isBlock,userAuth,checkoutController.getCheckout)
 
+//coupon
+router.post('/applyCoupon',isBlock,userAuth,checkoutController.applyCoupon)
+router.delete('/removeCoupon',isBlock,userAuth,checkoutController.removeCoupon)
+
 //place order
 router.post('/placeOrder',isBlock,userAuth,orderController.placeOrder)
 router.get('/orderComplete',isBlock,userAuth,orderController.getOrderComplete)

@@ -106,6 +106,7 @@
 
                 <button type="button" class="btn btn-primary mt-2" id="toggleAddressForm">Create Address</button>
         
+
                 <!-- address form -->
                 <form method="post" class="colorlib-form mt-1" id="addressForm" style="display: none;">
                     <h2>Create Address</h2>
@@ -159,9 +160,61 @@
                 </form>
                 <!-- address form end -->
             </div>
+
         
+            <!-- coupons ================================ -->
             <div class="col-lg-4">
                 <div class="row">
+                    <div class="col-md-12">
+                        <% if(coupons && coupons.length > 0) { %>
+                            
+                        <div class="cart-detail" style="padding: 1em 1em;">
+                            <h2>Available Coupons</h2>
+            
+                            <!-- Scrollable Coupon List -->
+                            <div id="couponContainer" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                                <ul id="couponList" class="list-group">
+                                    <% coupons.forEach((coupon) => { %>
+                                        <li class="list-group-item">
+                                            <div class="d-flex justify-content-between">
+                                                <strong>Code: <%= coupon.code %> with <%= coupon.discountValue %>% Off</strong>
+                                            </div>
+                                            <div class="mt-1">
+                                                <span><strong>Valid From:</strong> <%= coupon.valid %></span>
+                                            </div>
+                                            <div>
+                                                <span><strong>Expire On:</strong> <%= coupon.expire %></span>
+                                            </div>
+                                        </li>
+                                    <% }) %>
+                                   
+                                </ul>
+                            </div>
+            
+                            <!-- Input Box for Coupon Code -->
+                            <div class="mt-3">
+                                <div class="input-group">
+
+                                    <input type="text" id="couponCode" name="couponCode" class="form-control" placeholder="Enter coupon code">
+
+                                    <button type="button" style="border-radius: 0; margin: 0;" class="btn btn-success" onclick="applyCoupon()">Apply</button>
+                                    <button type="button" style="border-radius: 0; margin: 0;" class="btn btn-danger" onclick="removeCoupon()">Remove</button>
+                                </div>
+                                <p id="discountMsg" class="text-success"></p>
+                                <p id="errorMsg" class="text-danger"></p>
+                            </div>
+                        </div>
+                        
+                        <% } %>
+                    </div>
+                </div>
+         
+            
+                    <!-- coupons ===================================== -->
+                    
+
+
+                    
                     <div class="col-md-12">
                         <div class="cart-detail">
                             <h2>Cart Total</h2>
@@ -175,11 +228,11 @@
                                 <%}%>
                                 <li><span>Shipping</span> <span>$0.00</span></li>
                                 <li><span>Order Total</span> <span>₹<%= orderTotal %></span></li>
+                                <li><span>Final Total</span> <span id="finalTotal">₹<%= finalTotal %></span></li>
                             </ul>
                         </div>
                     </div>
         
-                    <div class="w-100"></div>
         
                     <div class="col-md-12">
                         <div class="cart-detail">
@@ -193,13 +246,14 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                
         
                 <div class="row">
                     <div class="col-md-12 text-center">
                          <button type="button" class="btn btn-primary" id="placeOrder">Place an Order</button>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </div>
@@ -296,13 +350,94 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
              })
 
 
+    async function applyCoupon() {
+                try {
+
+                    
+                const couponCode = document.getElementById('couponCode').value.trim()
+                const discountMsg = document.getElementById('discountMsg')
+                const errorMsg = document.getElementById('errorMsg')
+                const finalTotal = document.getElementById('finalTotal')
+
+
+                discountMsg.innerText = ''
+                errorMsg.innerText = ''
+
+                if(!couponCode){
+                    errorMsg.innerText = 'Please enter a Coupon Code!'
+                    return
+                }
+
+                const response = await fetch('/applyCoupon',{
+                    method:'POST',
+                    headers:{
+                        'content-type':'application/json'
+                    },
+                    body:JSON.stringify({couponCode})
+                })
+
+                const data = await response.json()
+
+                if(response.ok && data.status){
+                    discountMsg.innerText = data.message
+                
+                    finalTotal.innerText = `₹${data.finalTotal}`
+
+                }else{
+                    errorMsg.innerText = data.message
+                }
+                    
+                } catch (error) {
+                    console.error('coupon applying error',error)
+                    errorMsg.innerText = 'Server error'
+                }
+             }
+
+
+             
+    async function removeCoupon() {
+                try {
+
+                const discountMsg = document.getElementById('discountMsg')
+                const errorMsg = document.getElementById('errorMsg')
+                const finalTotal = document.getElementById('finalTotal')
+
+
+                discountMsg.innerText = ''
+                errorMsg.innerText = ''
+
+
+                const response = await fetch('/removeCoupon',{
+                    method:'DELETE',
+                    headers:{
+                        'content-type':'application/json'
+                    }
+                })
+
+                const data = await response.json()
+
+                if(response.ok && data.status){
+                    discountMsg.innerText = data.message
+                
+                    finalTotal.innerText = `₹${data.finalTotal}`
+
+                }else{
+                    errorMsg.innerText = data.message
+                }
+                    
+                } catch (error) {
+                    console.error('coupon removing error',error)
+                    errorMsg.innerText = 'Server error'
+                }
+             }
+
 
       document.getElementById("toggleAddressForm").addEventListener("click", function () {
         var form = document.getElementById("addressForm");
         if (form.style.display === "none" || form.style.display === "") {
-            form.style.display = "block";
+            form.style.display = "block"
         } else {
-            form.style.display = "none";
+            form.style.display = "none"
         }
     })
 
@@ -310,7 +445,6 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
 
     
 document.getElementById('createAddressBtn').addEventListener('click',async function (event) {
-  console.log('function is working')
 event.preventDefault()
 
 

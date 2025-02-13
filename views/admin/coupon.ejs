@@ -7,13 +7,6 @@
 
 <style>
 
-        .badge-active {
-            background-color: #28a745;
-        }
-        .badge-expired {
-            background-color: #dc3545;
-        }
-
         .coupons-container {
             max-width: 600px;
             padding: 20px;
@@ -21,12 +14,12 @@
             border-radius: 10px;
         }
         .coupon {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            background-color: #006100;
+          display: flex;
+          justify-content: space-between;
+          padding: 10px;
+          margin: 10px 0;
+          border-radius: 5px;
+          background: linear-gradient(to right, #0056a6, #008da6);
         }
         .coupon-code {
             font-weight: bold;
@@ -48,7 +41,7 @@
 <section class="content-main">
     <div class="content-header">
         <div>
-            <h2 class="content-title card-title">Products List</h2>
+            <h2 class="content-title card-title">Coupons</h2>
         </div>
     </div>
 
@@ -65,23 +58,43 @@
                     <form id="couponForm">
                         <div class="mb-3">
                             <label for="couponCode" class="form-label">Coupon Code</label>
-                            <input type="text" class="form-control" id="couponCode" required>
+                            <input type="text" class="form-control" id="couponCode" name="code">
+                            <p id="couponCode-error" class="error-message text-danger"></p>
                         </div>
                         <div class="mb-3">
                             <label for="discountAmount" class="form-label">Discount Amount (%)</label>
-                            <input type="number" class="form-control" id="discountAmount" min="0" max="100" required>
+                            <input type="number" class="form-control" id="discountAmount" min="0" max="100" name="discountValue" >
+                            <p id="discountAmount-error" class="error-message text-danger"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="maxAmount" class="form-label">Maximum Amount</label>
+                            <input type="text" class="form-control" id="maxAmount" name="maxValue" >
+                            <p id="maxAmount-error" class="error-message text-danger"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="minAmount" class="form-label">Minimum Amount</label>
+                            <input type="text" class="form-control" id="minAmount" name="minValue">
+                            <p id="minAmount-error" class="error-message text-danger"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="usageLimit" class="form-label">Usage Limit</label>
+                            <input type="text" class="form-control" id="minAmount" name="totalUsageLimit">
+                            <p id="usageLimit-error" class="error-message text-danger"></p>
                         </div>
                         <div class="mb-3">
                             <label for="startDate" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="startDate" required>
+                            <input type="date" class="form-control" id="startDate" name="startDate">
+                            <p id="startDate-error" class="error-message text-danger"></p>
                         </div>
                         <div class="mb-3">
                             <label for="endDate" class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="endDate" required>
+                            <input type="date" class="form-control" id="endDate" name="endDate">
+                            <p id="endDate-error" class="error-message text-danger"></p>
                         </div>
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" rows="2" required></textarea>
+                            <textarea class="form-control" id="description" rows="2" name="description" ></textarea>
+                            <p id="description-error" class="error-message text-danger"></p>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Create Coupon</button>
                     </form>
@@ -94,45 +107,157 @@
             <div class="coupons-container">
                 <h2>Available Coupons</h2>
                 <div class="row" id="couponsList">
+
+                    <% coupons.forEach((coupon) => { %>
+
                     <div class="coupon">
                         <div>
-                            <p><strong>10% OFF</strong></p>
-                            <p class="coupon-code">SAVE10</p>
-                            <p>Expires: 2025-03-01</p>
+                            <p><strong><%= coupon.discountValue %>% OFF %></strong></p>
+                            <p class="coupon-code"><%= coupon.code %></p>
+                            <p>Expires: <%= coupon.expire %></p>
                         </div>
-                        <button class="copy-btn">
-                            <i class="fa-solid fa-copy"></i> Copy
-                        </button>
                     </div>
                     
-                    <div class="coupon">
-                        <div>
-                            <p><strong>Free Shipping</strong></p>
-                            <p class="coupon-code">FREESHIP</p>
-                            <p>Expires: 2025-04-15</p>
-                        </div>
-                        <button class="copy-btn">
-                            <i class="fa-solid fa-copy"></i> Copy
-                        </button>
-                    </div>
+                   <% }) %>
                     
-                    <div class="coupon">
-                        <div>
-                            <p><strong>20% OFF</strong></p>
-                            <p class="coupon-code">WELCOME20</p>
-                            <p>Expires: 2025-05-10</p>
-                        </div>
-                        <button class="copy-btn">
-                            <i class="fa-solid fa-copy"></i> Copy
-                        </button>
-                    </div>
+                    
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+    document.getElementById('couponForm').addEventListener('submit',async (event)=> {
+        event.preventDefault()
+
+        if(validateCouponForm()){
+
+            const formElement = document.getElementById('couponForm')
+            const formData = new FormData(formElement)
+
+            const formObject = {}
+
+            formData.forEach((value,key)=>{
+                formObject[key] = value
+            })
+
+            formObject.discountValue = parseInt(formObject.discountValue)
+            formObject.minValue = parseInt(formObject.minValue)
+            formObject.maxValue = parseInt(formObject.maxValue)
+            formObject.totalUsageLimit = parseInt(formObject.totalUsageLimit)
+
+            const response = await fetch('/admin/createCoupon',{
+                method:'POST',
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify(formObject)
+            })
+
+            const data = await response.json()
+
+
+            if(response.ok && data.status){
+                await Swal.fire({
+                title: "Created",
+                text: "Coupon created successfully",
+                icon: "success",
+                showCancelButton: false,
+            })
+            window.location.reload()
+
+            }else{
+                Swal.fire({
+                title: "Error",
+                text: data.message || "Please try again!",
+                icon: "warning",
+                showCancelButton: false,
+            })
+            }
+            
+        }
+
+    })
+
+
+
+
+
+      function validateCouponForm(){
+        const couponCode = document.getElementById('couponCode').value.trim() 
+        const discountAmount = document.getElementById('discountAmount').value.trim()
+        const maxAmount = document.getElementById('maxAmount').value.trim()
+        const minAmount = document.getElementById('minAmount').value.trim()
+        const startDate = document.getElementById('startDate').value
+        const endDate = document.getElementById('endDate').value
+        const description = document.getElementById('description').value.trim()
+
+        let isValid = true
+
+        document.querySelectorAll(".error-message").forEach(error => error.textContent = "")
+
+        if (couponCode.length < 3) {
+        document.getElementById("couponCode-error").textContent = "Coupon code must be at least 3 characters."
+        isValid = false
+       }
+
+       if (discountAmount === "" || discountAmount < 0 || discountAmount > 100) {
+        document.getElementById("discountAmount-error").textContent = "Enter a valid discount between 0 and 100."
+        isValid = false
+      }
+
+      if (isNaN(maxAmount) || parseFloat(maxAmount) <= 0 || maxAmount <= minAmount) {
+         document.getElementById("maxAmount-error").textContent = "Enter a valid amount greater than minimum amount."
+         isValid = false
+         }
+
+      if(minAmount === ""){
+        document.getElementById("minAmount-error").textContent = "Enter a minimum amount"
+        isValid = false
+      }
+      else if (isNaN(minAmount) || parseFloat(minAmount) <= 0) {
+         document.getElementById("minAmount-error").textContent = "Enter a valid amount greater than 0."
+         isValid = false
+         }
+
+      const today = new Date().toISOString().split("T")[0]
+      if (!startDate) {
+        document.getElementById("startDate-error").textContent = "Please select a start date."
+        isValid = false
+      }else if(startDate < today) {
+        document.getElementById("startDate-error").textContent = "Start date cannot be before today."
+        isValid = false
+      }
+
+      if (!endDate) {
+        document.getElementById("endDate-error").textContent = "Please select an end date."
+        isValid = false
+      } else if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+        document.getElementById("endDate-error").textContent = "End date must be after the start date."
+        isValid = false
+      }
+
+      if(!description) {
+        document.getElementById("description-error").textContent = "Please add Description"
+        isValid = false
+      }
+      else if (description.length < 5) {
+        document.getElementById("description-error").textContent = "Description must be at least 5 characters.";
+        isValid = false;
+      }
+
+      return isValid
+       
+      }
+
+</script>
 
 
 
