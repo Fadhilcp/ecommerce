@@ -207,7 +207,8 @@
                                 <h6>ID: <small><%= order.orderId %></small></h6>
                                 <h6>Order Date: <small><%= order.date %></small></h6>
                                 <h6>Payment Status: <small><%= order.paymentStatus %></small></h6>
-                                <h6>Total Amount: <small><strong>₹<%= order.totalPrice %></strong></small></h6>
+                                <small>Total Amount: <strong>₹<%= order.totalPrice %></strong></small>
+                                <h6>Final Amount: <small><strong>₹<%= order.finalPrice %></strong></small></h6>
                                 <span class="order-status status-processing"><%= order.status %></span>
                             </div>
                         </div>

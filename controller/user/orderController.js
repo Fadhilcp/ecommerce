@@ -5,6 +5,10 @@ const Address = require('../../model/addressSchema')
 const Order = require('../../model/orderSchema')
 const Wallet = require('../../model/walletSchema')
 const Coupon = require('../../model/couponSchema')
+const Razorpay = require('razorpay')
+const crypto = require('crypto')
+const env = require('dotenv').config()
+
 
 
 function customOrderId(){
@@ -92,7 +96,7 @@ const placeOrder = async (req,res) => {
         delete req.session.checkout
         req.session.orderId = order._id
 
-        res.json({status:true,redirectUrl:'/orderComplete'})
+        res.json({status:true})
 
     } catch (error) {
         console.log('place order error',error)
@@ -155,11 +159,11 @@ const cancelOrder = async (req,res) => {
             wallet = new Wallet({userId,transaction:[]})
         }
 
-        wallet.balance += order.totalPrice
+        wallet.balance += order.finalPrice
 
         wallet.transaction.push({
             transactionType: 'payment',
-            amount: order.totalPrice 
+            amount: order.finalPrice 
         })
 
         await wallet.save()
@@ -178,6 +182,8 @@ const cancelOrder = async (req,res) => {
         res.json({status:false,message:'error while cancel order'})
     }
 }
+
+
 
 const cancelItem = async (req,res) => {
     try {
@@ -240,10 +246,77 @@ const returnOrder = async (req,res) => {
     }
 }
 
+
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY,
+    key_secret: process.env.RAZORPAY_SECRET,
+})
+
+
+
+
+const createOrder = async(req,res) =>{
+    try {
+
+        const { amount, currency } = req.body
+
+        if (!amount || !currency) {
+            return res.json({ success: false, message: "Amount and currency are required" })
+        }
+
+        const options = {
+            amount: parseInt(amount) * 100,
+            currency: currency,
+            receipt: `order_${Date.now()}`
+        }
+
+        const order = await razorpay.orders.create(options)
+
+        res.json({status:true,order})
+        
+    } catch (error) {
+        console.error('create order Error',error)
+    }
+}
+
+
+const verifyPayment = async (req, res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body
+
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.status(400).json({ status: false, message: "Invalid payment details" })
+        }
+
+        const key_secret = process.env.RAZORPAY_SECRET
+
+        // Create a hash using SHA256 HMAC
+        const expectedSignature = crypto
+            .createHmac('sha256', key_secret)
+            .update(razorpay_order_id + '|' + razorpay_payment_id)
+            .digest('hex')
+
+        if (expectedSignature === razorpay_signature) {
+            res.json({ status: true, message: "Payment verified successfully" })
+        } else {
+            res.status(400).json({ status: false, message: "Payment verification failed" })
+        }
+
+    } catch (error) {
+        console.error('Verify Payment Error:', error);
+        res.status(500).json({ status: false, message: "Internal Server Error" })
+    }
+}
+
+
+
 module.exports = {
     placeOrder,
     getOrderComplete,
     cancelOrder,
     returnOrder,
-    cancelItem
+    cancelItem,
+    createOrder,
+    verifyPayment
 }

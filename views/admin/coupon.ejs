@@ -115,7 +115,9 @@
                             <p><strong><%= coupon.discountValue %>% OFF %></strong></p>
                             <p class="coupon-code"><%= coupon.code %></p>
                             <p>Expires: <%= coupon.expire %></p>
+                            
                         </div>
+                        <button class="btn btn-warning" onclick="deleteCoupon('<%= coupon.code %>')">Delete</button>
                     </div>
                     
                    <% }) %>
@@ -188,18 +190,65 @@
 
 
 
+   async function deleteCoupon(couponCode){
+
+    const result =  await Swal.fire({
+                title: "Delete coupon",
+                text: "Are you sure you want to delete coupon?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonColor: "#42ce00",
+                cancelButtonColor: "#c52300",
+                confirmButtonText: "Yes"
+            })
+
+            if(result.isConfirmed){
+                try {
+                    const response = await fetch(`/admin/deleteCoupon/${couponCode}`,{
+                        method:'DELETE'
+                })
+
+                const data = await response.json()
+
+                if(response.ok && data.status){
+                   await Swal.fire({
+                        icon: 'success',
+                        title: data.message || 'Coupon deleted',
+                        showConfirmButton: false,
+                        timer: 2000,
+                    })
+
+                    window.location.reload()
+                }else{
+                    Swal.fire({
+                        icon: 'error',
+                        title: data.message || 'Please try again',
+                        showConfirmButton: false,
+                        timer: 2000,
+                    }) 
+                }
+
+                } catch (error) {
+                    console.error('coupon deleting error',error)
+                }
+            }
+    }
+
 
 
       function validateCouponForm(){
         const couponCode = document.getElementById('couponCode').value.trim() 
         const discountAmount = document.getElementById('discountAmount').value.trim()
-        const maxAmount = document.getElementById('maxAmount').value.trim()
-        const minAmount = document.getElementById('minAmount').value.trim()
+        let maxAmount = document.getElementById('maxAmount').value.trim()
+        let minAmount = document.getElementById('minAmount').value.trim()
         const startDate = document.getElementById('startDate').value
         const endDate = document.getElementById('endDate').value
         const description = document.getElementById('description').value.trim()
 
         let isValid = true
+
+        maxAmount = Number(maxAmount);
+        minAmount = Number(minAmount)
 
         document.querySelectorAll(".error-message").forEach(error => error.textContent = "")
 
@@ -213,7 +262,7 @@
         isValid = false
       }
 
-      if (isNaN(maxAmount) || parseFloat(maxAmount) <= 0 || maxAmount <= minAmount) {
+      if (isNaN(maxAmount) || parseInt(maxAmount) <= 0 || maxAmount <= minAmount) {
          document.getElementById("maxAmount-error").textContent = "Enter a valid amount greater than minimum amount."
          isValid = false
          }
@@ -222,7 +271,7 @@
         document.getElementById("minAmount-error").textContent = "Enter a minimum amount"
         isValid = false
       }
-      else if (isNaN(minAmount) || parseFloat(minAmount) <= 0) {
+      else if (isNaN(minAmount) || parseInt(minAmount) <= 0) {
          document.getElementById("minAmount-error").textContent = "Enter a valid amount greater than 0."
          isValid = false
          }

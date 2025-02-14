@@ -125,11 +125,11 @@ const returnStatus = async (req,res) => {
         }
 
         if(order.refundStatus === 'Approved'){
-            wallet.balance += order.totalPrice
+            wallet.balance += order.finalPrice
 
             wallet.transaction.push({
                 transactionType:'refund',
-                amount: order.totalPrice
+                amount: order.finalPrice
             })
         }
         await wallet.save()

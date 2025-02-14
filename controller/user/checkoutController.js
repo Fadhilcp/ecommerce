@@ -74,12 +74,10 @@ const getCheckout = async (req,res) => {
 
         const orderTotal = cart.totalPrice
 
-        let finalPrice = req.session.finalPrice ? req.session.finalPrice : orderTotal
+        let finalPrice = orderTotal
 
-        console.log('final',finalPrice)
-        console.log(req.session.finalPrice)
-        req.session.couponCode = null
-        // req.session.final
+        delete req.session.couponCode
+        delete req.session.finalPrice 
 
         return res.render('user/checkout',{
             userAddress:addressData,
@@ -151,7 +149,7 @@ const removeCoupon = async (req,res) => {
         }
 
         req.session.couponCode = null
-        req.session.finalTotal = null
+        req.session.finalPrice = null
 
         const cart = await Cart.findOne({userId:userId})
 

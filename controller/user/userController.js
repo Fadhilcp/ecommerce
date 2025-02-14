@@ -53,15 +53,35 @@ const getShop = async (req,res) => {
         const limit = 9
         const skip = (page - 1) * limit
 
-        
+
+        //filter Object
         let filterCondition = {
-            isBlocked:false,
-            category:{$in:categoryIds}
+            isBlocked: false,
+            category: { $in: categoryIds }
+        }
+
+        
+        if (req.query.category) {
+            const selectedCategory = await Category.findOne({ name: req.query.category, isListed: true })
+            if (selectedCategory) {
+                filterCondition.category = selectedCategory._id
+            }
+        }
+
+        if (req.query.ml) {
+            filterCondition.capacity = req.query.ml
+        }
+
+        const searchQuery = req.query.search || ""
+
+        //search query
+        if (req.query.search) {
+            filterCondition.productName = { $regex: searchQuery , $options: "i" }
         }
 
         let sortOption = {}
         
-        //for filter
+        //sort
         if (req.query.sort) {
 
             filterCondition.quantity = { $gt: 0 }
@@ -89,42 +109,34 @@ const getShop = async (req,res) => {
         .skip(skip)
         .limit(limit)
 
-        let totalProducts = await Product.countDocuments({
-            isBlocked:false,
-            category:{$in:categoryIds},
-            quantity:{$gt:0}
-        })
+        let totalProducts = await Product.countDocuments(filterCondition)
 
         const totalPages = Math.ceil(totalProducts/limit)
         const categoriesWithIds = categories.map((category)=>({_id:category._id,name:category.name}))
 
-
-        if(user){
-            const userData = await User.findOne({_id:user})
-            
-            return res.render('user/shop',{
-                user:userData,
-                products:products,
-                category:categoriesWithIds,
-                totalProducts:totalProducts,
-                currentPage:page,
-                totalPages:totalPages,
-                active:'shop',
-                sort: req.query.sort || ""
-            })
+        const renderData = {
+            products: products,
+            category: categoriesWithIds,
+            totalProducts: totalProducts,
+            currentPage: page,
+            totalPages: totalPages,
+            active: 'shop',
+            sort: req.query.sort || "",
+            selectedCategory: req.query.category || "",
+            selectedMl: req.query.ml || "",
+            search: searchQuery
         }
+        
+        if (user) {
+            const userData = await User.findOne({ _id: user })
+            renderData.user = userData
+        }
+        
+        res.render('user/shop', renderData)
 
-        return res.render('user/shop',{
-            products:products,
-            category:categoriesWithIds,
-            totalProducts:totalProducts,
-            currentPage:page,
-            totalPages:totalPages,
-            active:'shop',
-            sort: req.query.sort || ""
-        })
     } catch (error) {
-        console.error('load shop error',error)
+        console.error('load shop error',error) 
+        res.redirect('/pageError')
     }
 }
 

@@ -86,9 +86,10 @@
                     <div class="col-sm-12">
                         <div class="side border mb-1">
                             <h3>Category</h3>
-                            <ul>
+                            <ul id="categoryList">
+                                <li><a data-category="">Default</a></li>
                                 <% for(let i=0;i< category.length;i++){ %>
-                                <li><a href="#"><%= category[i].name %></a></li>
+                                <li><a data-category="<%= category[i].name %>"><%= category[i].name %></a></li>
                                 <% } %>
                             </ul>
                         </div>
@@ -98,16 +99,17 @@
                             <h3>Bottle capacity</h3>
                             <div class="block-26 mb-2">
                                 <h4>Milliliters</h4>
-                           <ul>
-                              <li><a href="#">30ml</a></li>
-                              <li><a href="#">50ml</a></li>
-                              <li><a href="#">75ml</a></li>
-                              <li><a href="#">100ml</a></li>
-                           </ul>
-                        </div>
+                                <ul id="mlList">
+                                    <li><a data-ml="">All</a></li> 
+                                    <li><a data-ml="30ml">30ml</a></li>
+                                    <li><a data-ml="50ml">50ml</a></li>
+                                    <li><a data-ml="75ml">75ml</a></li>
+                                    <li><a data-ml="100ml">100ml</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div> 
-                    <div class="col-sm-12">
+                    <!-- <div class="col-sm-12">
                         <div class="side border mb-1">
                             <h3>Price</h3>
                             <ul>
@@ -118,7 +120,7 @@
                                 <li><a href="#">2500-Above</a></li>
                             </ul>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 <!-- filter bar =========================================================== -->
@@ -171,34 +173,115 @@
 
 <script>
 
-document.querySelectorAll("#sortList a").forEach(link => {
+document.addEventListener("DOMContentLoaded", () => {
+
+    const urlParams = new URLSearchParams(window.location.search)
+    const activeSearch = urlParams.get("search") || ""
+    const activeSort = urlParams.get("sort") || ""
+    const activeCategory = urlParams.get("category") || ""
+    const activeMl = urlParams.get("ml") || ""
+
+
+
+    const searchInput = document.querySelector(".search-wrap input[name='search']")
+    if (searchInput) searchInput.value = activeSearch
+
+
+    document.querySelector(".search-wrap").addEventListener("submit", function (e) {
+        e.preventDefault()
+        const searchValue = searchInput.value.trim()
+
+        if (searchValue) {
+            urlParams.set("search", searchValue)
+        } else {
+            urlParams.delete("search")
+        }
+
+        window.location.search = urlParams.toString()
+    })
+
+
+
+
+    // sorting
+    document.querySelectorAll("#sortList a").forEach(link => {
         link.addEventListener("click", function (e) {
             e.preventDefault()
             const sortValue = this.getAttribute("data-sort")
-            const urlParams = new URLSearchParams(window.location.search)
-            
+
             if (sortValue) {
-                urlParams.set("sort", sortValue) // Set sorting query parameter
+                // Update sort parameter
+                urlParams.set("sort", sortValue)
             } else {
-                urlParams.delete("sort") // Remove sort if default is selected
+                // Remove sort if default is selected
+                urlParams.delete("sort") 
             }
 
-            window.location.search = urlParams.toString() // Reload page with new query
+            // Reload with updated query params
+            window.location.search = urlParams.toString() 
         })
+
+        if (link.getAttribute("data-sort") === activeSort) {
+            link.style.fontWeight = "bold"
+            link.style.color = "#ef7c00"
+        }
     })
 
-    // Highlight active sort option
-    document.addEventListener("DOMContentLoaded", () => {
-        const urlParams = new URLSearchParams(window.location.search)
-        const activeSort = urlParams.get("sort") || ""
-        
-        document.querySelectorAll("#sortList a").forEach(link => {
-            if (link.getAttribute("data-sort") === activeSort) {
-                link.style.fontWeight = "bold"
-                link.style.color = "#ef7c00"
+
+    // category filtering
+    document.querySelectorAll("#categoryList a").forEach(link => {
+        link.addEventListener("click", function (e) {
+            e.preventDefault()
+            const categoryValue = this.getAttribute("data-category")
+
+            if (categoryValue) {
+
+                 // Update category parameter
+                urlParams.set("category", categoryValue)
+            } else {
+
+                // Remove category filter if default is selected
+                urlParams.delete("category") 
             }
+
+            // Reload with updated query params
+            window.location.search = urlParams.toString()
         })
+
+        if (link.getAttribute("data-category") === activeCategory) {
+            link.style.fontWeight = "bold"
+            link.style.color = "#ef7c00"
+        }
     })
+
+
+    document.querySelectorAll("#mlList a").forEach(link => {
+        link.addEventListener("click", function (e) {
+            e.preventDefault();
+            const mlValue = this.getAttribute("data-ml")
+
+            if (mlValue) {
+                urlParams.set("ml", mlValue)
+            } else {
+                urlParams.delete("ml")
+            }
+
+            window.location.search = urlParams.toString()
+        })
+
+        if (link.getAttribute("data-ml") === activeMl) {
+            link.style.fontWeight = "bold"
+            link.style.color = "#ef7c00"
+        }
+    })
+
+
+})
+
+
+
+
+
 
 </script>
 
