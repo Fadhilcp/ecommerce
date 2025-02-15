@@ -10,6 +10,11 @@ const crypto = require('crypto')
 const env = require('dotenv').config()
 
 
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY,
+    key_secret: process.env.RAZORPAY_SECRET,
+})
+
 
 function customOrderId(){
     const timestamp = Date.now().toString().slice(-6)
@@ -18,30 +23,28 @@ function customOrderId(){
 }
 
 
-
-const placeOrder = async (req,res) => {
+const placeOrder = async (req, res) => {
     try {
-        
         const userId = req.session.user
-
-        const {addressId,paymentMethod} = req.body
+        const { addressId, paymentMethod } = req.body
 
         const user = await User.findById(userId)
-        const addressData = await Address.findOne({userId:userId})
+        const addressData = await Address.findOne({ userId: userId })
 
-        if(!addressData){
-            return res.json({status:false,message:'Please add Address'})
+        if (!addressData) {
+            return res.json({ status: false, message: 'Please add Address' })
         }
-        
+
         const selectedAddress = addressData.address.find(item => item._id.toString() === addressId)
 
-        const cart = await Cart.findOne({userId:userId}).populate('products.productId')
+        const cart = await Cart.findOne({ userId: userId }).populate('products.productId')
 
+        // Checking stock
         for (const item of cart.products) {
             const product = await Product.findById(item.productId._id)
-            
+
             if (product.quantity < item.quantity) {
-                return res.json({status: false,message: `Insufficient stock for product ${item.productId.productName}`})
+                return res.json({ status: false, message: `Insufficient stock for product ${item.productId.productName}` })
             }
         }
 
@@ -54,55 +57,122 @@ const placeOrder = async (req,res) => {
             price: item.productId.offerPrice * item.quantity
         }))
 
-        const totalPrice = cart.totalPrice
-
-        const finalPrice = req.session.finalPrice ? req.session.finalPrice : totalPrice
+        const totalPrice = cart.totalPrice;
+        let finalPrice = req.session.finalPrice ? req.session.finalPrice : totalPrice
         const couponCode = req.session.couponCode
 
-        if(couponCode){
-            await Coupon.findOneAndUpdate({code:couponCode},{ $inc: { totalUsageLimit: -1 }})
+        // Checking coupon
+        if (couponCode) {
+            const check = await Coupon.findOne({ code: couponCode })
 
+            if (!check) {
+                return res.json({ status: false, message: "Invalid coupon code" })
+            }
+
+            if (check.minValue > totalPrice || check.maxValue < totalPrice) {
+                return res.json({
+                    status: false,
+                    message: `The coupon is valid for orders between ${check.minValue} and ${check.maxValue}`
+                })
+            }
+
+            if (check.totalUsageLimit <= 0) {
+                return res.json({
+                    status: false,
+                    message: "This coupon has reached its usage limit"
+                })
+            }
+
+            let discountAmount = Number(((totalPrice * check.discountValue) / 100).toFixed(2))
+            finalPrice = Number((totalPrice - discountAmount).toFixed(2))
+
+
+            await Coupon.findOneAndUpdate(
+                { code: couponCode },
+                { $inc: { totalUsageLimit: -1 } }
+            )
             req.session.couponCode = null
+
         }
 
-        const order = new Order({
-            userId:userId,
-            orderId:customOrderId(),
-            products:cartItems,
-            totalPrice:totalPrice,
-            finalPrice:finalPrice,
-            address:{
-                name:user.username,
-                houseNo:selectedAddress.houseNo,
-                street:selectedAddress.street,
-                city:selectedAddress.city,
-                state:selectedAddress.state,
-                phone:selectedAddress.phone,
-                pincode:selectedAddress.pincode
-            },
-            coupon:couponCode,
-            paymentMethod:paymentMethod
-        })
+        
+        //razorpay
+        if (paymentMethod === 'RazorPay') {
+            const options = {
+                amount: finalPrice * 100,
+                currency: "INR",
+                receipt: `order_${Date.now()}`
+            }
 
-        req.session.finalPrice = null
+            const razorpayOrder = await razorpay.orders.create(options)
 
-        await order.save()
+            //temporary order
+            req.session.tempOrder = { 
+                userId,
+                orderId: customOrderId(),
+                products: cartItems,
+                totalPrice,
+                finalPrice,
+                address: {
+                    name: user.username,
+                    houseNo: selectedAddress.houseNo,
+                    street: selectedAddress.street,
+                    city: selectedAddress.city,
+                    state: selectedAddress.state,
+                    phone: selectedAddress.phone,
+                    pincode: selectedAddress.pincode
+                },
+                coupon: couponCode,
+                paymentMethod
+            }
 
-        for (const item of cartItems) {
-            await Product.findByIdAndUpdate(item.product, { $inc: { quantity: -item.quantity } })
+            return res.json({ status: true, razorpayOrder })
         }
-        await Cart.findOneAndUpdate({ userId: userId }, { products: [] })
 
-        delete req.session.checkout
-        req.session.orderId = order._id
+        // cash on delivery
+        if (paymentMethod === 'COD') {
+            const order = new Order({
+                userId,
+                orderId: customOrderId(),
+                products: cartItems,
+                totalPrice,
+                finalPrice,
+                address: {
+                    name: user.username,
+                    houseNo: selectedAddress.houseNo,
+                    street: selectedAddress.street,
+                    city: selectedAddress.city,
+                    state: selectedAddress.state,
+                    phone: selectedAddress.phone,
+                    pincode: selectedAddress.pincode
+                },
+                coupon: couponCode,
+                paymentMethod
+            })
 
-        res.json({status:true})
+            req.session.finalPrice = null
+            await order.save()
+
+            for (const item of cartItems) {
+                await Product.findByIdAndUpdate(item.product, { $inc: { quantity: -item.quantity } })
+            }
+
+            await Cart.findOneAndUpdate({ userId: userId }, { products: [] })
+
+            delete req.session.checkout
+            req.session.orderId = order._id
+
+            return res.json({ status: true })
+        }
 
     } catch (error) {
-        console.log('place order error',error)
-        res.json({status:true,message:'Internal server issue'})
+        console.error('Place Order Error:', error);
+        res.json({ status: false, message: 'Internal server issue' })
     }
 }
+
+
+
 
 
 const getOrderComplete = async (req,res) => {
@@ -248,38 +318,6 @@ const returnOrder = async (req,res) => {
 
 
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY,
-    key_secret: process.env.RAZORPAY_SECRET,
-})
-
-
-
-
-const createOrder = async(req,res) =>{
-    try {
-
-        const { amount, currency } = req.body
-
-        if (!amount || !currency) {
-            return res.json({ success: false, message: "Amount and currency are required" })
-        }
-
-        const options = {
-            amount: parseInt(amount) * 100,
-            currency: currency,
-            receipt: `order_${Date.now()}`
-        }
-
-        const order = await razorpay.orders.create(options)
-
-        res.json({status:true,order})
-        
-    } catch (error) {
-        console.error('create order Error',error)
-    }
-}
-
 
 const verifyPayment = async (req, res) => {
     try {
@@ -291,21 +329,44 @@ const verifyPayment = async (req, res) => {
 
         const key_secret = process.env.RAZORPAY_SECRET
 
-        // Create a hash using SHA256 HMAC
+        // Create hash using SHA256 HMAC
         const expectedSignature = crypto
             .createHmac('sha256', key_secret)
             .update(razorpay_order_id + '|' + razorpay_payment_id)
             .digest('hex')
 
+
         if (expectedSignature === razorpay_signature) {
-            res.json({ status: true, message: "Payment verified successfully" })
+
+            const tempOrder = req.session.tempOrder
+            if (!tempOrder) {
+                return res.status(400).json({ status: false, message: "No pending order found" })
+            }
+
+            //saving order
+            const order = new Order(tempOrder)
+
+            req.session.orderId = order._id
+            await order.save()
+
+
+            for (const item of tempOrder.products) {
+                await Product.findByIdAndUpdate(item.product, { $inc: { quantity: -item.quantity } })
+            }
+
+            // cart empty
+            await Cart.findOneAndUpdate({ userId: tempOrder.userId }, { products: [] })
+            delete req.session.tempOrder
+
+            return res.json({ status: true, message: "Payment verified, order placed successfully" })
+
         } else {
-            res.status(400).json({ status: false, message: "Payment verification failed" })
+            return res.status(400).json({ status: false, message: "Payment verification failed" })
         }
 
     } catch (error) {
         console.error('Verify Payment Error:', error);
-        res.status(500).json({ status: false, message: "Internal Server Error" })
+        res.status(500).json({ status: false, message: "Internal Server Error" });
     }
 }
 
@@ -317,6 +378,5 @@ module.exports = {
     cancelOrder,
     returnOrder,
     cancelItem,
-    createOrder,
     verifyPayment
 }

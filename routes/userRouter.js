@@ -93,7 +93,6 @@ router.patch('/returnOrder/:id',isBlock,userAuth,orderController.returnOrder)
 router.patch('/cancelItem/:id',isBlock,userAuth,orderController.cancelItem)
 
 //razorpay
-router.post('/createOrder',isBlock,userAuth,orderController.createOrder)
 router.post('/verifyPayment',isBlock,userAuth,orderController.verifyPayment)
 
 

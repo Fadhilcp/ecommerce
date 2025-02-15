@@ -35,7 +35,7 @@ const loadHomePage = async (req,res)=>{
             return res.render('user/home',{products:productData,active:'home'})
         }
     } catch (error) {
-        console.log('Home Page not found',error)
+        console.error('Home Page not found',error)
         res.status(500).send('Internal server error')
     }
 }
@@ -200,7 +200,7 @@ const loadRegister = async (req,res)=>{
         return res.render('user/register',{message:'',active:'login'})
 
     } catch (error) {
-        console.log('Register Page is not found')
+        console.error('Register Page is not found')
         res.status(500).send('Internal server error')
     }
 }
@@ -367,7 +367,7 @@ const logout = async(req,res) => {
     try {
         req.session.destroy((err)=>{
             if(err){
-                console.log('Session Destruction error',err.messsage)
+                console.error('Session Destruction error',err.messsage)
                 return res.redirect('/pageNotFound')
             }else{
                 return res.redirect('/login')
@@ -375,7 +375,7 @@ const logout = async(req,res) => {
         })
         
     } catch (error) {
-        console.log('Logout error',error)
+        console.error('Logout error',error)
         res.redirect('/pageNotFound')
     }
 }

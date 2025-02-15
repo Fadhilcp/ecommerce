@@ -79,16 +79,27 @@ const updateOrderStatus = async (req,res) => {
         if(existingOrder.status === 'Cancelled'){
             return res.json({status:false,message:'Order is already Cancelled'})
         }
-        
 
         const updateOrder = await Order.findByIdAndUpdate(orderId, {status:updateStatus},{new:true})
 
         if(updateOrder.status === 'Cancelled'){
+
+            const wallet = await Wallet.findOne({userId:updateOrder.userId})
+
+            wallet.balance += order.finalPrice
+
+            wallet.transaction.push({
+                transactionType:'payment',
+                amount: updateOrder.finalPrice
+            })
+
             for(const item of updateOrder.products){
                    await Product.findByIdAndUpdate(item.product,{
                     $inc:{quantity:item.quantity}
                 })
             }
+
+            await wallet.save()
         }
 
         res.json({status:true,message:'Order status updated successfully'})
@@ -106,8 +117,6 @@ const returnStatus = async (req,res) => {
         const {result} = req.body
 
         const orderId = req.params.id
-
-        console.log('this reslt',result)
 
         const order = await Order.findById(orderId)
 
@@ -143,7 +152,6 @@ const returnStatus = async (req,res) => {
         res.redirect('/admin/redirect')
     }
 }
-
 
 module.exports = {
     getOrder,

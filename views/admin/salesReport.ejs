@@ -1,0 +1,189 @@
+
+
+<!-- setting header -->
+<%- include("../../views/partials/admin/header") %>
+
+    <style>
+        .sales-summary {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0d6efd;
+            margin-bottom: 20px;
+        }
+        .status-badge {
+            width: 85px;
+        }
+        .trend-up {
+            color: #198754;
+        }
+        .trend-down {
+            color: #dc3545;
+        }
+    </style>
+
+<section class="content-main"> 
+
+    <div class="container-fluid p-4">
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+
+            <div class="col-md-3">
+                <div class="card sales-summary">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Overall Sales Count</h6>
+                        <h4 class="card-title"><%= overallSalesCount %></h4>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="col-md-3">
+                <div class="card sales-summary">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Overall Order Amount</h6>
+                        <h4 class="card-title">₹<%= overallOrderAmount.toFixed(2) %></h4>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="col-md-3">
+                <div class="card sales-summary">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Overall Discount</h6>
+                        <h4 class="card-title">₹<%= overallDiscount.toFixed(2) %></h4>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="col-md-3">
+                <div class="card sales-summary">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Customers Count</h6>
+                        <h4 class="card-title"><%= customersCount %></h4>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+       <!-- Sales Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Sales</h5>
+        <div class="d-flex">
+            <!-- Filter Dropdown -->
+            <select id="filter-select" class="form-select form-select-sm me-2">
+                <option value="">All</option>
+                <option value="daily" <%= filter === 'daily' ? 'selected' : '' %>>Daily</option>
+                <option value="weekly" <%= filter === 'weekly' ? 'selected' : '' %>>Weekly</option>
+                <option value="monthly" <%= filter === 'monthly' ? 'selected' : '' %>>Monthly</option>
+                <option value="yearly" <%= filter === 'yearly' ? 'selected' : '' %>>Yearly</option>
+                <option value="custom" <%= filter === 'custom' ? 'selected' : '' %>>Custom</option>
+            </select>
+
+            <!-- Custom Date Filter (hidden initially) -->
+            <input type="date" id="from-date" class="form-control form-control-sm me-2" 
+                   value="<%= fromDate || '' %>" style="display: none;">
+            <input type="date" id="to-date" class="form-control form-control-sm me-2" 
+                   value="<%= toDate || '' %>" style="display: none;">
+
+            <!-- Filter Button -->
+            <button class="btn btn-primary btn-sm" id="apply-filter">Apply</button>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th class="text-center">Products Sold</th>
+                        <th>Total Price</th>
+                        <th>Discount</th>
+                        <th>Final Price</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% salesData.forEach(order => { %>
+                        <tr>
+                            <td>#ORD-<%= order.orderId %></td>
+                            <td><%= order.customerName %></td>
+                            <td class="text-center"><%= order.totalProductsSold %></td>
+                            <td>₹<%= order.totalPrice.toFixed(2) %></td>
+                            <td>₹<%= (order.totalPrice - order.finalPrice).toFixed(2) %></td>
+                            <td>₹<%= order.finalPrice.toFixed(2) %></td>
+                            <td>
+                                <% if (order.createdAt) { %>
+                                    <%= new Date(order.createdAt).toISOString().split('T')[0] %>
+                                <% } else { %>
+                                    N/A
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+    </div>
+
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <%for(let i=1;i<=totalPages;i++){%>
+                <li class="page-item <%=(i===currentPage) ? 'active' : ''%>" >
+                    <a class="page-link" href="?page=<%= i %>"><%=i%></a>
+                </li>
+                <%}%>
+            </ul>
+        </nav>
+    </div>
+
+</section>
+   
+<script>
+
+
+document.addEventListener("DOMContentLoaded", function() {
+        const filterSelect = document.getElementById("filter-select");
+        const fromDateInput = document.getElementById("from-date");
+        const toDateInput = document.getElementById("to-date");
+        const applyButton = document.getElementById("apply-filter");
+
+        // Show/hide date inputs based on selection
+        filterSelect.addEventListener("change", function() {
+            if (this.value === "custom") {
+                fromDateInput.style.display = "block";
+                toDateInput.style.display = "block";
+            } else {
+                fromDateInput.style.display = "none";
+                toDateInput.style.display = "none";
+            }
+        });
+
+        // Apply filter and reload page with query params
+        applyButton.addEventListener("click", function() {
+            let filter = filterSelect.value;
+            let fromDate = fromDateInput.value;
+            let toDate = toDateInput.value;
+
+            let url = `/admin/salesReport?filter=${filter}`;
+
+            if (filter === "custom" && fromDate && toDate) {
+                url += `&fromDate=${fromDate}&toDate=${toDate}`;
+            }
+
+            window.location.href = url;
+        });
+    })
+
+
+</script>
+
+
+            <!-- setting footer -->
+            <%- include("../../views/partials/admin/footer") %>

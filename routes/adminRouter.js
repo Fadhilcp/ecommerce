@@ -6,7 +6,7 @@ const categoryController = require('../controller/admin/categoryController')
 const productController = require('../controller/admin/productController')
 const orderController = require('../controller/admin/orderController')
 const couponController = require('../controller/admin/couponController')
-const { adminAuth } = require('../middleware/auth')
+const { adminAuth, isBlock } = require('../middleware/auth')
 const multer = require('multer')
 const storage = require('../helpers/multer')
 const uploads = multer({ storage: storage })
@@ -59,5 +59,8 @@ router.patch('/returnStatus/:id',adminAuth,orderController.returnStatus)
 router.get('/coupon',adminAuth,couponController.getCoupon)
 router.post('/createCoupon',adminAuth,couponController.createCoupon)
 router.delete('/deleteCoupon/:id',adminAuth,couponController.deleteCoupon)
+
+//sales report
+router.get('/salesReport',adminAuth,adminController.getSalesReport)
 
 module.exports = router 

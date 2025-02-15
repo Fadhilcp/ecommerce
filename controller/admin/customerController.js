@@ -47,7 +47,7 @@ const customerInfo = async (req,res) => {
         })
 
     } catch (error) {
-        console.log('error',error)
+        console.error('error',error)
     }
 }
 

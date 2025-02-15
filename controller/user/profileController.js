@@ -80,7 +80,7 @@ const account = async (req, res) => {
         })
 
     } catch (error) {
-        console.log('account page error:', error)
+        console.error('account page error:', error)
         res.status(500).json('internal server error')
 
     }

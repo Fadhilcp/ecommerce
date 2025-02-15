@@ -317,6 +317,10 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
         return
     }
 
+
+
+
+
     if (paymentMethod === 'COD') {
         try {
             let response = await fetch('/placeOrder', {
@@ -363,95 +367,116 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
 
 
 
-    if (paymentMethod === 'RazorPay') {
+    if (paymentMethod === 'RazorPay') { 
 
-        //replacing symbols
-        let rawTotal = document.getElementById('finalTotal').innerText.trim()
-        let cleanedTotal = rawTotal.replace(/[^\d.]/g, '')
-        const finalTotal = parseFloat(cleanedTotal)
+            // Replacing symbols
+            let rawTotal = document.getElementById('finalTotal').innerText.trim();
+            let cleanedTotal = rawTotal.replace(/[^\d.]/g, '')
+            const finalTotal = parseFloat(cleanedTotal)
 
-        console.log(finalTotal)
+            try {
+                let orderResponse = await fetch('/placeOrder', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({
+                        addressId: selectedAddressId,
+                        paymentMethod: paymentMethod,
+                    }),
+                })
 
+                let orderData = await orderResponse.json()
 
-        try {
-            let response = await fetch('/createOrder', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    amount: finalTotal,
-                    currency: 'INR',
-                }),
-            })
-
-            let orderData = await response.json()
-    
-            var options = {
-                "key": "rzp_test_bPK4mH8dSfYQwe",
-                "amount": orderData.order.amount,
-                "currency": orderData.order.currency,
-                "name": "PERFUMORA",
-                "description": "Order Payment",
-                "order_id": orderData.order.id,
-                "handler": async function (response) {
-                    let verifyResponse = await fetch('/verifyPayment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(response),
+                if (!orderData.status) {
+                    return Swal.fire({
+                        icon: 'error',
+                        title: 'Order Failed!',
+                        text: orderData.message || 'Could not place order.',
+                        showConfirmButton: true,
                     })
-
-                    let verifyData = await verifyResponse.json()
-
-                    if (verifyData.status) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Payment Successful!',
-                            text: 'Your order has been placed.',
-                            showConfirmButton: true,
-                        }).then(() => {
-                            let response = fetch('/placeOrder', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    addressId: selectedAddressId,
-                                    paymentMethod: paymentMethod,
-                                })
-                            }).then(() => {
-                                window.location.href = '/orderComplete'
-                            })
-                        })
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Payment Failed!',
-                            text: 'Transaction verification failed.',
-                            showConfirmButton: true,
-                        })
-                    }
-                },
-                "prefill": {
-                    "name": "Customer Name",
-                    "email": "customer@example.com",
-                    "contact": "0909090900"
-                },
-                "theme": {
-                    "color": "#ef7c00"
                 }
+
+                // Extract Razorpay Order ID
+                let orderId = orderData.razorpayOrder.id;
+
+                console.log('Order Data:', orderData)
+                console.log('Order ID:', orderId)
+
+                var options = {
+                    "key": "rzp_test_bPK4mH8dSfYQwe",
+                    "amount": orderData.razorpayOrder.amount,
+                    "currency": orderData.razorpayOrder.currency,
+                    "name": "PERFUMORA",
+                    "description": "Order Payment",
+                    "order_id": orderId, 
+                    "handler": async function (response) {
+                        let verifyResponse = await fetch('/verifyPayment', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json' 
+                            },
+                            body: JSON.stringify({
+                                ...response,
+                                orderId: orderId, 
+                            }),
+                        })
+
+                        let verifyData = await verifyResponse.json();
+
+                        if (verifyData.status) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Payment Successful!',
+                                text: 'Your order has been placed.',
+                                showConfirmButton: true,
+                            }).then(() => {
+                                window.location.href = '/orderComplete';
+                            })
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Payment Failed!',
+                                text: 'Transaction verification failed.',
+                                showConfirmButton: true,
+                            })
+                        }
+                    },
+                    "prefill": {
+                        "name": "Customer Name",
+                        "email": "customer@example.com",
+                        "contact": "0909090900"
+                    },
+                    "theme": {
+                        "color": "#ef7c00"
+                    }
+                }
+
+                var rzp1 = new Razorpay(options)
+                rzp1.open()
+
+                rzp1.on('payment.failed', function (response) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed!',
+                        text: 'Your transaction was not completed. Please try again.',
+                        showConfirmButton: true,
+                    })
+                })
+
+            } catch (error) {
+                console.error('Error:', error)
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Processing Error!',
+                    text: 'Something went wrong. Please try again!',
+                    showConfirmButton: true,
+                })
             }
-
-            var rzp1 = new Razorpay(options)
-            rzp1.open()
-        } catch (error) {
-            console.error(error)
-            Swal.fire({
-                icon: 'error',
-                title: 'Payment Error!',
-                text: 'Failed to initialize payment. Please try again!',
-                showConfirmButton: true,
-            })
         }
-    }
-
 })
+
+
 
 
     async function applyCoupon() {
