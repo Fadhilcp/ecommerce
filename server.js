@@ -47,9 +47,6 @@ app.use('/admin',adminRouter)
 app.use(errorHandling.routeHandling)
 
 
-
-
-
 app.listen(process.env.PORT,()=>{
     console.log('server running at http://localhost:3000')
 })

@@ -65,14 +65,13 @@
         </div>
 
 
-
-       <!-- Sales Table -->
+<!-- Sales Table -->
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Recent Sales</h5>
         <div class="d-flex">
             <!-- Filter Dropdown -->
-            <select id="filter-select" class="form-select form-select-sm me-2">
+            <select id="filterSelect" class="formSelect form-select-sm me-2">
                 <option value="">All</option>
                 <option value="daily" <%= filter === 'daily' ? 'selected' : '' %>>Daily</option>
                 <option value="weekly" <%= filter === 'weekly' ? 'selected' : '' %>>Weekly</option>
@@ -82,13 +81,13 @@
             </select>
 
             <!-- Custom Date Filter (hidden initially) -->
-            <input type="date" id="from-date" class="form-control form-control-sm me-2" 
+            <input type="date" id="fromDate" class="form-control form-control-sm me-2" 
                    value="<%= fromDate || '' %>" style="display: none;">
-            <input type="date" id="to-date" class="form-control form-control-sm me-2" 
+            <input type="date" id="toDate" class="form-control form-control-sm me-2" 
                    value="<%= toDate || '' %>" style="display: none;">
 
             <!-- Filter Button -->
-            <button class="btn btn-primary btn-sm" id="apply-filter">Apply</button>
+            <button class="btn btn-primary btn-sm" id="applyFilter">Apply</button>
         </div>
     </div>
 
@@ -127,8 +126,20 @@
                 </tbody>
             </table>
         </div>
+        
+        <!-- Download Buttons -->
+        <div class="d-flex justify-content-end mt-3">
+            <button id="downloadPdf" class="btn btn-danger me-2">
+                <i class="fas fa-file-pdf"></i> Download PDF
+            </button>
+            <button id="downloadExcel" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Download Excel
+            </button>
+        </div>
     </div>
 </div>
+
+
     </div>
 
     <div class="pagination-area mt-15 mb-50">
@@ -149,37 +160,62 @@
 
 
 document.addEventListener("DOMContentLoaded", function() {
-        const filterSelect = document.getElementById("filter-select");
-        const fromDateInput = document.getElementById("from-date");
-        const toDateInput = document.getElementById("to-date");
-        const applyButton = document.getElementById("apply-filter");
+        const filterSelect = document.getElementById("filterSelect")
+        const fromDateInput = document.getElementById("fromDate")
+        const toDateInput = document.getElementById("toDate")
+        const applyButton = document.getElementById("applyFilter")
 
-        // Show/hide date inputs based on selection
+
         filterSelect.addEventListener("change", function() {
             if (this.value === "custom") {
-                fromDateInput.style.display = "block";
-                toDateInput.style.display = "block";
+                fromDateInput.style.display = "block"
+                toDateInput.style.display = "block"
             } else {
-                fromDateInput.style.display = "none";
-                toDateInput.style.display = "none";
+                fromDateInput.style.display = "none"
+                toDateInput.style.display = "none"
             }
-        });
+        })
 
-        // Apply filter and reload page with query params
+
         applyButton.addEventListener("click", function() {
-            let filter = filterSelect.value;
-            let fromDate = fromDateInput.value;
-            let toDate = toDateInput.value;
+            let filter = filterSelect.value
+            let fromDate = fromDateInput.value
+            let toDate = toDateInput.value
 
-            let url = `/admin/salesReport?filter=${filter}`;
+            let url = `/admin/salesReport?filter=${filter}`
 
             if (filter === "custom" && fromDate && toDate) {
-                url += `&fromDate=${fromDate}&toDate=${toDate}`;
+                url += `&fromDate=${fromDate}&toDate=${toDate}`
             }
 
-            window.location.href = url;
-        });
+            window.location.href = url
+        })
     })
+
+
+    document.getElementById('downloadPdf').addEventListener('click', function () {
+    let filter = document.getElementById('filterSelect').value
+    let fromDate = document.getElementById('fromDate').value
+    let toDate = document.getElementById('toDate').value
+
+    let url = `/admin/downloadSalesPdf?filter=${filter}`
+    if (filter === "custom") {
+        url += `&fromDate=${fromDate}&toDate=${toDate}`
+    }
+    window.location.href = url
+})
+
+document.getElementById('downloadExcel').addEventListener('click', function () {
+    let filter = document.getElementById('filterSelect').value
+    let fromDate = document.getElementById('fromDate').value
+    let toDate = document.getElementById('toDate').value
+
+    let url = `/admin/downloadSalesExcel?filter=${filter}`
+    if (filter === "custom") {
+        url += `&fromDate=${fromDate}&toDate=${toDate}`
+    }
+    window.location.href = url
+})
 
 
 </script>

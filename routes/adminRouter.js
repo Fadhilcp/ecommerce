@@ -61,6 +61,11 @@ router.post('/createCoupon',adminAuth,couponController.createCoupon)
 router.delete('/deleteCoupon/:id',adminAuth,couponController.deleteCoupon)
 
 //sales report
-router.get('/salesReport',adminAuth,adminController.getSalesReport)
+router.get('/salesReport',adminController.getSalesReport)
+
+//download pdf and excel
+router.get('/downloadSalesPdf',adminController.downloadSalesPDF)
+router.get('/downloadSalesExcel',adminController.downloadSalesExcel) 
+
 
 module.exports = router 
