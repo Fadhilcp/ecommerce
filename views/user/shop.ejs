@@ -3,7 +3,6 @@
 <%- include("../../views/partials/user/header") %>
 
 
-
 <div class="breadcrumbs">
     <div class="container">
         <div class="row">
@@ -109,18 +108,7 @@
                             </div>
                         </div>
                     </div> 
-                    <!-- <div class="col-sm-12">
-                        <div class="side border mb-1">
-                            <h3>Price</h3>
-                            <ul>
-                                <li><a href="#">0-1000</a></li>
-                                <li><a href="#">1000-1500</a></li>
-                                <li><a href="#">1500-2000</a></li>
-                                <li><a href="#">2000-2500</a></li>
-                                <li><a href="#">2500-Above</a></li>
-                            </ul>
-                        </div>
-                    </div> -->
+
                 </div>
             </div>
 <!-- filter bar =========================================================== -->
@@ -130,20 +118,20 @@
             <div class="col-lg-9 col-xl-9">
                 <div class="row row-pb-md">
 
-                    <% for(let i=0;i<products.length;i++){%>
-                    <div class="col-lg-4 mb-4 text-center">
-                        <div class="product-entry border">
-                            <a href="/productDetails?id=<%=products[i]._id%>" class="prod-img">
-                                <img src="/uploads/reImage/<%= products[i].productImage[0] %>" class="img-fluid" alt="<%= products[i].productName %>">
-                            
-                            <div class="desc">
-                                <h2><a><%= products[i].productName %></a></h2>
-                                <span class="price"><%= products[i].offerPrice %></span>
+                    <% for(let i=0; i<products.length; i++) { %>
+                        <div class="col-lg-4 mb-4 text-center">
+                            <div class="product-entry border">
+                                <a href="/productDetails?id=<%= products[i]._id %>" class="prod-img">
+                                    <img src="/uploads/reImage/<%= products[i].productImage[0] %>" class="img-fluid" alt="<%= products[i].productName %>">
+                                    
+                                    <div class="desc" style="padding: .5em;">
+                                        <h2><a><%= products[i].productName %></a></h2>
+                                        <span class="price"><%= products[i].offerPrice %></span>
+                                    </div>
+                                </a>
                             </div>
-                          </a>
                         </div>
-                    </div>
-                    <%}%>
+                    <% } %>
 
                 </div>
                 <div class="row">
@@ -277,7 +265,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 })
-
 
 
 

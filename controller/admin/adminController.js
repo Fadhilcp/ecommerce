@@ -158,6 +158,7 @@ const getSalesReport = async (req, res) => {
                     totalPrice: { $first: "$totalPrice" },
                     finalPrice: { $first: "$finalPrice" }, 
                     createdAt: { $first: "$createdAt" }, 
+                    status: { $first: "$status" }
                 } 
             },
             {
@@ -170,7 +171,6 @@ const getSalesReport = async (req, res) => {
             { $limit: limit }
         ])
 
-
         const overallSalesCount = salesData.length
         const overallOrderAmount = salesData.reduce((sum, order) => sum + order.finalPrice, 0)
         const overallDiscount = salesData.reduce((sum, order) => sum + (order.totalPrice - order.finalPrice), 0)
@@ -180,7 +180,7 @@ const getSalesReport = async (req, res) => {
         res.render('admin/salesReport', { 
             salesData, 
             filter, 
-            fromDate, 
+            fromDate,
             toDate,
             overallSalesCount,
             overallOrderAmount,
@@ -251,10 +251,11 @@ const downloadSalesPDF = async (req, res) => {
 
         // Table Headers
         doc.text('Order ID', startX , y);
-        doc.text('Customer', startX + columnWidths[0] + 30, y);
-        doc.text('Total Price', startX + columnWidths[0] + columnWidths[1] + 5, y)
-        doc.text('Discount', startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + 5, y)
-        doc.text('Final Price', startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + 5, y)
+        doc.text('Customer', startX + columnWidths[0] + 30, y)
+        doc.text('Status', startX + columnWidths[0] + 100, y)
+        doc.text('Total Price', startX + columnWidths[0] + columnWidths[1] + 30, y)
+        doc.text('Discount', startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + 30, y)
+        doc.text('Final Price', startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + 20, y)
         doc.text('Date', startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + columnWidths[4], y)
 
         doc.moveDown(1)
@@ -265,9 +266,10 @@ const downloadSalesPDF = async (req, res) => {
         salesData.forEach(order => {
             doc.text(order.orderId, startX , y);
             doc.text(order.address.name.substring(0, 15), startX + columnWidths[0] + 30, y)
-            doc.text(`$${order.totalPrice.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + 5, y)
-            doc.text(`$${(order.totalPrice - order.finalPrice).toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + 5, y)
-            doc.text(`$${order.finalPrice.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + 5, y)
+            doc.text(order.status, startX + columnWidths[0] + 100, y)
+            doc.text(`$${order.totalPrice.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + 30, y)
+            doc.text(`$${(order.totalPrice - order.finalPrice).toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + 30, y)
+            doc.text(`$${order.finalPrice.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + 20, y)
             doc.text(order.createdAt.toISOString().split('T')[0], startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + columnWidths[4], y)
             
             //line each row
@@ -323,6 +325,7 @@ const downloadSalesExcel = async (req, res) => {
         worksheet.columns = [
             { header: 'Order ID', key: 'orderId', width: 20 },
             { header: 'Customer', key: 'customer', width: 25 },
+            { header: 'Status', key: 'status', width: 25 },
             { header: 'Total Amount', key: 'totalPrice', width: 15 },
             { header: 'Discount', key: 'discount', width: 15 },
             { header: 'Final Amount', key: 'finalPrice', width: 15 },
@@ -333,6 +336,7 @@ const downloadSalesExcel = async (req, res) => {
             worksheet.addRow({
                 orderId: order.orderId,
                 customer: order.address.name,
+                status: order.status,
                 totalPrice: `$${order.totalPrice.toFixed(2)}`,
                 discount: `$${(order.totalPrice - order.finalPrice).toFixed(2)}`,
                 finalPrice: `$${order.finalPrice.toFixed(2)}`,

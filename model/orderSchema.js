@@ -41,7 +41,7 @@ const orderSchema = new Schema({
           },
           cancelStatus:{
             type:String,
-            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled','Requested','Approved','Rejected'], 
+            enum: ['Pending','Shipped','Delivered','Cancelled','Requested','Approved','Rejected'], 
             default: 'Pending' 
           },
           itemCancelReason: {
@@ -118,7 +118,7 @@ const orderSchema = new Schema({
       },
       paymentMethod: {
         type: String,
-        enum: ['COD', 'RazorPay'],
+        enum: ['COD', 'RazorPay','Wallet'],
         required: true
       },
       coupon: {

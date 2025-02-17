@@ -50,10 +50,11 @@ router.post('/deleteImage', adminAuth, productController.deleteSingleImage)
 
 
 //order management
-router.get('/orders',adminAuth,orderController.getOrder)
-router.get('/orderDetail/:id',adminAuth,orderController.getOrderDetail)
-router.post('/updateOrderStatus/:id',adminAuth,orderController.updateOrderStatus)
-router.patch('/returnStatus/:id',adminAuth,orderController.returnStatus)
+router.get('/orders',orderController.getOrder)
+router.get('/orderDetail/:id',orderController.getOrderDetail)
+router.post('/updateOrderStatus/:id',orderController.updateOrderStatus)
+router.patch('/returnStatus/:id',orderController.returnStatus)
+router.patch('/itemReturnStatus/:id',orderController.itemReturnStatus)
 
 //coupon management
 router.get('/coupon',adminAuth,couponController.getCoupon)
@@ -61,11 +62,11 @@ router.post('/createCoupon',adminAuth,couponController.createCoupon)
 router.delete('/deleteCoupon/:id',adminAuth,couponController.deleteCoupon)
 
 //sales report
-router.get('/salesReport',adminController.getSalesReport)
+router.get('/salesReport',adminAuth,adminController.getSalesReport)
 
 //download pdf and excel
-router.get('/downloadSalesPdf',adminController.downloadSalesPDF)
-router.get('/downloadSalesExcel',adminController.downloadSalesExcel) 
+router.get('/downloadSalesPdf',adminAuth,adminController.downloadSalesPDF)
+router.get('/downloadSalesExcel',adminAuth,adminController.downloadSalesExcel) 
 
 
 module.exports = router 

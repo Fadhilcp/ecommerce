@@ -98,6 +98,58 @@
     border-left: 4px solid #007bff;
     background-color: #f8f9fa;
 }
+
+
+/* Approve button styling */
+.custom-approve-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.custom-approve-btn:hover {
+    background-color: #218838;
+}
+
+/* Reject button styling */
+.custom-reject-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.custom-reject-btn:hover {
+    background-color: #c82333;
+}
+
+/* Styling for the reason input box (hidden initially) */
+.custom-reject-reason-box {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+}
+
+.custom-reject-reason-box input {
+    margin-top: 8px;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
 </style>
 
 
@@ -182,26 +234,46 @@
                                             
                                             <th>Quantity</th>
                                             <th>Price</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
 
                                         <% order.products.forEach((product) => { %>
-                                        <tr>
-                                            <td class="ps-4">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="/uploads/reImage/<%= product.productImage %>" alt="Product" class="product-image me-3">
-                                                    <div>
-                                                        <h6 class="mb-0"><%= product.productName %></h6>
-                                                        <small class="text-muted"><%= product.capacity %></small>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="/uploads/reImage/<%= product.productImage %>" alt="Product" class="product-image me-3">
+                                                        <div>
+                                                            <h6 class="mb-0"><%= product.productName %></h6>
+                                                            <small class="text-muted"><%= product.capacity %></small>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            
-                                            <td><%= product.quantity %></td>
-                                            <td>₹<%= product.price %></td>
-                                        </tr>
+                                                </td>
+                                                
+                                                <td><%= product.quantity %></td>
+                                                <td>₹<%= product.price %></td>
+                                                
+                                                <!-- Approve and Reject buttons with reason input -->
+                                                <td>
+                                                    <!-- Buttons only appear if the order status is 'Requested' -->
+                                                    <% if (product.cancelStatus === 'Requested') { %>
+                                                        <% if(!order.products.every(product => product.cancelStatus === 'Requested')){ %>
+                                                        <div class="d-flex gap-3">
+                                                            <button class="custom-approve-btn" onclick="itemReturnStatus('Approved','<%= product.product %>','<%= order._id %>')">Approve</button>
+                                                            <button class="custom-reject-btn" onclick="itemReturnStatus('Rejected','<%= product.product %>','<%= order._id %>')">Reject</button>
+                                                        </div>
+                                                        <% } %>
+                                                        <!-- Reason input box for rejected products -->
+                                                        <div class="refund-reason-box p-3 border rounded bg-light">
+                                                            <strong>Refund Reason:</strong>
+                                                            <p class="mb-0"><%= product.refundReason %></p>
+                                                        </div>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
                                         <% }) %>
+                                        
                                     </tbody>
                                 </table>
                             </div>
@@ -222,6 +294,7 @@
             <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
 
                 <% if(order.status === 'Requested') {%>
+                    <% if(order.products.every(product => product.cancelStatus === 'Requested')){ %>
     <div class="refund-reason-box p-3 border rounded bg-light">
         <strong>Refund Reason:</strong>
         <p class="mb-0"><%= order.refundReason %></p>
@@ -235,9 +308,10 @@
             Reject
         </button>
     </div>
-
+    <% } %>
+    <% } %>
 </div>
-<% } %>
+
 
 
             
@@ -358,6 +432,47 @@
                     icon:'error',
                     title:'Error',
                     text:'Something went wrong',
+                    customClass: {
+                       title: 'swal-title-black'
+                    }
+                    })
+                }
+                
+            } catch (error) {
+                console.error('error while updating return order status',error)
+            }
+        }
+
+
+        // For individual return status
+        async function itemReturnStatus(result,productId,orderId){
+            try {
+
+                const response = await fetch(`/admin/itemReturnStatus/${orderId}`,{
+                    method:'PATCH',
+                    headers:{
+                        'content-type':'application/json'
+                    },
+                    body:JSON.stringify({result,productId})
+                })
+
+                const data = await response.json()
+
+                if(data.status){
+                    await Swal.fire({
+                    icon:'success',
+                    title:'Status updated',
+                    text:'Status updated',
+                    customClass: {
+                       title: 'swal-title-black'
+                    }
+                })
+                window.location.reload()
+                }else{
+                    Swal.fire({
+                    icon:'error',
+                    title:'Error',
+                    text: data.message ||'Something went wrong',
                     customClass: {
                        title: 'swal-title-black'
                     }

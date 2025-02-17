@@ -239,9 +239,10 @@
                             <h2>Payment Method</h2>
                             <div class="form-group">
                                 <div class="col-md-12">
-                                    <div class="radio">
+                                    <div class="radio" style="display: grid;">
                                         <label><input type="radio" name="COD" id="COD" value="COD"> Cash on Delivery</label>
                                         <label><input type="radio" name="razorPay" id="razorPay" value="razorPay"> RazorPay</label>
+                                        <label><input type="radio" name="Wallet" id="Wallet" value="Wallet"> Wallet</label>
                                     </div>
                                 </div>
                             </div>
@@ -305,7 +306,10 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
 
     if (document.getElementById('COD').checked) {
         paymentMethod = 'COD'
-    } else if (document.getElementById('razorPay').checked) {
+    }else if(document.getElementById('Wallet').checked){
+        paymentMethod = 'Wallet'
+    }
+     else if (document.getElementById('razorPay').checked) {
         paymentMethod = 'RazorPay'
     } else {
         Swal.fire({
@@ -321,7 +325,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
 
 
 
-    if (paymentMethod === 'COD') {
+    if (paymentMethod === 'COD' || paymentMethod === 'Wallet') {
         try {
             let response = await fetch('/placeOrder', {
                 method: 'POST',

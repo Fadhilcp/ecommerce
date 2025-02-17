@@ -184,13 +184,23 @@
                         <ul class="list-group list-group-flush">
                             
                             <% wallet.transaction.forEach((item) => { %>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-0">Transaction: <%= item.transactionType %></h6>
-                                    <small class="text-muted"><%= item.Date %></small>
-                                </div>
-                                <span class="text-success"><%= item.amount %></span>
-                            </li>
+                             <% if( item.transactionType === 'credit' || item.transactionType === 'refund'){ %>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">Transaction: <%= item.transactionType %></h6>
+                                        <small class="text-muted"><%= item.Date %></small>
+                                    </div>
+                                    <span class="text-success"><%= item.amount %></span>
+                                </li>
+                                <% }else{ %>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">Transaction: <%= item.transactionType %></h6>
+                                            <small class="text-muted"><%= item.Date %></small>
+                                        </div>
+                                        <span class="text-danger">-<%= item.amount %></span>
+                                    </li>
+                                    <% } %>
                             <% }) %>
                             
                         </ul>

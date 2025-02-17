@@ -98,6 +98,7 @@
                     <tr>
                         <th>Order ID</th>
                         <th>Customer</th>
+                        <th>Status</th>
                         <th class="text-center">Products Sold</th>
                         <th>Total Price</th>
                         <th>Discount</th>
@@ -110,6 +111,7 @@
                         <tr>
                             <td>#ORD-<%= order.orderId %></td>
                             <td><%= order.customerName %></td>
+                            <td><%= order.status %></td>
                             <td class="text-center"><%= order.totalProductsSold %></td>
                             <td>₹<%= order.totalPrice.toFixed(2) %></td>
                             <td>₹<%= (order.totalPrice - order.finalPrice).toFixed(2) %></td>

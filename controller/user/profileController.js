@@ -522,8 +522,6 @@ const getWallet = async (req,res) => {
 
         wallet.update = moment(wallet.updatedAt).format('MMMM Do YYYY, h:mm:ss A')
 
-        console.log('this wallet',wallet)
-
         res.render('user/wallet',{
             user:userData,
             active:'account',

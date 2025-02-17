@@ -21,7 +21,7 @@ const walletSchema = new Schema({
           },
           transactionType: {
             type: String,
-            enum: ['payment', 'refund'],
+            enum: ['credit', 'refund','debit'],
             required: true
           },
           amount: {

@@ -84,12 +84,16 @@ const updateOrderStatus = async (req,res) => {
 
         if(updateOrder.status === 'Cancelled'){
 
+            updateOrder.products.forEach(product => {
+                product.cancelStatus = 'Cancelled'
+            })
+
             const wallet = await Wallet.findOne({userId:updateOrder.userId})
 
-            wallet.balance += order.finalPrice
+            wallet.balance += updateOrder.finalPrice
 
             wallet.transaction.push({
-                transactionType:'payment',
+                transactionType:'credit',
                 amount: updateOrder.finalPrice
             })
 
@@ -98,9 +102,10 @@ const updateOrderStatus = async (req,res) => {
                     $inc:{quantity:item.quantity}
                 })
             }
-
             await wallet.save()
         }
+
+        await updateOrder.save()
 
         res.json({status:true,message:'Order status updated successfully'})
         
@@ -125,7 +130,7 @@ const returnStatus = async (req,res) => {
         }
 
         order.status = result
-        order.refundStatus = result === 'Approved' ? 'Approved' : 'Rejected'
+        order.refundStatus = result
 
         let wallet = await Wallet.findOne({userId:order.userId})
 
@@ -149,7 +154,70 @@ const returnStatus = async (req,res) => {
         
     } catch (error) {
         console.error('return status Error',error)
-        res.redirect('/admin/redirect')
+        res.redirect('/admin/pageError')
+    }
+}
+
+
+
+const itemReturnStatus = async (req,res) => {
+    try {
+
+        const {result,productId} = req.body
+
+        const orderId = req.params.id
+
+        const order = await Order.findById(orderId)
+        if(!order){
+            return res.json({status:false,message:'Order not found'})
+        }
+
+        const productIndex = order.products.findIndex(item => item.product.toString() === productId)
+
+        if (productIndex === -1) {
+            return res.json({ status: false, message: 'Product not found in order' })
+        }
+
+        if (order.products[productIndex].cancelStatus === result) {
+            return res.json({ status: false, message: `Product already ${result} to return` });
+        }
+
+        order.products[productIndex].cancelStatus = result
+        order.products[productIndex].refundStatus = result
+
+
+        let wallet = await Wallet.findOne({userId:order.userId})
+
+        if(!wallet){
+            wallet = new Wallet({userId:order.userId,transaction:[]})
+        }
+
+        let refundAmount = order.products[productIndex].price
+
+        //calculating return status
+        if(order.coupon){
+            const discountPercentage = (refundAmount - order.finalPrice) / refundAmount
+            refundAmount -= refundAmount * discountPercentage
+        }
+
+        if(order.refundStatus === 'Approved'){
+            refundAmount = order.product[productIndex].price
+            wallet.balance += refundAmount
+
+            wallet.transaction.push({
+                transactionType:'refund',
+                amount: refundAmount
+            })
+        }
+
+        await wallet.save()
+        await order.save()
+
+        res.json({status:true}) 
+        
+    } catch (error) {
+        console.error('Error while updating return status',error)
+        res.redirect('/admin/pageError')
     }
 }
 
@@ -157,5 +225,6 @@ module.exports = {
     getOrder,
     getOrderDetail,
     updateOrderStatus,
-    returnStatus
+    returnStatus,
+    itemReturnStatus
 }
