@@ -76,6 +76,8 @@ const getCheckout = async (req,res) => {
 
         let finalPrice = orderTotal
 
+        let discountAmount = 0
+
         delete req.session.couponCode
         delete req.session.finalPrice 
 
@@ -84,6 +86,7 @@ const getCheckout = async (req,res) => {
             cartItems:cartItems,
             orderTotal:orderTotal,
             finalTotal:finalPrice,
+            discountAmount,
             coupons:coupons,
             user:userId,
             active:'cart'
@@ -105,9 +108,13 @@ const applyCoupon = async (req,res) => {
 
         const userId = req.session.user
 
+        const currentDate = new Date()
+
         const coupon = await Coupon.findOne({code:couponCode,
             isActive:true,
-            totalUsageLimit:{$gt:0}
+            totalUsageLimit:{$gt:0},
+            startDate: { $lte: currentDate },
+            endDate: { $gte: currentDate }
         })
 
         const cart = await Cart.findOne({userId:userId})
@@ -115,7 +122,6 @@ const applyCoupon = async (req,res) => {
         if(!coupon){
             return res.json({status:true,message:'Invalid or Expired Coupon',finalTotal:cart.totalPrice})
         }
-
         
         if(cart.totalPrice > coupon.maxValue || cart.totalPrice < coupon.minValue){
             return res.json({status:false,

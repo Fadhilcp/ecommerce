@@ -226,8 +226,9 @@
                                 </li>
                                 <%})%>
                                 <%}%>
-                                <li><span>Shipping</span> <span>₹0.00</span></li>
                                 <li><span>Order Total</span> <span>₹<%= orderTotal %></span></li>
+                                <li><span>Discount</span> <span id="discountAmount">₹<%= discountAmount %></span></li>
+                                <li><span>Shipping</span> <span>₹0.00</span></li>
                                 <li><span>Final Total</span> <span id="finalTotal">₹<%= finalTotal %></span></li>
                             </ul>
                         </div>
@@ -240,9 +241,9 @@
                             <div class="form-group">
                                 <div class="col-md-12">
                                     <div class="radio" style="display: grid;">
-                                        <label><input type="radio" name="COD" id="COD" value="COD"> Cash on Delivery</label>
-                                        <label><input type="radio" name="razorPay" id="razorPay" value="razorPay"> RazorPay</label>
-                                        <label><input type="radio" name="Wallet" id="Wallet" value="Wallet"> Wallet</label>
+                                        <label><input type="radio" name="paymentMethod" id="COD" value="COD"> Cash on Delivery</label>
+                                        <label><input type="radio" name="paymentMethod" id="razorPay" value="razorPay"> RazorPay</label>
+                                        <label><input type="radio" name="paymentMethod" id="Wallet" value="Wallet"> Wallet</label>
                                     </div>
                                 </div>
                             </div>
@@ -491,6 +492,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                 const discountMsg = document.getElementById('discountMsg')
                 const errorMsg = document.getElementById('errorMsg')
                 const finalTotal = document.getElementById('finalTotal')
+                const discount = document.getElementById('discountAmount')
 
 
                 discountMsg.innerText = ''
@@ -515,6 +517,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                     discountMsg.innerText = data.message
                 
                     finalTotal.innerText = `₹${data.finalTotal}`
+                    discount.innerText = `₹${data.discountAmount}`
 
                 }else{
                     errorMsg.innerText = data.message
@@ -534,6 +537,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                 const discountMsg = document.getElementById('discountMsg')
                 const errorMsg = document.getElementById('errorMsg')
                 const finalTotal = document.getElementById('finalTotal')
+                const discount = document.getElementById('discountAmount')
 
 
                 discountMsg.innerText = ''
@@ -553,6 +557,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                     discountMsg.innerText = data.message
                 
                     finalTotal.innerText = `₹${data.finalTotal}`
+                    discount.innerHTML = `₹0`
 
                 }else{
                     errorMsg.innerText = data.message

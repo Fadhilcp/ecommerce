@@ -246,8 +246,8 @@ const downloadSalesPDF = async (req, res) => {
         let y = 120
 
         // Header background
-        doc.rect(startX, y - 10, 590, 25).fill('#d9d9d9').stroke();
-        doc.fillColor('black').fontSize(12).font('Helvetica-Bold');
+        doc.rect(startX, y - 10, 590, 25).fill('#d9d9d9').stroke()
+        doc.fillColor('black').fontSize(12).font('Helvetica-Bold')
 
         // Table Headers
         doc.text('Order ID', startX , y);
@@ -267,9 +267,9 @@ const downloadSalesPDF = async (req, res) => {
             doc.text(order.orderId, startX , y);
             doc.text(order.address.name.substring(0, 15), startX + columnWidths[0] + 30, y)
             doc.text(order.status, startX + columnWidths[0] + 100, y)
-            doc.text(`$${order.totalPrice.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + 30, y)
-            doc.text(`$${(order.totalPrice - order.finalPrice).toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + 30, y)
-            doc.text(`$${order.finalPrice.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + 20, y)
+            doc.text(`${order.totalPrice.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + 30, y)
+            doc.text(`${(order.totalPrice - order.finalPrice).toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + 30, y)
+            doc.text(`${order.finalPrice.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + 20, y)
             doc.text(order.createdAt.toISOString().split('T')[0], startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + columnWidths[4], y)
             
             //line each row
@@ -337,9 +337,9 @@ const downloadSalesExcel = async (req, res) => {
                 orderId: order.orderId,
                 customer: order.address.name,
                 status: order.status,
-                totalPrice: `$${order.totalPrice.toFixed(2)}`,
-                discount: `$${(order.totalPrice - order.finalPrice).toFixed(2)}`,
-                finalPrice: `$${order.finalPrice.toFixed(2)}`,
+                totalPrice: `${order.totalPrice.toFixed(2)}`,
+                discount: `${(order.totalPrice - order.finalPrice).toFixed(2)}`,
+                finalPrice: `${order.finalPrice.toFixed(2)}`,
                 createdAt: order.createdAt.toISOString().split('T')[0]
             })
         })

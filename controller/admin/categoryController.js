@@ -63,11 +63,13 @@ const addCategoryOffer = async (req,res)=>{
         const categoryId = req.body.categoryId
         const category = await Category.findById(categoryId)
 
+
         if(!category){
             return res.status(404).json({status:false,message:'Category not found'})
         }
 
-        const products = await Product.find({category:categoryId})
+        const products = await Product.find({category:category._id})
+
 
         const hasProductOffer = products.some((product)=>product.productOffer > percentage)
         if(hasProductOffer){
@@ -76,9 +78,12 @@ const addCategoryOffer = async (req,res)=>{
  
         await Category.updateOne({_id:categoryId},{$set:{categoryOffer:percentage}})
 
-        for(const product of products){
-            product.productOffer = 0,
-            product.salePrice = product.regularePrice
+        for (const product of products) {
+
+            const discountAmount = product.regularPrice * (percentage / 100)
+            product.offerPrice = product.regularPrice - discountAmount
+            product.productOffer = percentage
+
             await product.save()
         }
 
@@ -107,14 +112,15 @@ const removeCategoryOffer = async(req,res) =>{
         const products = await Product.find({category:category._id})
 
 
-        if(products.length > 0){
-            for(const product of products){
-                product.salePrice += Math.floor(product.regularPrice * (percentage/100))
-                product.productOffer = 0 
+        if (products.length > 0) {
+            for (const product of products) {
+
+                product.offerPrice = product.regularPrice
+                product.productOffer = 0
+
                 await product.save()
             }
         }
-
 
         category.categoryOffer = 0
         await category.save()

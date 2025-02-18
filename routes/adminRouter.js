@@ -26,10 +26,10 @@ router.get('/unblockCustomer', adminAuth, customerController.customerunBlocked)
 
 
 //category management
-router.get('/category', adminAuth, categoryController.categoryInfo)
-router.post('/addCategory', adminAuth, categoryController.addCategory)
-router.post('/addCategoryOffer', adminAuth, categoryController.addCategoryOffer)
-router.post('/removeCategoryOffer', adminAuth, categoryController.removeCategoryOffer)
+router.get('/category',adminAuth,categoryController.categoryInfo)
+router.post('/addCategory',adminAuth, categoryController.addCategory)
+router.post('/addCategoryOffer',adminAuth, categoryController.addCategoryOffer)
+router.post('/removeCategoryOffer',adminAuth, categoryController.removeCategoryOffer)
 router.get('/listCategory', adminAuth, categoryController.getListCategory)
 router.get('/unlistCategory', adminAuth, categoryController.getUnlistCategory)
 router.get('/editCategory', adminAuth, categoryController.getEditCategory)
@@ -50,11 +50,11 @@ router.post('/deleteImage', adminAuth, productController.deleteSingleImage)
 
 
 //order management
-router.get('/orders',orderController.getOrder)
-router.get('/orderDetail/:id',orderController.getOrderDetail)
-router.post('/updateOrderStatus/:id',orderController.updateOrderStatus)
-router.patch('/returnStatus/:id',orderController.returnStatus)
-router.patch('/itemReturnStatus/:id',orderController.itemReturnStatus)
+router.get('/orders',adminAuth,orderController.getOrder)
+router.get('/orderDetail/:id',adminAuth,orderController.getOrderDetail)
+router.post('/updateOrderStatus/:id',adminAuth,orderController.updateOrderStatus)
+router.patch('/returnStatus/:id',adminAuth,orderController.returnStatus)
+router.patch('/itemReturnStatus/:id',adminAuth,orderController.itemReturnStatus)
 
 //coupon management
 router.get('/coupon',adminAuth,couponController.getCoupon)
