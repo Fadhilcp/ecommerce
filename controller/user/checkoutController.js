@@ -123,9 +123,9 @@ const applyCoupon = async (req,res) => {
             return res.json({status:true,message:'Invalid or Expired Coupon',finalTotal:cart.totalPrice})
         }
         
-        if(cart.totalPrice > coupon.maxValue || cart.totalPrice < coupon.minValue){
+        if(cart.totalPrice < coupon.minValue){
             return res.json({status:false,
-                message:`The coupon is valid for orders between ${coupon.minValue} and ${coupon.maxValue}`
+                message:`The coupon is valid for orders greaterthan ${coupon.minValue}`
             })
         }
 

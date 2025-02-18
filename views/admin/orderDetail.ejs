@@ -293,8 +293,8 @@
 
             <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
 
-                <% if(order.status === 'Requested') {%>
-                    <% if(order.products.every(product => product.cancelStatus === 'Requested')){ %>
+                <% if(order.status !== 'Approved' && order.status !== 'Rejected') {%>
+                    <% if(order.products.every(product => product.cancelStatus === 'Requested' || order.status === 'Requested')){ %>
     <div class="refund-reason-box p-3 border rounded bg-light">
         <strong>Refund Reason:</strong>
         <p class="mb-0"><%= order.refundReason %></p>

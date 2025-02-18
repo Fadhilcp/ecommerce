@@ -17,9 +17,6 @@ const couponSchema = new Schema({
         type: Number,
         default: 0, 
       },
-      maxValue: {
-        type: Number,
-      },
       totalUsageLimit: {
         type: Number, 
       },

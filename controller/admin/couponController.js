@@ -30,11 +30,9 @@ const createCoupon = async (req,res) => {
         const { code,
           discountValue,
           minValue,
-          maxValue,
           totalUsageLimit,
           startDate,
-          endDate,
-          description } = req.body
+          endDate } = req.body
 
 
         const existingCoupon = await Coupon.findOne({code:code})
@@ -47,9 +45,7 @@ const createCoupon = async (req,res) => {
             code,
             discountValue,
             minValue,
-            maxValue,
             totalUsageLimit,
-            description,
             startDate,
             endDate
         })

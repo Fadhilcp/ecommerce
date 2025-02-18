@@ -67,11 +67,6 @@
                             <p id="discountAmount-error" class="error-message text-danger"></p>
                         </div>
                         <div class="mb-3">
-                            <label for="maxAmount" class="form-label">Maximum Amount</label>
-                            <input type="text" class="form-control" id="maxAmount" name="maxValue" >
-                            <p id="maxAmount-error" class="error-message text-danger"></p>
-                        </div>
-                        <div class="mb-3">
                             <label for="minAmount" class="form-label">Minimum Amount</label>
                             <input type="text" class="form-control" id="minAmount" name="minValue">
                             <p id="minAmount-error" class="error-message text-danger"></p>
@@ -90,11 +85,6 @@
                             <label for="endDate" class="form-label">End Date</label>
                             <input type="date" class="form-control" id="endDate" name="endDate">
                             <p id="endDate-error" class="error-message text-danger"></p>
-                        </div>
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" rows="2" name="description" ></textarea>
-                            <p id="description-error" class="error-message text-danger"></p>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Create Coupon</button>
                     </form>
@@ -152,7 +142,6 @@
 
             formObject.discountValue = parseInt(formObject.discountValue)
             formObject.minValue = parseInt(formObject.minValue)
-            formObject.maxValue = parseInt(formObject.maxValue)
             formObject.totalUsageLimit = parseInt(formObject.totalUsageLimit)
 
             const response = await fetch('/admin/createCoupon',{
@@ -239,15 +228,12 @@
       function validateCouponForm(){
         const couponCode = document.getElementById('couponCode').value.trim() 
         const discountAmount = document.getElementById('discountAmount').value.trim()
-        let maxAmount = document.getElementById('maxAmount').value.trim()
         let minAmount = document.getElementById('minAmount').value.trim()
         const startDate = document.getElementById('startDate').value
         const endDate = document.getElementById('endDate').value
-        const description = document.getElementById('description').value.trim()
 
         let isValid = true
-
-        maxAmount = Number(maxAmount);
+        
         minAmount = Number(minAmount)
 
         document.querySelectorAll(".error-message").forEach(error => error.textContent = "")
@@ -261,11 +247,6 @@
         document.getElementById("discountAmount-error").textContent = "Enter a valid discount between 0 and 100."
         isValid = false
       }
-
-      if (isNaN(maxAmount) || parseInt(maxAmount) <= 0 || maxAmount <= minAmount) {
-         document.getElementById("maxAmount-error").textContent = "Enter a valid amount greater than minimum amount."
-         isValid = false
-         }
 
       if(minAmount === ""){
         document.getElementById("minAmount-error").textContent = "Enter a minimum amount"
@@ -293,14 +274,6 @@
         isValid = false
       }
 
-      if(!description) {
-        document.getElementById("description-error").textContent = "Please add Description"
-        isValid = false
-      }
-      else if (description.length < 5) {
-        document.getElementById("description-error").textContent = "Description must be at least 5 characters.";
-        isValid = false;
-      }
 
       return isValid
        

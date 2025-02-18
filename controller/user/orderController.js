@@ -69,10 +69,10 @@ const placeOrder = async (req, res) => {
                 return res.json({ status: false, message: "Invalid coupon code" })
             }
 
-            if (check.minValue > totalPrice || check.maxValue < totalPrice) {
+            if (check.minValue > totalPrice) {
                 return res.json({
                     status: false,
-                    message: `The coupon is valid for orders between ${check.minValue} and ${check.maxValue}`
+                    message: `The coupon is valid for orders greaterthan ${check.minValue}`
                 })
             }
 
