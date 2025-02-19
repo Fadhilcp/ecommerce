@@ -85,13 +85,15 @@ router.get('/checkout',isBlock,userAuth,checkoutController.getCheckout)
 router.post('/applyCoupon',isBlock,userAuth,checkoutController.applyCoupon)
 router.delete('/removeCoupon',isBlock,userAuth,checkoutController.removeCoupon)
 
-//place order
+//order management
 router.post('/placeOrder',isBlock,userAuth,orderController.placeOrder)
 router.get('/orderComplete',isBlock,userAuth,orderController.getOrderComplete)
 router.patch('/cancelOrder/:id',isBlock,userAuth,orderController.cancelOrder)
 router.patch('/returnOrder/:id',isBlock,userAuth,orderController.returnOrder) 
 router.patch('/cancelItem/:id',isBlock,userAuth,orderController.cancelItem)
 router.patch('/returnItem/:id',isBlock,userAuth,orderController.returnItem)
+//invoice download pdf
+router.get('/downloadInvoice/:id',isBlock,userAuth,orderController.downloadInvoice)
 
 //razorpay
 router.post('/verifyPayment',isBlock,userAuth,orderController.verifyPayment)

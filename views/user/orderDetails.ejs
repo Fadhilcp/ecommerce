@@ -194,7 +194,8 @@
         </aside>
 
     <main class="profile-content" style="flex: auto;">
-        <div class="container py-5">
+        <div class="container py-5"> 
+
             <div class="container">
                 <!-- Order Summary -->
                 <div class="row">
@@ -302,6 +303,15 @@
         <% } %>
             <% } %>
 
+            <% if(order.status !== 'Cancelled' && order.paymentStatus !== 'Failed'){ %>
+            <button class="btn btn-muted" onclick="downloadInvoice('<%= order._id %>')">
+                Download Invoice
+            </button> 
+            <% } %>
+
+            <% if( order.status !== 'Cancelled' && order.paymentStatus === 'Failed'){ %>
+            <button class="btn btn-success"> Continue Payment</button>
+            <% } %>
             </div>
 
 
@@ -703,6 +713,32 @@ async function returnItem(productId,orderId) {
         }
     } catch (error) {
         console.error('Item cancellation error:', error)
+    }
+}
+
+
+
+async function downloadInvoice(orderId){
+    try {
+        const response = await fetch(`/downloadInvoice/${orderId}`,{
+            method:'GET'
+        })
+
+        if(!response.ok){
+            console.error('Failed to download invoice')
+        }
+
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `invoice-Order.pdf`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        
+    } catch (error) {
+        console.error("Error downloading invoice:", error)
     }
 }
 

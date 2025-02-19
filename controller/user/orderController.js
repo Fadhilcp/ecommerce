@@ -8,6 +8,7 @@ const Coupon = require('../../model/couponSchema')
 const Razorpay = require('razorpay')
 const crypto = require('crypto')
 const env = require('dotenv').config()
+const PDFDocument = require('pdfkit')
 
 
 const razorpay = new Razorpay({
@@ -107,8 +108,10 @@ const placeOrder = async (req, res) => {
 
             const razorpayOrder = await razorpay.orders.create(options)
 
+            let paymentStatus = 'Failed'
+
             //temporary order
-            req.session.tempOrder = { 
+            const order = new Order({ 
                 userId,
                 orderId: customOrderId(),
                 products: cartItems,
@@ -124,14 +127,25 @@ const placeOrder = async (req, res) => {
                     pincode: selectedAddress.pincode
                 },
                 coupon: couponCode,
-                paymentMethod
-            }
+                paymentMethod,
+                paymentStatus
+            })
 
+            await order.save()
+
+            await Cart.findOneAndUpdate({ userId: userId }, { products: [] })
+
+            delete req.session.checkout
+            req.session.orderId = order._id
             return res.json({ status: true, razorpayOrder })
         }
 
         // cash on delivery
         if (paymentMethod === 'COD' || paymentMethod === 'Wallet') {
+
+            if(paymentMethod === 'COD' && finalPrice >= 1000){
+                return res.json({status:false,message:'Products above 1000 is not allowed Cash on Delivery'})
+            }
 
             let paymentStatus = 'Pending'
 
@@ -204,6 +218,8 @@ const getOrderComplete = async (req,res) => {
 
         const userId = req.session.user
         const orderId = req.session.orderId
+
+        console.log('order complte',orderId)
 
         const orderComplete = await Order.findById(orderId)
 
@@ -453,28 +469,18 @@ const verifyPayment = async (req, res) => {
 
 
         if (expectedSignature === razorpay_signature) {
+   
+            const orderId = req.session.orderId
 
-            const tempOrder = req.session.tempOrder
-            if (!tempOrder) {
-                return res.status(400).json({ status: false, message: "No pending order found" })
-            }
-
+            const order = await Order.findById(orderId)
+            //changing payment status
+            order.paymentStatus = 'Paid'
             
-            //saving order
-            tempOrder.paymentStatus = 'Paid'
-            const order = new Order(tempOrder)
-
-            req.session.orderId = order._id
             await order.save()
 
-
-            for (const item of tempOrder.products) {
+            for (const item of order.products) {
                 await Product.findByIdAndUpdate(item.product, { $inc: { quantity: -item.quantity } })
             }
-
-            // cart empty
-            await Cart.findOneAndUpdate({ userId: tempOrder.userId }, { products: [] })
-            delete req.session.tempOrder
 
             return res.json({ status: true, message: "Payment verified, order placed successfully" })
 
@@ -490,6 +496,91 @@ const verifyPayment = async (req, res) => {
 
 
 
+const downloadInvoice =  async (req, res) => {
+    try {
+        const orderId = req.params.id
+
+
+        const order = await Order.findById(orderId).populate('userId')
+
+        if (!order) {
+            return res.status(404).json({ error: "Order not found" })
+        }
+
+        // Set response headers
+        res.setHeader("Content-Disposition", `attachment; filename=invoice-${orderId}.pdf`)
+        res.setHeader("Content-Type", "application/pdf")
+
+        // Create PDF 
+        const doc = new PDFDocument({ margin: 50 })
+        doc.pipe(res)
+
+        doc.font("Helvetica-Bold").fontSize(22).fillColor("#333").text("PERFUMORA", { align: "center", underline: true })
+        doc.moveDown(1)
+
+        //Order Details Box
+        doc.rect(50, doc.y, 500, 100).stroke()
+        doc.moveDown(0.5);
+
+        doc.fontSize(14).fillColor("#000").text(`Invoice Number: ${order.orderId}`, 60, doc.y + 10)
+        doc.text(`Customer: ${order.userId.username}`, 60)
+        doc.text(`Date: ${order.createdAt.toDateString()}`, 60)
+        doc.text(`Total: $${order.finalPrice}`, 60)
+        doc.moveDown(1)
+
+       
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke()
+        doc.moveDown(0.5)
+    
+        doc.fontSize(14).fillColor("#444").text("Items Purchased:", { underline: true })
+        doc.moveDown(0.5)
+
+        const tableTop = doc.y
+        const columnWidths = [50, 250, 100, 100]
+
+        doc.fontSize(12).fillColor("#000")
+        
+        // Table Header Row
+        doc.rect(50, tableTop, 500, 20).fill("#ddd")
+        doc.fillColor("#000").text("No", 60, tableTop + 5)
+        doc.text("Product Name", 110, tableTop + 5)
+        doc.text("Quantity", 360, tableTop + 5)
+        doc.text("Price", 460, tableTop + 5)
+        
+        // Table Rows
+        let yPos = tableTop + 25;
+        order.products.forEach((item, index) => {
+            doc.fillColor("#000").text(index + 1, 60, yPos)
+            doc.text(item.productName, 110, yPos)
+            doc.text(`${item.quantity}`, 360, yPos)
+            doc.text(`$${item.price.toFixed(2)}`, 460, yPos)
+            yPos += 20
+        })
+
+        doc.moveDown()
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke()
+        doc.moveDown(0.5)
+
+        doc.rect(400, doc.y, 150, 30).fill("#eee")
+        doc.fillColor("#000").fontSize(16).text(`Paid: $${order.finalPrice}`, 410, doc.y + 8, { bold: true })
+
+
+        doc.moveDown(2);
+        doc.fontSize(12).fillColor("#666").text("Thank you for shopping with us!", { align: "center", italic: true })
+
+        doc.end()
+
+    } catch (error) {
+        console.error("Error generating invoice:", error)
+        res.status(500).json({ error: "Error generating invoice" })
+    }
+}
+
+
+
+
+
+
 module.exports = {
     placeOrder,
     getOrderComplete,
@@ -497,5 +588,6 @@ module.exports = {
     returnOrder,
     cancelItem,
     returnItem,
-    verifyPayment
+    verifyPayment,
+    downloadInvoice
 }

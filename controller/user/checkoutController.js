@@ -72,7 +72,9 @@ const getCheckout = async (req,res) => {
             total: item.productId.offerPrice * item.quantity
         }))
 
-        const orderTotal = cart.totalPrice
+        const orderTotal = cart.products.reduce((sum, item) => {
+            return sum + (item.productId.offerPrice * item.quantity);
+        }, 0)
 
         let finalPrice = orderTotal
 

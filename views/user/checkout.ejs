@@ -393,6 +393,8 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
 
                 let orderData = await orderResponse.json()
 
+                console.log('orderData',orderData.status)
+
                 if (!orderData.status) {
                     return Swal.fire({
                         icon: 'error',
@@ -403,7 +405,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                 }
 
                 // Extract Razorpay Order ID
-                let orderId = orderData.razorpayOrder.id;
+                let orderId = orderData.razorpayOrder.id                
 
                 console.log('Order Data:', orderData)
                 console.log('Order ID:', orderId)
@@ -427,7 +429,9 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                             }),
                         })
 
-                        let verifyData = await verifyResponse.json();
+                        let verifyData = await verifyResponse.json()
+
+                        console.log('verify payment',verifyData.status)
 
                         if (verifyData.status) {
                             Swal.fire({
@@ -436,7 +440,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                                 text: 'Your order has been placed.',
                                 showConfirmButton: true,
                             }).then(() => {
-                                window.location.href = '/orderComplete';
+                                window.location.href = '/orderComplete'
                             })
                         } else {
                             Swal.fire({
@@ -444,6 +448,8 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                                 title: 'Payment Failed!',
                                 text: 'Transaction verification failed.',
                                 showConfirmButton: true,
+                            }).then(() => {
+                                window.location.href = '/orders'
                             })
                         }
                     },
@@ -454,20 +460,47 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                     },
                     "theme": {
                         "color": "#ef7c00"
+                    },modal: {
+                        //when closing razorpay modal
+                        escape: false,
+                        ondismiss: function() {
+                            
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Payment Pending!',
+                                text: 'You closed the payment window. Your order is placed but payment is pending!',
+                                showConfirmButton: true,
+                            }).then(() => {
+                                window.location.href = '/orders'
+                            })
+                        }
                     }
                 }
 
+                console.log('options',options)
+
                 var rzp1 = new Razorpay(options)
-                rzp1.open()
+                
+
+                console.log('razrpy on1')
 
                 rzp1.on('payment.failed', function (response) {
-                    Swal.fire({
+                     Swal.fire({
                         icon: 'error',
                         title: 'Payment Failed!',
                         text: 'Your transaction was not completed. Please try again.',
                         showConfirmButton: true,
+                    }).then(() => {
+                        window.location.href = '/orders'
                     })
+
                 })
+
+                console.log('razrpy on3')
+
+                rzp1.open()
+
+                
 
             } catch (error) {
                 console.error('Error:', error)
