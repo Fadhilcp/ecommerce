@@ -2,6 +2,7 @@ const User = require('../../model/userSchema')
 const bcrypt = require('bcrypt')
 
 const Order = require('../../model/orderSchema')
+const Product = require('../../model/productSchema')
 
 const PDFDocument = require('pdfkit')
 const ExcelJS = require('exceljs')
@@ -55,7 +56,158 @@ const loadDashboard = async (req,res) =>{
             res.redirect('/login')
         }
 
-        res.render('admin/dashboard')
+        let { filter, fromDate, toDate } = req.query
+ 
+
+        const today = new Date()
+        let startDate, endDate
+        
+        if (filter === "daily") {
+            startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0)
+            endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)
+        } 
+        
+        else if (filter === "weekly") {
+            
+            const dayOfWeek = today.getDay()
+            const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+            const firstDayOfWeek = new Date(today)
+            firstDayOfWeek.setDate(today.getDate() - daysToSubtract)
+            startDate = new Date(firstDayOfWeek.setHours(0, 0, 0, 0))
+            
+            const lastDayOfWeek = new Date(firstDayOfWeek)
+            lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6)
+            endDate = new Date(lastDayOfWeek.setHours(23, 59, 59, 999))
+        } 
+        
+        else if (filter === "monthly") {
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0)
+            endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999)
+        } 
+        
+        else if (filter === "yearly") {
+            startDate = new Date(today.getFullYear(), 0, 1, 0, 0, 0, 0)
+            endDate = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999)
+        } 
+        
+        else if (filter === "custom" && fromDate && toDate) {
+            startDate = new Date(fromDate)
+            endDate = new Date(toDate)
+            endDate.setHours(23, 59, 59, 999)
+        } 
+        
+        else {
+            // Default to last 10 years
+            startDate = new Date(today.getFullYear() - 10, 0, 1)
+            endDate = new Date()
+        }
+
+        //for totalOrder and totalrevenue
+        const salesData = await Order.aggregate([
+            {
+                $match: { createdAt: { $gte: startDate, $lte: endDate } }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalOrders: { $sum: 1 },
+                    totalRevenue: { $sum: "$finalPrice" }
+                }
+            }
+        ])
+
+        //for total products and category
+        const productsData = await Product.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalProducts: { $sum: 1 },
+                    uniqueCategories: { $addToSet: "$category" }
+                }
+            },
+            {
+                $project: {
+                    totalProducts: 1,
+                    totalCategories: { $size: "$uniqueCategories" }
+                }
+            }
+        ])
+        
+        //for chart
+        const salesChartData = await Order.aggregate([
+            {
+                $match: { createdAt: { $gte: startDate, $lte: endDate } }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    totalOrders: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ])
+
+        //top products
+        const topProducts = await Order.aggregate([
+            { $unwind: "$products" }, 
+            { 
+                $group: {
+                    _id: "$products.product", 
+                    productName: { $first: "$products.productName" }, 
+                    totalSales: { $sum: "$products.quantity" },
+                    totalRevenue: { $sum: { $multiply: ["$products.quantity", "$products.price"] } },
+                    productImage: {$first: '$products.productImage'}
+                }
+            },
+            { $sort: { totalSales: -1 } }, 
+            { $limit: 10 }
+        ])
+
+        //top categories
+        const topCategories = await Order.aggregate([
+            { $unwind: "$products" },
+            { 
+                $lookup: {
+                    from: "products",  
+                    localField: "products.product",
+                    foreignField: "_id",
+                    as: "productDetails"
+                }
+            },
+            { $unwind: "$productDetails" },
+            { 
+                $lookup: {
+                    from: "categories",
+                    localField: "productDetails.category", 
+                    foreignField: "_id",
+                    as: "categoryDetails"
+                }
+            },
+            { $unwind: "$categoryDetails" }, 
+            { 
+                $group: {
+                    _id: {
+                        categoryId: "$categoryDetails._id", 
+                        categoryName: "$categoryDetails.name" 
+                    }, 
+                    totalSales: { $sum: "$products.quantity" },
+                    totalRevenue: { $sum: { $multiply: ["$products.quantity", "$products.price"] } } 
+                }
+            },
+            { $sort: { totalSales: -1 } },
+            { $limit: 10 } 
+        ])
+
+        res.render("admin/dashboard", { 
+            salesData, 
+            salesChartData,
+            productsData,
+            topProducts,
+            topCategories,
+            filter, 
+            fromDate, 
+            toDate 
+        })
 
     } catch (error) {
         console.error('Dashboard error',error)
@@ -353,6 +505,10 @@ const downloadSalesExcel = async (req, res) => {
         res.status(500).send("Internal Server Error")
     }
 }
+
+
+
+
 
 
 

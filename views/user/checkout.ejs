@@ -402,13 +402,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                         text: orderData.message || 'Could not place order.',
                         showConfirmButton: true,
                     })
-                }
-
-                // Extract Razorpay Order ID
-                let orderId = orderData.razorpayOrder.id                
-
-                console.log('Order Data:', orderData)
-                console.log('Order ID:', orderId)
+                } 
 
                 var options = {
                     "key": "rzp_test_bPK4mH8dSfYQwe",
@@ -416,7 +410,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                     "currency": orderData.razorpayOrder.currency,
                     "name": "PERFUMORA",
                     "description": "Order Payment",
-                    "order_id": orderId, 
+                    "order_id": orderData.razorpayOrder.id, 
                     "handler": async function (response) {
                         let verifyResponse = await fetch('/verifyPayment', {
                             method: 'POST',
@@ -424,8 +418,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                                 'Content-Type': 'application/json' 
                             },
                             body: JSON.stringify({
-                                ...response,
-                                orderId: orderId, 
+                                ...response
                             }),
                         })
 
@@ -477,13 +470,10 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                     }
                 }
 
-                console.log('options',options)
-
                 var rzp1 = new Razorpay(options)
+                rzp1.open()
+
                 
-
-                console.log('razrpy on1')
-
                 rzp1.on('payment.failed', function (response) {
                      Swal.fire({
                         icon: 'error',
@@ -495,11 +485,6 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                     })
 
                 })
-
-                console.log('razrpy on3')
-
-                rzp1.open()
-
                 
 
             } catch (error) {

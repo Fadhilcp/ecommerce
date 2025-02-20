@@ -160,14 +160,15 @@
             <!-- Order Summary Header -->
             <div class="order-summary">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <h2 class="mb-3">Order #<%= order.orderId %></h2>
                         <div class="d-flex gap-3">
-                            <span class="status-badge bg-secondary"><%= order.status %></span>
+                            <span class="status-badge bg-secondary">Order : <%= order.status %></span>
+                            <span class="status-badge bg-success">Payment : <%= order.paymentStatus %></span>
                             <span class="status-badge bg-white text-dark"><%= order.date %></span>
                         </div>
                     </div>
-                    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <div class="col-md-12 text-md-end mt-3 mt-md-0">
                         <h3 class="mb-2">Total Amount</h3>
                         <h2 class="mb-0">₹<%= order.totalPrice %></h2>
                     </div>
@@ -284,10 +285,12 @@
     
             <!-- Admin Actions -->
             <div class="d-flex justify-content-end gap-3 mt-4">
+                <% if(order.paymentStatus !== 'Failed') { %>
                 <% if(order.status === 'Pending' || order.status === 'Shipped') {%>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
                     Update Status
                 </button>
+            <% } %>
             <% } %>
             </div>
 

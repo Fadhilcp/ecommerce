@@ -310,7 +310,9 @@
             <% } %>
 
             <% if( order.status !== 'Cancelled' && order.paymentStatus === 'Failed'){ %>
-            <button class="btn btn-success"> Continue Payment</button>
+            <button class="btn btn-success" onclick="payNow('<%= order._id %>', '<%= order.finalPrice %>')">
+                Continue Payment
+            </button>
             <% } %>
             </div>
 
@@ -468,6 +470,9 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
 
    async function cancelOrder(orderId){
@@ -716,6 +721,65 @@ async function returnItem(productId,orderId) {
     }
 }
 
+
+
+function payNow(orderId, finalPrice) {
+    fetch('/createOrder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, finalPrice })
+    })
+    .then(response => response.json())
+    .then(orderData => {
+        if (!orderData.success) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Payment Initialization Failed',
+                text: 'Please try again.',
+                showConfirmButton: true,
+            })
+            return
+        }
+        console.log('hello',orderData)
+
+        let options = {
+            "key": orderData.key, 
+            "amount": orderData.razorpayOrder.amount,
+            "currency": orderData.razorpayOrder.currency,
+            "name": "PERFUMORA",
+            "description": "Order Payment",
+            "order_id": orderData.razorpayOrder.id,
+            "handler": function (response) {
+                fetch('/verifyPayment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...response, orderId }),
+                })
+                .then(res => res.json())
+                .then(verifyData => {
+                    Swal.fire({
+                        icon: verifyData.status ? 'success' : 'error',
+                        title: verifyData.status ? 'Payment Successful!' : 'Payment Failed!',
+                        text: verifyData.status ? 'Your order has been placed successfully.' : 'Transaction verification failed.',
+                        showConfirmButton: true,
+                    }).then(() => {
+                        window.location.reload()
+                    })  
+                })
+            },
+            "prefill": {
+                "name": "Customer Name",
+                "email": "customer@example.com",
+                "contact": "0909090900"
+            },
+            "theme": { "color": "#ef7c00" },
+        }
+
+        let rzp = new Razorpay(options)
+        rzp.open();
+    })
+    .catch(error => console.error("Payment Error:", error))
+}
 
 
 async function downloadInvoice(orderId){

@@ -96,6 +96,7 @@ router.patch('/returnItem/:id',isBlock,userAuth,orderController.returnItem)
 router.get('/downloadInvoice/:id',isBlock,userAuth,orderController.downloadInvoice)
 
 //razorpay
+router.post('/createOrder',isBlock,userAuth,orderController.createOrder)
 router.post('/verifyPayment',isBlock,userAuth,orderController.verifyPayment)
 
 

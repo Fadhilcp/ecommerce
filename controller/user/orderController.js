@@ -219,8 +219,6 @@ const getOrderComplete = async (req,res) => {
         const userId = req.session.user
         const orderId = req.session.orderId
 
-        console.log('order complte',orderId)
-
         const orderComplete = await Order.findById(orderId)
 
         if(!orderComplete){
@@ -268,25 +266,33 @@ const cancelOrder = async (req,res) => {
 
         await order.save()
 
-        let wallet = await Wallet.findOne({userId:userId})
+        if(order.paymentStatus === 'Paid'){
 
-        if(!wallet){
-            wallet = new Wallet({userId,transaction:[]})
+            let wallet = await Wallet.findOne({userId:userId})
+
+            if(!wallet){
+                wallet = new Wallet({userId,transaction:[]})
+            }
+
+
+            wallet.balance += order.finalPrice
+
+            wallet.transaction.push({
+                transactionType: 'credit',
+                amount: order.finalPrice 
+            })
+
+            await wallet.save()
         }
 
-        wallet.balance += order.finalPrice
+        if(order.paymentStatus !== 'Failed'){
 
-        wallet.transaction.push({
-            transactionType: 'credit',
-            amount: order.finalPrice 
-        })
+            for(const item of order.products){
+                await Product.findByIdAndUpdate(item.product ,{
+                    $inc:{ quantity: item.quantity}
+                })
+            }
 
-        await wallet.save()
-
-        for(const item of order.products){
-            await Product.findByIdAndUpdate(item.product ,{
-                $inc:{ quantity: item.quantity}
-            })
         }
 
         return res.json({status:true,redirectUrl:'/orders'})
@@ -337,19 +343,22 @@ const cancelItem = async (req,res) => {
                 wallet = new Wallet({userId,transaction:[]})
             }
 
-            wallet.balance += refundAmount
+            if(order.paymentStatus !== 'Failed'){
 
-            wallet.transaction.push({
-                transactionType:'refund',
-                amount: refundAmount
-            })
+                wallet.balance += refundAmount
 
-            await wallet.save()
+                wallet.transaction.push({
+                    transactionType:'refund',
+                    amount: refundAmount
+                })
 
-            await Product.findByIdAndUpdate(productId, {
-                $inc: { quantity: order.products[productIndex].quantity }
-            })
+                await wallet.save()
 
+                await Product.findByIdAndUpdate(productId, {
+                    $inc: { quantity: order.products[productIndex].quantity }
+                })
+
+            }
 
               //cancelling order 
             const allCancelled = order.products.every(product => product.cancelStatus === 'Cancelled')
@@ -451,9 +460,34 @@ const returnItem = async (req,res) => {
 
 
 
+
+
+const createOrder =  async (req, res) => {
+    try {
+        const { orderId, finalPrice } = req.body
+
+        const options = {
+            amount: finalPrice * 100,
+            currency: "INR",
+            receipt: `order_rcptid_${orderId}`
+        }
+
+        const order = await razorpay.orders.create(options)
+
+        res.json({ success: true, razorpayOrder: order, key: process.env.RAZORPAY_KEY })
+    } catch (error) {
+        console.error("Error Creating Order:", error)
+        res.json({ success: false })
+    }
+}
+
 const verifyPayment = async (req, res) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body
+
+        if(orderId) {
+            req.session.orderId = orderId 
+        }
 
         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
             return res.status(400).json({ status: false, message: "Invalid payment details" })
@@ -470,9 +504,9 @@ const verifyPayment = async (req, res) => {
 
         if (expectedSignature === razorpay_signature) {
    
-            const orderId = req.session.orderId
+            const orderID = req.session.orderId
 
-            const order = await Order.findById(orderId)
+            const order = await Order.findById(orderID)
             //changing payment status
             order.paymentStatus = 'Paid'
             
@@ -490,7 +524,7 @@ const verifyPayment = async (req, res) => {
 
     } catch (error) {
         console.error('Verify Payment Error:', error);
-        res.status(500).json({ status: false, message: "Internal Server Error" });
+        res.status(500).json({ status: false, message: "Internal Server Error" })
     }
 }
 
@@ -588,6 +622,7 @@ module.exports = {
     returnOrder,
     cancelItem,
     returnItem,
+    createOrder,
     verifyPayment,
     downloadInvoice
 }

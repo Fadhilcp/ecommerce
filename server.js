@@ -44,7 +44,7 @@ app.use(express.static(path.join(__dirname,'public')))
 app.use('/',userRouter)
 app.use('/admin',adminRouter)
 
-app.use(errorHandling.routeHandling)
+// app.use(errorHandling.routeHandling)
 
 
 app.listen(process.env.PORT,()=>{
