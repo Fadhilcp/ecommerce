@@ -162,7 +162,7 @@ const placeOrder = async (req, res) => {
                     amount: finalPrice 
                 })
 
-                wallet.balance -= finalPrice
+                wallet.balance = Number((wallet.balance - finalPrice).toFixed(2))
                 await wallet.save()
 
                 paymentStatus = 'Paid'
@@ -275,7 +275,7 @@ const cancelOrder = async (req,res) => {
             }
 
 
-            wallet.balance += order.finalPrice
+            wallet.balance = Number((wallet.balance + order.finalPrice).toFixed(2))
 
             wallet.transaction.push({
                 transactionType: 'credit',
@@ -345,7 +345,8 @@ const cancelItem = async (req,res) => {
 
             if(order.paymentStatus !== 'Failed'){
 
-                wallet.balance += refundAmount
+                 
+                wallet.balance = Number((wallet.balance + refundAmount).toFixed(2))
 
                 wallet.transaction.push({
                     transactionType:'refund',

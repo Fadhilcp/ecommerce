@@ -46,7 +46,9 @@ router.get('/auth/google/callback',passport.authenticate('google',{failureRedire
 //profile management
 router.get('/account',isBlock,userAuth,profileController.account)
 router.get('/changePassword',isBlock,userAuth,profileController.getChangePassword)
-router.post('/changePassword',userAuth,profileController.changePassword)
+router.post('/changePassword',isBlock,userAuth,profileController.changePassword)
+router.get('/updateProfile',isBlock,userAuth,profileController.getUpdateProfile)
+router.patch('/updateProfile',isBlock,userAuth,profileController.updateProfile)
 
 //address management
 router.get('/address',isBlock,userAuth,profileController.getAddress)

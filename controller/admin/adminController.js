@@ -53,7 +53,7 @@ const loadDashboard = async (req,res) =>{
     try {
 
         if(!req.session.admin){
-            res.redirect('/login')
+            res.redirect('/admin/login')
         }
 
         let { filter, fromDate, toDate } = req.query
@@ -383,6 +383,12 @@ const downloadSalesPDF = async (req, res) => {
 
         const salesData = await Order.find({ createdAt: { $gte: startDate, $lte: endDate } })
 
+        //summary
+        const totalOrders = salesData.length
+        const totalAmount = salesData.reduce((sum, order) => sum + order.totalPrice, 0)
+        const totalDiscount = salesData.reduce((sum, order) => sum + (order.totalPrice - order.finalPrice), 0)
+        const finalRevenue = salesData.reduce((sum, order) => sum + order.finalPrice, 0)
+
         // Create PDF document
         const doc = new PDFDocument()
         const filePath = path.join(__dirname, '../../public/reports/salesReport.pdf')
@@ -392,10 +398,18 @@ const downloadSalesPDF = async (req, res) => {
         doc.font('Helvetica-Bold').fontSize(20).text('Sales Report', { align: 'center' })
         doc.moveDown(1)
 
+        // Summary Section
+        doc.fontSize(14).text(`Summary:`, { underline: true })
+        doc.fontSize(12).text(`Total Orders: ${totalOrders}`)
+        doc.text(`Total Sales Amount: ${totalAmount.toFixed(2)}`)
+        doc.text(`Total Discount Given: ${totalDiscount.toFixed(2)}`)
+        doc.text(`Final Revenue: ${finalRevenue.toFixed(2)}`)
+        doc.moveDown(2)
+
         // Table Header Style
-        const startX = 10;
+        const startX = 10
         const columnWidths = [100, 140, 80, 90, 120]
-        let y = 120
+        let y = 220
 
         // Header background
         doc.rect(startX, y - 10, 590, 25).fill('#d9d9d9').stroke()
@@ -471,30 +485,48 @@ const downloadSalesExcel = async (req, res) => {
 
         const salesData = await Order.find({ createdAt: { $gte: startDate, $lte: endDate } })
 
+        //summary calculation 
+        const totalOrders = salesData.length
+        const totalAmount = salesData.reduce((sum, order) => sum + order.totalPrice, 0)
+        const totalDiscount = salesData.reduce((sum, order) => sum + (order.totalPrice - order.finalPrice), 0)
+        const finalRevenue = salesData.reduce((sum, order) => sum + order.finalPrice, 0)
+
         const workbook = new ExcelJS.Workbook()
         const worksheet = workbook.addWorksheet('Sales Report')
 
-        worksheet.columns = [
-            { header: 'Order ID', key: 'orderId', width: 20 },
-            { header: 'Customer', key: 'customer', width: 25 },
-            { header: 'Status', key: 'status', width: 25 },
-            { header: 'Total Amount', key: 'totalPrice', width: 15 },
-            { header: 'Discount', key: 'discount', width: 15 },
-            { header: 'Final Amount', key: 'finalPrice', width: 15 },
-            { header: 'Date', key: 'createdAt', width: 20 }
-        ]
+        //symmary section
+        worksheet.addRow(['Summary']).font = { bold: true, underline: true }
+        worksheet.addRow(['Total Orders:', totalOrders])
+        worksheet.addRow(['Total Sales Amount:', totalAmount.toFixed(2)])
+        worksheet.addRow(['Total Discount Given:', totalDiscount.toFixed(2)])
+        worksheet.addRow(['Final Revenue:', finalRevenue.toFixed(2)])
+        worksheet.addRow([])
 
-        salesData.forEach(order => {
-            worksheet.addRow({
-                orderId: order.orderId,
-                customer: order.address.name,
-                status: order.status,
-                totalPrice: `${order.totalPrice.toFixed(2)}`,
-                discount: `${(order.totalPrice - order.finalPrice).toFixed(2)}`,
-                finalPrice: `${order.finalPrice.toFixed(2)}`,
-                createdAt: order.createdAt.toISOString().split('T')[0]
-            })
+        worksheet.addRow([
+            'Order ID', 'Customer', 'Status', 'Total Amount', 'Discount', 'Final Amount', 'Date'
+        ]).font = { bold: true }
+
+        salesData.forEach((order) => {
+            worksheet.addRow([
+                order.orderId,
+                order.address.name,
+                order.status,
+                order.totalPrice.toFixed(2),
+                (order.totalPrice - order.finalPrice).toFixed(2),
+                order.finalPrice.toFixed(2),
+                order.createdAt.toISOString().split("T")[0],
+            ])
         })
+
+        worksheet.columns = [
+            { width: 20 },
+            { width: 25 },
+            { width: 25 },
+            { width: 15 },
+            { width: 15 },
+            { width: 15 },
+            { width: 20 },
+        ]
 
         const filePath = path.join(__dirname, '../../public/reports/salesReport.xlsx')
         await workbook.xlsx.writeFile(filePath)

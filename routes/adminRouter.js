@@ -16,7 +16,7 @@ router.get('/pageError', adminController.pageError)
 router.get('/login', adminController.loadLogin)
 router.post('/login', adminController.login)
 //dashboard
-router.get('/',adminAuth, adminController.loadDashboard)
+router.get('/',adminAuth,adminController.loadDashboard)
 router.get('/logout', adminController.logout)
 
 //user management

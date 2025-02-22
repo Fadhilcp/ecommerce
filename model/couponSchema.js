@@ -20,13 +20,6 @@ const couponSchema = new Schema({
       totalUsageLimit: {
         type: Number, 
       },
-      usedCount: {
-        type: Number,
-        default: 0,
-      },
-      description: {
-        type:String
-      },
       isActive: {  
         type: Boolean,
         default: true

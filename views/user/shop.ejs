@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // sorting
     document.querySelectorAll("#sortList a").forEach(link => {
-        link.addEventListener("click", function (e) {
+        link.addEventListener("click", async function (e) {
             e.preventDefault()
             const sortValue = this.getAttribute("data-sort")
 
@@ -206,7 +206,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // Reload with updated query params
-            window.location.search = urlParams.toString() 
+            window.location.search = urlParams.toString()
+            
         })
 
         if (link.getAttribute("data-sort") === activeSort) {

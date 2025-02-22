@@ -535,6 +535,49 @@ const getWallet = async (req,res) => {
 }
 
 
+const getUpdateProfile = async (req,res) => {
+    try {
+
+        const userId = req.session.user
+
+        if(!userId){
+            return res.redirect('/login')
+        }
+
+        res.render('user/updateProfile',{
+            user: userId,
+            active:'account'
+        })
+        
+    } catch (error) {
+        console.error('update Profile error',error)
+        res.redirect('/pageError')
+    }
+}
+
+
+
+const updateProfile = async (req,res) => {
+    try {
+
+        const {username} = req.body
+
+        const userId = req.session.user
+
+        if(!userId){
+            return res.redirect('/login')
+        }
+
+        await User.findOneAndUpdate(userId,{username:username})
+
+        res.redirect('/account')
+        
+    } catch (error) {
+        console.log('update profile page Error',error)
+        res.redirect('/pageError')
+    }
+}
+
 
 
 module.exports = {
@@ -555,5 +598,7 @@ module.exports = {
     newPassword,
     getOrders,
     getOrderDetail,
-    getWallet
+    getWallet,
+    getUpdateProfile,
+    updateProfile
 }

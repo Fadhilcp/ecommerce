@@ -90,7 +90,7 @@ const updateOrderStatus = async (req,res) => {
 
             const wallet = await Wallet.findOne({userId:updateOrder.userId})
 
-            wallet.balance += updateOrder.finalPrice
+            wallet.balance = Number((wallet.balance + updateOrder.finalPrice).toFixed(2))
 
             wallet.transaction.push({
                 transactionType:'credit',
@@ -139,7 +139,8 @@ const returnStatus = async (req,res) => {
         }
 
         if(order.refundStatus === 'Approved'){
-            wallet.balance += order.finalPrice
+
+            wallet.balance = Number((wallet.balance + order.finalPrice).toFixed(2))
 
             wallet.transaction.push({
                 transactionType:'refund',
@@ -202,7 +203,8 @@ const itemReturnStatus = async (req,res) => {
 
         if(order.refundStatus === 'Approved'){
             refundAmount = order.product[productIndex].price
-            wallet.balance += refundAmount
+
+            wallet.balance += Number((wallet.balance + refundAmount).toFixed(2))
 
             wallet.transaction.push({
                 transactionType:'refund',
