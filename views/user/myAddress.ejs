@@ -230,7 +230,7 @@
 
             if(result.isConfirmed){
                 const response = await fetch(`/deleteAddress?id=${addressId}`,{
-                method:'GET'
+                method:'DELETE'
             })
 
                if(response.ok){

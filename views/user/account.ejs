@@ -134,6 +134,30 @@
         display: inline-block;
         width: 100px;
     }
+
+
+    .username-btn {
+    border-radius: 5px; 
+    font-family: monospace;
+    outline: none; 
+    padding: 1px 4px; 
+    cursor: pointer;  
+    transition: background 0.3s ease-in-out; 
+}
+
+.username-btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.username-btn:hover {
+    background-color: #ef7c00;
+}
+
+.username-btn:active {
+    transform: scale(0.98); 
+}
+
 </style>
 
  
@@ -164,9 +188,11 @@
         <div class="profile-header">
             <div class="profile-image">👤</div>
             <div class="profile-info">
-                <h2><%= username %></h2>
-                <p><%= email %></p>
-                <p></p>
+
+                    <h2 style="margin: 0;"><%= username %></h2>
+                    <p style="margin: 5px; font-size: medium;"><%= email %></p>
+                <button class="username-btn" onclick="window.location.href = '/updateProfile'">change Username</button>
+                
             </div>
         </div>
 

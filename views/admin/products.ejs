@@ -126,7 +126,7 @@ async function addOffer(productId) {
             try {
                 
                 const response = await fetch('/admin/addProductOffer',{
-                    method:'POST',
+                    method:'PATCH',
                     headers:{
                         'content-type':'application/json'
                     },
@@ -176,7 +176,7 @@ async function addOffer(productId) {
 
             if(confirm.isConfirmed){
                 const response = await fetch('/admin/removeProductOffer',{
-                method:'POST',
+                method:'PATCH',
                 headers:{
                     'content-type':'application/json'
                 },
@@ -218,9 +218,11 @@ async function addOffer(productId) {
  async function blockProduct(productId,event){
     event.preventDefault()
         try {
-            const response = await fetch(`/admin/blockProduct?id=${productId}`,{
-            method:'GET',
-            })
+            const response = await fetch(`/admin/blockProduct`, { 
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId }) 
+          })
 
         if(response.ok){
             location.reload()
@@ -237,9 +239,11 @@ async function addOffer(productId) {
     async function unBlockProduct(productId,event){
         event.preventDefault()
         try {
-            const response = await fetch(`/admin/unBlockProduct?id=${productId}`,{
-            method:'GET',
-            })
+            const response = await fetch(`/admin/unBlockProduct`, { 
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+          })
 
         if(response.ok){
             location.reload()

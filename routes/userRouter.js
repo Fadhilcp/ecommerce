@@ -45,8 +45,10 @@ router.get('/auth/google/callback',passport.authenticate('google',{failureRedire
 
 //profile management
 router.get('/account',isBlock,userAuth,profileController.account)
+//change password
 router.get('/changePassword',isBlock,userAuth,profileController.getChangePassword)
 router.post('/changePassword',isBlock,userAuth,profileController.changePassword)
+//update username
 router.get('/updateProfile',isBlock,userAuth,profileController.getUpdateProfile)
 router.patch('/updateProfile',isBlock,userAuth,profileController.updateProfile)
 
@@ -54,9 +56,11 @@ router.patch('/updateProfile',isBlock,userAuth,profileController.updateProfile)
 router.get('/address',isBlock,userAuth,profileController.getAddress)
 router.get('/createAddress',isBlock,userAuth,profileController.getCreateAddress)
 router.post('/createAddress',userAuth,profileController.createAddress)
+//edit address
 router.get('/editAddress',isBlock,userAuth,profileController.getEditAddress)
-router.post('/editAddress',userAuth,profileController.editAddress)
-router.get('/deleteAddress',userAuth,profileController.deleteAddress)
+router.patch('/editAddress',userAuth,profileController.editAddress)
+//delete address
+router.delete('/deleteAddress',userAuth,profileController.deleteAddress)
 
 //orders details list
 router.get('/orders',isBlock,userAuth,profileController.getOrders)
@@ -69,14 +73,14 @@ router.get('/wallet',isBlock,userAuth,profileController.getWallet)
 //cart management
 router.get('/cart',isBlock,userAuth,cartController.getCart)
 router.post('/addToCart',isBlock,cartController.addToCart)
-router.post('/updateCartQuantity',userAuth,cartController.updateCartQuantity)
-router.get('/deleteCartItem/:id',userAuth,cartController.deleteCartItem)
+router.patch('/updateCartQuantity',userAuth,cartController.updateCartQuantity)
+router.delete('/deleteCartItem/:id',userAuth,cartController.deleteCartItem)
 
 
 //wishlist management 
 router.get('/wishlist',isBlock,userAuth,cartController.getWishlist)
 router.post('/addToWishlist',isBlock,userAuth,cartController.addToWishlist)
-router.get('/deleteWishlistItem/:id',isBlock,userAuth,cartController.deleteWishlistItem)
+router.delete('/deleteWishlistItem/:id',isBlock,userAuth,cartController.deleteWishlistItem)
 router.post('/wishlistToCart',isBlock,userAuth,cartController.wishlistToCart)
 
 //checkout management

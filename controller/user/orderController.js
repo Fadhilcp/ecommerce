@@ -62,6 +62,8 @@ const placeOrder = async (req, res) => {
         let finalPrice = req.session.finalPrice ? req.session.finalPrice : totalPrice
         const couponCode = req.session.couponCode
 
+        const shippingFee = 40
+
         // Checking coupon
         if (couponCode) {
             const check = await Coupon.findOne({ code: couponCode })
@@ -86,8 +88,7 @@ const placeOrder = async (req, res) => {
 
             let discountAmount = Number(((totalPrice * check.discountValue) / 100).toFixed(2))
             finalPrice = Number((totalPrice - discountAmount).toFixed(2))
-
-
+            
             await Coupon.findOneAndUpdate(
                 { code: couponCode },
                 { $inc: { totalUsageLimit: -1 } }
@@ -96,7 +97,8 @@ const placeOrder = async (req, res) => {
 
         }
 
-        
+        finalPrice += shippingFee
+
         //razorpay
         if (paymentMethod === 'RazorPay') {
             const options = {
@@ -256,6 +258,13 @@ const cancelOrder = async (req,res) => {
             return res.json({status:false,message:`Order already ${order.status}`})
         }
 
+        
+        let refundAmount = order.finalPrice
+
+        if(order.status !== 'Pending'){
+            refundAmount =  order.finalPrice - order.shippingFee
+        }
+
         order.status = 'Cancelled'
         order.orderCancelReason = reason
 
@@ -275,11 +284,11 @@ const cancelOrder = async (req,res) => {
             }
 
 
-            wallet.balance = Number((wallet.balance + order.finalPrice).toFixed(2))
+            wallet.balance = Number((wallet.balance + refundAmount).toFixed(2))
 
             wallet.transaction.push({
                 transactionType: 'credit',
-                amount: order.finalPrice 
+                amount: refundAmount
             })
 
             await wallet.save()
@@ -292,7 +301,6 @@ const cancelOrder = async (req,res) => {
                     $inc:{ quantity: item.quantity}
                 })
             }
-
         }
 
         return res.json({status:true,redirectUrl:'/orders'})
@@ -344,7 +352,6 @@ const cancelItem = async (req,res) => {
             }
 
             if(order.paymentStatus !== 'Failed'){
-
                  
                 wallet.balance = Number((wallet.balance + refundAmount).toFixed(2))
 
@@ -365,6 +372,7 @@ const cancelItem = async (req,res) => {
             const allCancelled = order.products.every(product => product.cancelStatus === 'Cancelled')
 
             if (allCancelled) {
+
                 order.status = 'Cancelled'
                 order.orderCancelReason = 'All products were cancelled by the user'
                 await order.save()

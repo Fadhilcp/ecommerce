@@ -204,7 +204,7 @@ function togglePassword(inputId) {
         msg1.innerHTML = 'Username is required'
         isValid = false
     }
-    else if(username < 4){
+    else if(username.length < 4){
       msg1.innerHTML = 'Minimum 4 Charcters'
       isValid = false
     }

@@ -368,12 +368,10 @@
 
             try {
 
-                const response = await fetch(`/admin/updateOrderStatus/${orderId}`,{
-                    method:'POST',
-                    headers:{
-                        'content-type':'application/json'
-                    },
-                    body:JSON.stringify({updateStatus})
+                const response = await fetch(`/admin/updateOrderStatus/${orderId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ updateStatus })
                 })
 
                 const data = await response.json()

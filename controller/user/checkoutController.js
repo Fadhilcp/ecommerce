@@ -76,11 +76,13 @@ const getCheckout = async (req,res) => {
             return sum + (item.productId.offerPrice * item.quantity);
         }, 0)
 
-        let finalPrice = orderTotal
+        const shippingFee = 40
+
+        let finalPrice = orderTotal + shippingFee
 
         let discountAmount = 0
 
-        delete req.session.couponCode
+        delete req.session.couponCode   
         delete req.session.finalPrice 
 
         return res.render('user/checkout',{
@@ -91,7 +93,8 @@ const getCheckout = async (req,res) => {
             discountAmount,
             coupons:coupons,
             user:userId,
-            active:'cart'
+            active:'cart',
+            shippingFee: shippingFee
         })
         
     } catch (error) {
@@ -131,8 +134,12 @@ const applyCoupon = async (req,res) => {
             })
         }
 
+        const shippingFee = 40
+
         const discountAmount = Number(((cart.totalPrice * coupon.discountValue) / 100).toFixed(2))
-        const finalPrice = Number((cart.totalPrice - discountAmount).toFixed(2))
+        let finalPrice = Number((cart.totalPrice - discountAmount).toFixed(2))
+
+        finalPrice += shippingFee
 
         req.session.finalPrice = finalPrice
         req.session.couponCode = couponCode
@@ -161,7 +168,10 @@ const removeCoupon = async (req,res) => {
 
         const cart = await Cart.findOne({userId:userId})
 
-        res.json({status:true,message:'Coupon removed',finalTotal:cart.totalPrice})
+        const shippingFee = 40
+        const finalPrice = cart.totalPrice + shippingFee
+
+        res.json({status:true,message:'Coupon removed',finalTotal:finalPrice})
         
     } catch (error) {
         console.error('remove coupon Error')

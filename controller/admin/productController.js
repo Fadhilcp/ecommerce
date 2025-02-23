@@ -176,9 +176,9 @@ const removeProductOffer = async (req,res) => {
 
 const blockProduct = async (req,res)=>{
     try {
-        const id = req.query.id
+        const { productId } = req.body
 
-        await Product.updateOne({_id:id},{$set:{isBlocked:true}},{new:true})
+        await Product.updateOne({_id:productId},{$set:{isBlocked:true}},{new:true})
 
         res.json({status:true,message:'Product blocked successfully'})
     } catch (error) {
@@ -190,9 +190,9 @@ const blockProduct = async (req,res)=>{
 
 const unBlockProduct = async (req,res)=>{
     try {
-        const id = req.query.id
+        const { productId } = req.body
 
-        await Product.updateOne({_id:id},{$set:{isBlocked:false}},{new:true})
+        await Product.updateOne({_id:productId},{$set:{isBlocked:false}},{new:true})
 
         res.json({status:true,message:'Product unblocked successfully'})
     } catch (error) {
@@ -283,8 +283,9 @@ const editProduct = async (req,res)=>{
 const deleteSingleImage = async (req,res) => {
     try {
 
-        const {imageId,productId} = req.body
-        const product = await Product.findByIdAndUpdate({_id:productId},{$pull:{productImage:imageId}})
+        const {imageId,productId} = req.params
+
+        await Product.findByIdAndUpdate({_id:productId},{$pull:{productImage:imageId}})
 
         const imagePath = path.join('public','uploads','reImage',imageId)
 

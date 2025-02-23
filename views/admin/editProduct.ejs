@@ -217,7 +217,7 @@
             try {
                 
                 let response = await fetch(`/admin/editProduct/${productId}`,{
-                    method:'POST',
+                    method:'PATCH',
                     body:formData
                 })
 
@@ -449,15 +449,9 @@
                          confirmButtonText: "Yes, delete it!"
                      }).then((result) => {
                        if (result.isConfirmed) {
-                              fetch('/admin/deleteImage', {
-                                 method: 'POST',
-                                 headers: {
-                                    'Content-Type': 'application/json'
-                               },
-                                 body: JSON.stringify({
-                                 imageId: imageId,
-                                 productId: productId
-                              })
+                              fetch(`/admin/deleteImage/${productId}/${imageId}`, {
+                                 method: 'DELETE'
+                                 
                            }).then(response => response.json()) 
                              .then(data => {
                                   if (data.status) { 

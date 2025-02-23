@@ -136,7 +136,6 @@
 
 
     async function wishlistToCart(productId){
-        console.log('this is fun')
         try {
 
             const response = await fetch('/wishlistToCart',{
@@ -185,7 +184,7 @@
                      }).then((result) => {
                        if (result.isConfirmed) {
                               fetch(`/deleteWishlistItem/${itemId}`, {
-                                 method: 'GET',
+                                 method: 'DELETE',
                                  headers: {
                                     'Content-Type': 'application/json'
                                }

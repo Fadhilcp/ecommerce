@@ -235,10 +235,7 @@ const getEditAddress = async (req, res) => {
 const editAddress = async (req, res) => {
     try {
 
-        const { houseNo, street, city, state, phone, pincode } = req.body
-
-        const addressId = req.query.id
-        const userId = req.session.user
+        const { addressId , houseNo, street, city, state, phone, pincode } = req.body
 
         const findAddress = await Address.findOne({ 'address._id': addressId })
 
@@ -544,8 +541,10 @@ const getUpdateProfile = async (req,res) => {
             return res.redirect('/login')
         }
 
+        const userData = await User.findById(userId)
+
         res.render('user/updateProfile',{
-            user: userId,
+            user: userData,
             active:'account'
         })
         
@@ -559,22 +558,21 @@ const getUpdateProfile = async (req,res) => {
 
 const updateProfile = async (req,res) => {
     try {
-
         const {username} = req.body
 
         const userId = req.session.user
 
         if(!userId){
-            return res.redirect('/login')
+            return res.json({status:false,message:'Please Login'})
         }
 
-        await User.findOneAndUpdate(userId,{username:username})
+        await User.findOneAndUpdate({_id:userId},{username:username})
 
-        res.redirect('/account')
+        res.json({status:true,message:'Username updated successfully'})
         
     } catch (error) {
         console.log('update profile page Error',error)
-        res.redirect('/pageError')
+        res.redirect({status:false,message:'Internal server Error'})
     }
 }
 

@@ -57,6 +57,7 @@
                  const msg1 = document.getElementById('msg1')
                  const msg2 = document.getElementById('msg2')
                  const msg = document.getElementById('error-message')
+                 const categoryId = "<%= category._id %>"
                  let isValid = true
 
                  msg1.innerHTML = ''
@@ -80,13 +81,11 @@
 
                  if(isValid){
                     try {                    
-                        const response = await fetch(`/admin/editCategory/<%= category._id %>`,{
-                            method:'POST',
-                            headers:{
-                                'content-type':'application/json'
-                            },
-                            body:JSON.stringify({categoryName,description})
-                        })
+                        const response = await fetch(`/admin/editCategory/${categoryId}`, { 
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ categoryName, description })
+                    })
 
                         const data = await response.json()
 

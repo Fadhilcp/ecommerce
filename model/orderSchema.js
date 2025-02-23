@@ -57,6 +57,11 @@ const orderSchema = new Schema({
           }
         }
       ],
+      shippingFee: {
+        type: Number,
+        default: 40,
+        immutable: true 
+      },
       totalPrice: { 
         type: Number, 
         required: true 

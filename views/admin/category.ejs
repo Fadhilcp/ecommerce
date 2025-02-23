@@ -361,9 +361,11 @@
 
     async function listCategory(categoryId){
          try {
-            const response = await fetch(`/admin/listCategory?id=${categoryId}`,{
-            method:'GET',
-            })
+            const response = await fetch(`/admin/listCategory`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ categoryId })
+        })
 
         if(response.ok){
             location.reload()
@@ -378,8 +380,10 @@
 
     async function UnlistCategory(categoryId){
         try {
-            const response = await fetch(`/admin/unlistCategory?id=${categoryId}`,{
-            method:'GET',
+            const response = await fetch(`/admin/unlistCategory`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ categoryId })
         })
 
         if(response.ok){

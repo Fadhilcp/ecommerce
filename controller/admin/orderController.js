@@ -42,7 +42,6 @@ const getOrder = async (req,res) => {
 
 const getOrderDetail = async (req,res) => {
     try {
-
         const orderId = req.params.id
 
         const orderData = await Order.findById(orderId)

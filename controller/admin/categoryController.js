@@ -135,12 +135,12 @@ const removeCategoryOffer = async(req,res) =>{
 
 
 
-const getListCategory = async (req,res)=>{
+const listCategory = async (req,res)=>{
     try {
          
-        let id = req.query.id
+        const { categoryId } = req.body
 
-        await Category.updateOne({_id:id},{$set:{isListed:false}})
+        await Category.updateOne({_id:categoryId},{$set:{isListed:false}})
 
         return res.json({status:true})
     } catch (error) {
@@ -151,12 +151,13 @@ const getListCategory = async (req,res)=>{
 
 
 
-const getUnlistCategory = async (req,res)=>{
+const unlistCategory = async (req,res)=>{
     try {
 
-        let id = req.query.id
+        const { categoryId } = req.body
 
         await Category.updateOne({_id:id},{$set:{isListed:true}})
+
         return res.json({status:true})
 
     } catch (error) {
@@ -219,8 +220,8 @@ module.exports = {
     addCategory,
     addCategoryOffer,
     removeCategoryOffer,
-    getListCategory,
-    getUnlistCategory,
+    listCategory,
+    unlistCategory,
     getEditCategory,
     editCategory
 }

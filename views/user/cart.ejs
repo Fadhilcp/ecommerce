@@ -181,10 +181,10 @@ async function updateQuantity(productId, change) {
     }
     try {
         let response = await fetch('/updateCartQuantity', {
-            method: 'POST',
+            method: 'PATCH',
             headers: { 'content-type': 'application/json' },
             body: JSON.stringify({ productId, quantity: newQuantity })
-        });
+        })
 
         let data = await response.json()
 
@@ -238,7 +238,7 @@ async function updateQuantity(productId, change) {
                      }).then((result) => {
                        if (result.isConfirmed) {
                               fetch(`/deleteCartItem/${itemId}`, {
-                                 method: 'GET',
+                                 method: 'DELETE',
                                  headers: {
                                     'Content-Type': 'application/json'
                                }

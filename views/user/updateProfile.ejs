@@ -237,10 +237,11 @@
 <script>
     
 
-    document.getElementById('submit-btn').addEventListener('click',async () => {
+    document.getElementById('submit-btn').addEventListener('click',async (e) => {
+        e.preventDefault()
 
         const errMessage = document.getElementById('err-message')
-        const username = document.getElementById('username')
+        const username = document.getElementById('username').value
         let isValid = true
 
 
@@ -248,11 +249,11 @@
 
 
         var usernamePattern = /^[a-zA-Z][a-zA-Z0-9_]{2,15}$/
-        if (username == '') {
+        if (!username) {
             errMessage.innerText = 'Username is required'
             isValid = false
         }
-        else if(username < 4){
+        else if(username.length < 4){
         errMessage.innerText = 'Minimum 4 Charcters'
         isValid = false
         }
@@ -266,12 +267,46 @@
         if(isValid){
             try {
 
-                const esp
+                const response = await fetch('/updateProfile',{
+                    method:'PATCH',
+                    headers:{
+                        'content-type':'application/json'
+                    },
+                    body: JSON.stringify({username})
+                })
+
+                const data = await response.json()
+
+                if(response.ok && data.status){
+
+                  await Swal.fire({
+                    icon: 'success',
+                    title: 'Username Changed Successfully',
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+
+                window.location.href = '/account'
+                }else{
+                    Swal.fire({
+                    icon: 'warning',
+                    title: data.message || 'Username Update Error',
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+                }
 
 
                 
             } catch (error) {
-                
+                console.error('username updating error',error)
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'username updating error',
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+                window.location.href = '/pageError'
             }
         }
 
