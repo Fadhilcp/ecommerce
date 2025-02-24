@@ -282,8 +282,10 @@ const editProduct = async (req,res)=>{
 
 const deleteSingleImage = async (req,res) => {
     try {
+        console.log('hlllloo')
 
         const {imageId,productId} = req.params
+
 
         await Product.findByIdAndUpdate({_id:productId},{$pull:{productImage:imageId}})
 
@@ -301,7 +303,7 @@ const deleteSingleImage = async (req,res) => {
 
     } catch (error) {
         console.error('delete image error',error)
-        res.redirect('/admin/pageError')
+        res.status(500).json({ status: false, message: "Internal server error" })
     }
 }
 

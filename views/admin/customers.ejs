@@ -51,13 +51,13 @@
                             <td><%=data[i].email%></td>
                             <td class="text-end">
                                 <%if(data[i].isBlocked===false){%>
-                                <button class="btn btn-danger">
-                                    <a href="/admin/blockCustomer?id=<%=data[i]._id%>" class="rounded font-sm text-white">BLOCK</a>
+                                <button class="btn btn-danger" onclick="blockCustomer('<%= data[i]._id %>')">
+                                    <a class="rounded font-sm text-white">BLOCK</a>
                                 </button>
                                 <%}else{%>
-                                <button class="btn btn-success">
-                                    <a href="/admin/unblockCustomer?id=<%=data[i]._id%>" class="rounded font-sm text-white">UNBLOCK</a>
-                                </button>
+                                    <button class="btn btn-success" onclick="unblockCustomer('<%= data[i]._id %>')">
+                                    <a class="rounded font-sm text-white">UNBLOCK</a>
+                                    </button>
                                 <%}%>
                             </td>
                         </tr>
@@ -82,6 +82,80 @@
         </nav>
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    async function blockCustomer(customerId) {
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you really want to block this customer?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, block it!"
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/blockCustomer?id=${customerId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                })
+
+                const data = await response.json()
+
+                if (response.ok && data.status) {
+                    Swal.fire("Blocked!", "Customer has been blocked.", "success")
+                        .then(() => window.location.reload())
+                } else {
+                    Swal.fire("Error!", data.message || "Failed to block the customer.", "error")
+                }
+            } catch (error) {
+                console.error("Fetch error:", error)
+                Swal.fire("Error!", "Something went wrong. Please try again.", "error")
+            }
+        }
+    })
+}
+
+
+
+async function unblockCustomer(customerId) {
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you really want to unblock this customer?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#28a745",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, unblock!"
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/unblockCustomer?id=${customerId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                })
+
+                const data = await response.json()
+
+                if (response.ok && data.status) {
+                    Swal.fire("Unblocked!", "Customer has been unblocked.", "success")
+                        .then(() => window.location.reload())
+                } else {
+                    Swal.fire("Error!", data.message || "Failed to unblock the customer.", "error")
+                }
+            } catch (error) {
+                console.error("Fetch error:", error)
+                Swal.fire("Error!", "Something went wrong. Please try again.", "error")
+            }
+        }
+    })
+}
+</script>
 
 
 

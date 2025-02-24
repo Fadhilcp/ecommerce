@@ -17,7 +17,7 @@ const customerInfo = async (req,res) => {
             page = req.query.page
         }
 
-        const limit = 5
+        const limit = 10
 
         const userData = await User.find({
             isAdmin:false,
@@ -59,9 +59,10 @@ const customerBlocked = async (req,res) =>{
         let id = req.query.id
         await User.updateOne({_id:id},{$set:{isBlocked:true}})
 
-        res.redirect('/admin/users')
+        res.json({status:true,message:'User blocked successfully'})
     } catch (error) {
-        res.redirect('/pageError')
+        console.error('user block error',error)
+        res.status(500).json({status:false,message:'Erro while blocking user'})
     }
 }
 
@@ -73,9 +74,9 @@ const customerunBlocked = async (req,res) => {
         let id = req.query.id
         await User.updateOne({_id:id},{$set:{isBlocked:false}})
 
-        res.redirect('/admin/users')
+        res.json({status:true,message:'User unblock successfully'})
     } catch (error) {
-        res.redirect('/pageError')
+        res.status(500).json({status:false,message:'Erro while unblocking user'})
     }
 }
 

@@ -21,8 +21,8 @@ router.get('/logout', adminController.logout)
 
 //user management
 router.get('/users', adminAuth, customerController.customerInfo)
-router.get('/blockCustomer', adminAuth, customerController.customerBlocked)
-router.get('/unblockCustomer', adminAuth, customerController.customerunBlocked)
+router.patch('/blockCustomer', adminAuth, customerController.customerBlocked)
+router.patch('/unblockCustomer', adminAuth, customerController.customerunBlocked)
 
 
 //category management
@@ -50,9 +50,9 @@ router.patch('/removeProductOffer', adminAuth, productController.removeProductOf
 router.patch('/blockProduct', adminAuth, productController.blockProduct)
 router.patch('/unBlockProduct', adminAuth, productController.unBlockProduct)
 //edit product
-router.get('/editProduct', adminAuth, productController.getEditProduct)
-router.patch('/editProduct/:id', adminAuth, uploads.array('images', 3), productController.editProduct)
-router.delete('/deleteImage', adminAuth, productController.deleteSingleImage)
+router.get('/editProduct',  productController.getEditProduct)
+router.patch('/editProduct/:id',  uploads.array('images', 3), productController.editProduct)
+router.delete('/deleteImage/:productId/:imageId',adminAuth, productController.deleteSingleImage)
 
 
 //order management
