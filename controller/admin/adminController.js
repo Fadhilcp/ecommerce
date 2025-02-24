@@ -149,6 +149,7 @@ const loadDashboard = async (req,res) =>{
 
         //top products
         const topProducts = await Order.aggregate([
+            { $match: { status: "Delivered" } },
             { $unwind: "$products" }, 
             { 
                 $group: {
@@ -165,6 +166,7 @@ const loadDashboard = async (req,res) =>{
 
         //top categories
         const topCategories = await Order.aggregate([
+            { $match: { status: "Delivered" } },
             { $unwind: "$products" },
             { 
                 $lookup: {

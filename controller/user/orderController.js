@@ -58,8 +58,9 @@ const placeOrder = async (req, res) => {
             price: item.productId.offerPrice * item.quantity
         }))
 
-        const totalPrice = cart.totalPrice;
-        let finalPrice = req.session.finalPrice ? req.session.finalPrice : totalPrice
+        const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0)
+
+        let finalPrice = req.session.finalPrice && req.session.finalPrice <= totalPrice ? req.session.finalPrice : totalPrice
         const couponCode = req.session.couponCode
 
         const shippingFee = 40
@@ -445,17 +446,6 @@ const returnItem = async (req,res) => {
         order.products[productIndex].cancelStatus = 'Requested'
         order.products[productIndex].refundStatus = 'Requested'
         order.products[productIndex].refundReason = reason
-
-
-        //return order
-        const allReturn = order.products.every(product => product.cancelStatus === 'Requested')
-
-        if (allReturn) {
-            order.status = 'Requested'
-            order.orderCancelReason = 'All products were Returned by the user'
-            await order.save()
-            return res.json({ status: true, message: 'All products returned, order marked as Returned' })
-        }
 
         await order.save()
 

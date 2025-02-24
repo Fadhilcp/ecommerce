@@ -76,9 +76,13 @@ const getCheckout = async (req,res) => {
             return sum + (item.productId.offerPrice * item.quantity);
         }, 0)
 
+        console.log('checkout total',orderTotal)
+
         const shippingFee = 40
 
         let finalPrice = orderTotal + shippingFee
+
+        console.log('checkout price',finalPrice)
 
         let discountAmount = 0
 

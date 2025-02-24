@@ -83,6 +83,7 @@
                         </div>
                         <div class="row">
 <!-- ========= TOP SELLING PRODUCTS ================================================ -->
+                           <% if(topProducts.length > 0 ) {%>
                             <div class="col-lg-6">
 
                                 <div class="card mb-4">
@@ -107,10 +108,12 @@
                                     </article>
                                 </div>
                             </div>
+                            <% } %>
 <!-- ============== TOP SELLING PRODUCTS ==================================================== -->
 
 
 <!-- ============== TOP SELLING CATEOGRIES ================================================== -->
+                        <% if(topCategories.length > 0 ) {%>
                             <div class="col-lg-6">
 
                                 <div class="card mb-4">
@@ -137,13 +140,15 @@
                                 </div>
 
                             </div>
+                            <% } %>
 <!-- ============== TOP SELLING CATEOGRIES ================================================== -->
                            
                         </div>
                     </div>
                   
                 </div>
-                <div class="card mb-4">
+
+                <!-- <div class="card mb-4">
                     <header class="card-header">
                         <h4 class="card-title">Latest orders</h4>
                         <div class="row align-items-center">
@@ -320,8 +325,9 @@
                                 </table>
                             </div>
                         </div>
-                        <!-- table-responsive end// -->
-                    </div>
+                         <!-- table-responsive end -->
+                          <!--  
+                     </div>
                 </div>
                 <div class="pagination-area mt-30 mb-50">
                     <nav aria-label="Page navigation example">
@@ -336,7 +342,7 @@
                             </li>
                         </ul>
                     </nav>
-                </div>
+                </div> --> 
             </section>
 
 

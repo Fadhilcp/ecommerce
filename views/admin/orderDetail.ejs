@@ -259,12 +259,11 @@
                                                 <td>
                                                     <!-- Buttons only appear if the order status is 'Requested' -->
                                                     <% if (product.cancelStatus === 'Requested') { %>
-                                                        <% if(!order.products.every(product => product.cancelStatus === 'Requested')){ %>
                                                         <div class="d-flex gap-3">
                                                             <button class="custom-approve-btn" onclick="itemReturnStatus('Approved','<%= product.product %>','<%= order._id %>')">Approve</button>
                                                             <button class="custom-reject-btn" onclick="itemReturnStatus('Rejected','<%= product.product %>','<%= order._id %>')">Reject</button>
                                                         </div>
-                                                        <% } %>
+                                          
                                                         <!-- Reason input box for rejected products -->
                                                         <div class="refund-reason-box p-3 border rounded bg-light">
                                                             <strong>Refund Reason:</strong>
@@ -296,8 +295,7 @@
 
             <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap">
 
-                <% if(order.status !== 'Approved' && order.status !== 'Rejected') {%>
-                    <% if(order.products.every(product => product.cancelStatus === 'Requested' || order.status === 'Requested')){ %>
+                <% if(order.status === 'Requested') {%>
     <div class="refund-reason-box p-3 border rounded bg-light">
         <strong>Refund Reason:</strong>
         <p class="mb-0"><%= order.refundReason %></p>
@@ -311,7 +309,6 @@
             Reject
         </button>
     </div>
-    <% } %>
     <% } %>
 </div>
 

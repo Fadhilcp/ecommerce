@@ -436,6 +436,8 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                                 window.location.href = '/orderComplete'
                             })
                         } else {
+
+                            console.log('this is issi')
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Payment Failed!',
@@ -457,7 +459,6 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                         //when closing razorpay modal
                         escape: false,
                         ondismiss: function() {
-                            
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Payment Pending!',
