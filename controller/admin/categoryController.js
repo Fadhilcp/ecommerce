@@ -156,7 +156,7 @@ const unlistCategory = async (req,res)=>{
 
         const { categoryId } = req.body
 
-        await Category.updateOne({_id:id},{$set:{isListed:true}})
+        await Category.updateOne({_id:categoryId},{$set:{isListed:true}})
 
         return res.json({status:true})
 

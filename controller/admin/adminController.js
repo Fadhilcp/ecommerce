@@ -326,8 +326,8 @@ const getSalesReport = async (req, res) => {
         ])
 
         const overallSalesCount = salesData.length
-        const overallOrderAmount = salesData.reduce((sum, order) => sum + order.finalPrice, 0)
-        const overallDiscount = salesData.reduce((sum, order) => sum + (order.totalPrice - order.finalPrice), 0)
+        const overallOrderAmount = salesData.reduce((sum, order) => sum + (order.finalPrice - 40), 0)
+        const overallDiscount = salesData.reduce((sum, order) => sum + (order.totalPrice - (order.finalPrice - 40)), 0)
         const customersCount = new Set(salesData.map(order => order.customerName)).size
 
 
@@ -388,8 +388,8 @@ const downloadSalesPDF = async (req, res) => {
         //summary
         const totalOrders = salesData.length
         const totalAmount = salesData.reduce((sum, order) => sum + order.totalPrice, 0)
-        const totalDiscount = salesData.reduce((sum, order) => sum + (order.totalPrice - order.finalPrice), 0)
-        const finalRevenue = salesData.reduce((sum, order) => sum + order.finalPrice, 0)
+        const totalDiscount = salesData.reduce((sum, order) => sum + (order.totalPrice - (order.finalPrice - 40)), 0)
+        const finalRevenue = salesData.reduce((sum, order) => sum + (order.finalPrice - 40), 0)
 
         // Create PDF document
         const doc = new PDFDocument()
@@ -436,8 +436,8 @@ const downloadSalesPDF = async (req, res) => {
             doc.text(order.address.name.substring(0, 15), startX + columnWidths[0] + 30, y)
             doc.text(order.status, startX + columnWidths[0] + 100, y)
             doc.text(`${order.totalPrice.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + 30, y)
-            doc.text(`${(order.totalPrice - order.finalPrice).toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + 30, y)
-            doc.text(`${order.finalPrice.toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + 20, y)
+            doc.text(`${(order.totalPrice - (order.finalPrice - 40)).toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + 30, y)
+            doc.text(`${(order.finalPrice - 40).toFixed(2)}`, startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + 20, y)
             doc.text(order.createdAt.toISOString().split('T')[0], startX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3] + columnWidths[4], y)
             
             //line each row
@@ -490,8 +490,8 @@ const downloadSalesExcel = async (req, res) => {
         //summary calculation 
         const totalOrders = salesData.length
         const totalAmount = salesData.reduce((sum, order) => sum + order.totalPrice, 0)
-        const totalDiscount = salesData.reduce((sum, order) => sum + (order.totalPrice - order.finalPrice), 0)
-        const finalRevenue = salesData.reduce((sum, order) => sum + order.finalPrice, 0)
+        const totalDiscount = salesData.reduce((sum, order) => sum + (order.totalPrice - (order.finalPrice - 40)), 0)
+        const finalRevenue = salesData.reduce((sum, order) => sum + (order.finalPrice - 40), 0)
 
         const workbook = new ExcelJS.Workbook()
         const worksheet = workbook.addWorksheet('Sales Report')
@@ -514,8 +514,8 @@ const downloadSalesExcel = async (req, res) => {
                 order.address.name,
                 order.status,
                 order.totalPrice.toFixed(2),
-                (order.totalPrice - order.finalPrice).toFixed(2),
-                order.finalPrice.toFixed(2),
+                (order.totalPrice - (order.finalPrice - 40)).toFixed(2),
+                (order.finalPrice - 40).toFixed(2),
                 order.createdAt.toISOString().split("T")[0],
             ])
         })

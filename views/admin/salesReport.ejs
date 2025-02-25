@@ -114,7 +114,7 @@
                             <td><%= order.status %></td>
                             <td class="text-center"><%= order.totalProductsSold %></td>
                             <td>₹<%= order.totalPrice.toFixed(2) %></td>
-                            <td>₹<%= (order.totalPrice - order.finalPrice).toFixed(2) %></td>
+                            <td>₹<%= (order.totalPrice - (order.finalPrice - 40)).toFixed(2) %></td>
                             <td>₹<%= order.finalPrice.toFixed(2) %></td>
                             <td>
                                 <% if (order.createdAt) { %>
