@@ -47,7 +47,7 @@ const customerInfo = async (req,res) => {
         })
 
     } catch (error) {
-        console.error('error',error)
+        res.redirect('/admin/pageError')
     }
 }
 
@@ -61,7 +61,6 @@ const customerBlocked = async (req,res) =>{
 
         res.json({status:true,message:'User blocked successfully'})
     } catch (error) {
-        console.error('user block error',error)
         res.status(500).json({status:false,message:'Erro while blocking user'})
     }
 }

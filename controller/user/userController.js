@@ -35,8 +35,7 @@ const loadHomePage = async (req,res)=>{
             return res.render('user/home',{products:productData,active:'home'})
         }
     } catch (error) {
-        console.error('Home Page not found',error)
-        res.status(500).send('Internal server error')
+        res.redirect('/pageError')
     }
 }
 
@@ -135,7 +134,6 @@ const getShop = async (req,res) => {
         res.render('user/shop', renderData)
 
     } catch (error) {
-        console.error('load shop error',error) 
         res.redirect('/pageError')
     }
 }
@@ -151,9 +149,8 @@ const loadLogin = async (req,res)=>{
         res.redirect('/')
     }
 
-
     } catch (error) {
-        res.redirect('/pageNotFound')
+        res.redirect('/pageError')
     }
 }
 
@@ -187,10 +184,7 @@ const login = async (req,res) =>{
 
 
     } catch (error) {
-
-        console.error('Login error',error)
-        res.json({status:false,message:'User not found'})
-        
+        res.status(500).json({status:false,message:'User not found'})
     }
 }
 
@@ -200,8 +194,7 @@ const loadRegister = async (req,res)=>{
         return res.render('user/register',{message:'',active:'login'})
 
     } catch (error) {
-        console.error('Register Page is not found')
-        res.status(500).send('Internal server error')
+        res.redirect('/pageError')
     }
 }
 
@@ -231,8 +224,7 @@ async function verificationEmail(email, otp) {
         return info.accepted.length > 0
 
     } catch (error) {
-        console.error('Error sending email:', error.message);
-        return false;
+        return false
     }
 }
 
@@ -269,10 +261,7 @@ const register = async (req,res)=>{
         return res.render('user/verifyOtp', { message: 'OTP sent successfully. Please check your email.',active:'login'})
         
     } catch (error) {
-
-        console.error('signUp'+error)
-        res.redirect('/pageNotFound')
-        
+        res.redirect('/pageError')
     }
 }
 
@@ -285,8 +274,7 @@ async function securePassword(password){
         return passwordHash 
         
     } catch (error) {
-        console.error('Hash password',error)
-        res.status(500).json('Server internal error')
+        throw new Error("Password hashing failed")
     }
 }
 
@@ -315,7 +303,6 @@ const verifyOtp = async (req,res)=>{
         }
         
     } catch (error) {
-        console.error('Error in verifying OTP',error)
         res.status(500).json({success:false , message:'An error Occured'})
     }
 }
@@ -340,10 +327,7 @@ const resendOtp = async (req,res)=>{
             res.status(500).json({success:false,message:'Failed to Resend OTP,Please try again'})
         }
     } catch (error) {
-
-        console.error('Error resending OTP',error)
         res.status(500).json({success:false,message:'Internal server error,Please try again'})
-        
     }
 }
 
@@ -357,7 +341,6 @@ const passportToUser = (req,res) => {
         res.redirect('/')
         
     } catch (error) {
-        console.error('Error in Google Auth callback',error)
          res.redirect('/pageError')
     }
 }
@@ -375,8 +358,7 @@ const logout = async(req,res) => {
         })
         
     } catch (error) {
-        console.error('Logout error',error)
-        res.redirect('/pageNotFound')
+        res.redirect('/pageError')
     }
 }
 

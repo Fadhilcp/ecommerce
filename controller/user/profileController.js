@@ -33,8 +33,7 @@ async function verificationEmail(email, otp) {
         return info.accepted.length > 0
 
     } catch (error) {
-        console.error('Error sending email:', error.message);
-        return false;
+        return false
     }
 }
 
@@ -80,9 +79,7 @@ const account = async (req, res) => {
         })
 
     } catch (error) {
-        console.error('account page error:', error)
-        res.status(500).json('internal server error')
-
+        res.redirect('/pageError')
     }
 }
 
@@ -97,8 +94,7 @@ const getChangePassword = async (req, res) => {
         }
         res.render('user/changePassword', { user: userData, active: 'account' })
     } catch (error) {
-        console.error('change password page error', error)
-        res.status(500).json('internal server error')
+        res.redirect('/pageError')
     }
 }
 
@@ -128,7 +124,6 @@ const changePassword = async (req, res) => {
         return res.json({ status: true, message: 'Password changed successfully' })
 
     } catch (error) {
-        console.error('error while changing password', error)
         res.status(500).json({ status: false, message: 'Internal server error' })
     }
 }
@@ -145,7 +140,6 @@ const getAddress = async (req, res) => {
         res.render('user/myAddress', { user: userData, userAddress: addressData, active: 'account' })
 
     } catch (error) {
-        console.error('Address page Error', error)
         res.redirect('/pageError')
     }
 }
@@ -160,7 +154,6 @@ const getCreateAddress = async (req, res) => {
 
         res.render('user/createAddress', { user: userData, active: 'account' })
     } catch (error) {
-        console.error('create address page error', error)
         res.redirect('/pageError')
     }
 }
@@ -192,7 +185,6 @@ const createAddress = async (req, res) => {
         return res.json({ status: true, redirectUrl: '/address' })
 
     } catch (error) {
-        console.error('address creating error', error)
         res.json({ status: false, redirectUrl: '/pageError' })
     }
 }
@@ -226,7 +218,6 @@ const getEditAddress = async (req, res) => {
         res.render('user/editAddress', { address: addressData, user: userData, active: 'account' })
 
     } catch (error) {
-        console.error('edit address page error', error)
         res.redirect('/pageError')
     }
 }
@@ -263,8 +254,7 @@ const editAddress = async (req, res) => {
         res.json({ status: true, redirectUrl: '/address' })
 
     } catch (error) {
-        console.error('edit address error', error)
-        res.json({ status: false, redirectUrl: '/pageError' })
+        res.status(500).json({ status: false, redirectUrl: '/pageError' })
     }
 }
 
@@ -305,7 +295,6 @@ const getForgotPassword = async (req, res) => {
             user:userData
         })
     } catch (error) {
-        console.error('forgot password page error',error)
         res.redirect('/pageError')
     }
 }
@@ -337,8 +326,7 @@ const forgotPasswordEmail = async (req, res) => {
             return res.render('user/forgotPassword', { message: 'User with this email does not exist' })
         }
     } catch (error) {
-        console.error('forgot password email page error', error)
-        res.json({ status: false, message: 'Internal server issue' })
+        res.status(500).json({ status: false, message: 'Internal server issue' })
     }
 }
 
@@ -375,7 +363,6 @@ const getResetPassword = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('reset password page error')
         res.redirect('/pageError')
     }
 }
@@ -399,8 +386,7 @@ const resendOtp = async (req, res) => {
 
 
     } catch (error) {
-        console.error('Otp resend error', error)
-        res.json({ status: false, message: 'Internal server error' })
+        res.status(500).json({ status: false, message: 'Internal server error' })
     }
 }
 
@@ -425,7 +411,6 @@ const newPassword = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Password saving error', error)
         res.redirect('/pageError')
     }
 }
@@ -464,7 +449,6 @@ const getOrders = async(req,res) => {
         })
         
     } catch (error) {
-        console.error('orders page error',error)
         res.redirect('pageError')
     }
 }
@@ -483,9 +467,6 @@ const getOrderDetail = async (req,res) => {
 
         orderData.date = moment(orderData.createdAt).format('MMMM Do YYYY, h:mm:ss A')
 
-       
-        
-
         return res.render('user/orderDetails',{
             order:orderData, 
             user:userData,
@@ -493,7 +474,6 @@ const getOrderDetail = async (req,res) => {
         })
         
     } catch (error) {
-        console.error('order detail page Error',error)
         res.redirect('/pageError')
     }
 }
@@ -526,7 +506,6 @@ const getWallet = async (req,res) => {
         })
         
     } catch (error) {
-        console.error('Wallet page Error',error)
         res.redirect('/pageError')
     }
 }
@@ -549,7 +528,6 @@ const getUpdateProfile = async (req,res) => {
         })
         
     } catch (error) {
-        console.error('update Profile error',error)
         res.redirect('/pageError')
     }
 }
@@ -571,8 +549,7 @@ const updateProfile = async (req,res) => {
         res.json({status:true,message:'Username updated successfully'})
         
     } catch (error) {
-        console.log('update profile page Error',error)
-        res.redirect({status:false,message:'Internal server Error'})
+        res.status(500).json({status:false,message:'Internal server Error'})
     }
 }
 

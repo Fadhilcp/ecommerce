@@ -30,7 +30,7 @@ const checkStock = async (req,res) => {
         return res.json({status:true})
         
     } catch (error) {
-        console.error('stock checking in cart',error)
+        res.status(500).json({status:false,message:'Internal Server error'})
     }
 }
 
@@ -76,13 +76,9 @@ const getCheckout = async (req,res) => {
             return sum + (item.productId.offerPrice * item.quantity);
         }, 0)
 
-        console.log('checkout total',orderTotal)
-
         const shippingFee = 40
 
         let finalPrice = orderTotal + shippingFee
-
-        console.log('checkout price',finalPrice)
 
         let discountAmount = 0
 
@@ -102,7 +98,6 @@ const getCheckout = async (req,res) => {
         })
         
     } catch (error) {
-        console.error('Checkout page error',error)
         res.redirect('/pageError')
     }
 }
@@ -151,8 +146,7 @@ const applyCoupon = async (req,res) => {
         return res.json({status:true,message:'Coupon applied',finalTotal:finalPrice,discountAmount:discountAmount})
         
     } catch (error) {
-        console.error('Coupon applying error',error)
-        res.json({status:false,message:'Internal Server Error'})
+        res.status(500).json({status:false,message:'Internal Server Error'})
     }
 }
 
@@ -178,8 +172,7 @@ const removeCoupon = async (req,res) => {
         res.json({status:true,message:'Coupon removed',finalTotal:finalPrice})
         
     } catch (error) {
-        console.error('remove coupon Error')
-        res.json({status:false,message:'Server internal Error'})
+        res.status(500).json({status:false,message:'Server internal Error'})
     }
 }
 

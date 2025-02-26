@@ -26,8 +26,7 @@ const categoryInfo = async (req,res) => {
         })
 
     } catch (error) {
-        console.error('Category page error',error)
-        res.redirect('/pageError')        
+        res.redirect('/admin/pageError')        
     }
 }
 
@@ -38,7 +37,7 @@ const addCategory = async (req,res) => {
         const {name,description} = req.body 
         const existingCategory = await Category.findOne({name})
         if(existingCategory){
-            return res.status(400).json({error:'Category already exists'})
+            return res.status(400).json({status:false,message:'Category already exists'})
         }
 
         const newCategory = new Category({
@@ -47,11 +46,10 @@ const addCategory = async (req,res) => {
         })
 
         await newCategory.save()
-        return res.json({message:'Category added successfully'})
+        return res.json({status:true,message:'Category added successfully'})
         
     } catch (error) {
-        console.error('Error in addCategory',error)
-        return res.status(500).json({error:'Internal Server error'})
+        return res.status(500).json({status:false,message:'Internal Server error'})
     }
 }
 
@@ -90,9 +88,7 @@ const addCategoryOffer = async (req,res)=>{
         return res.json({status:true})  
 
      } catch (error) {
-        console.error('Error while adding category',error)
         res.status(500).json({status:false,message:'Internal server error'})
-
      }
 }
 
@@ -108,7 +104,6 @@ const removeCategoryOffer = async(req,res) =>{
             return res.status(404).json({status:false,message:'Category not found'})
         }
 
-        const percentage = category.categoryOffer
         const products = await Product.find({category:category._id})
 
 
@@ -127,7 +122,6 @@ const removeCategoryOffer = async(req,res) =>{
         return res.json({status:true})
 
     } catch (error) {
-        console.error('Error in removing category Offer',error)
         res.status(500).json({status:false,message:'Internal server error'})
     }
 }
@@ -144,8 +138,7 @@ const listCategory = async (req,res)=>{
 
         return res.json({status:true})
     } catch (error) {
-        console.error('Islist error',error)
-        return res.json({status:false})
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 
@@ -161,9 +154,7 @@ const unlistCategory = async (req,res)=>{
         return res.json({status:true})
 
     } catch (error) {
-        console.error('IsUnlist error',error)
-        return res.json({status:false})
-        
+        return res.json({status:false,message:'Internal server error'})
     }
 }
 
@@ -178,8 +169,6 @@ const getEditCategory = async (req,res) => {
         res.render('admin/editCategory',{category:category}) 
 
      } catch (error) {
-
-        console.error('edit category page error',error)
         res.redirect('/admin/pageError')
      }
 }
@@ -209,8 +198,7 @@ const editCategory = async (req,res) => {
             res.status(404).json({status:false,message:'Category not found'})
         }
     } catch (error) {
-        console.error('Error while edit category',error)
-        res.status(500).json({error:'Internal server error'})
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 

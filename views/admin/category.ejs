@@ -146,7 +146,7 @@
 
 <script>
     
-  function handleFormSubmit(event){
+  async function handleFormSubmit(event){
 
         event.preventDefault()
        if(!validateForm()){
@@ -156,45 +156,37 @@
         const name = document.getElementById('name').value
         const description = document.getElementById("descriptionId").value
 
-
-
-
-
-
-        fetch('/admin/addCategory',{
-            method:'POST',
-            headers:{
-                'content-type': 'application/json'
+        try {
+        const response = await fetch('/admin/addCategory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-            body:JSON.stringify({name,description})
+            body: JSON.stringify({ name, description })
         })
-        .then(response =>{
-            if(!response.ok){
-                return response.json().then(err => {
-                    throw new Error(err.error || 'Unknown error occured')
-                })
-            }
-            return response.json()
-        })
-        .then(data => {
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Unknown error occurred')
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Category added successfully'
+        }).then(() => {
             location.reload()
         })
-        .catch(error =>{
-            if(error.message === 'Category already exists'){
-                Swal.fire({
-                    icon:'error',
-                    title:'Oops',
-                    text:'Category already exists'
-                })
-            }else{
-                Swal.fire({
-                    icon:'error',
-                    title:'Oops',
-                    text: 'An error occured while adding the category'
-                })
-            }
+
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops',
+            text: error.message === 'Category already exists' ? 'Category already exists' : 'An error occurred while adding the category'
         })
     }
+}
 
 
 

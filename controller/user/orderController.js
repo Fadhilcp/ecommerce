@@ -207,8 +207,7 @@ const placeOrder = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Place Order Error:', error);
-        res.json({ status: false, message: 'Internal server issue' })
+        res.status(500).json({ status: false, message: 'Internal server issue' })
     }
 }
 
@@ -236,7 +235,6 @@ const getOrderComplete = async (req,res) => {
         })
         
     } catch (error) {
-        console.error('order complete page Error',error)
         res.redirect('/pageError')
     }
 }
@@ -308,8 +306,7 @@ const cancelOrder = async (req,res) => {
 
         
     } catch (error) {
-        console.error('error while cancel order',error)
-        res.json({status:false,message:'error while cancel order'})
+        res.status(500).json({status:false,message:'error while cancel order'})
     }
 }
 
@@ -354,20 +351,25 @@ const cancelItem = async (req,res) => {
 
             if(order.paymentStatus !== 'Failed'){
                  
-                wallet.balance = Number((wallet.balance + refundAmount).toFixed(2))
+                if(order.paymentStatus === 'Paid'){
+                    wallet.balance = Number((wallet.balance + refundAmount).toFixed(2))
 
-                wallet.transaction.push({
-                    transactionType:'refund',
-                    amount: refundAmount
-                })
+                    wallet.transaction.push({
+                        transactionType:'refund',
+                        amount: refundAmount
+                    })
 
-                await wallet.save()
+                    await wallet.save()
+                }
 
                 await Product.findByIdAndUpdate(productId, {
                     $inc: { quantity: order.products[productIndex].quantity }
                 })
 
             }
+
+            order.finalPrice = Number((order.finalPrice - refundAmount).toFixed(2))
+            if (order.finalPrice < 0) order.finalPrice = 0
 
               //cancelling order 
             const allCancelled = order.products.every(product => product.cancelStatus === 'Cancelled')
@@ -376,6 +378,7 @@ const cancelItem = async (req,res) => {
 
                 order.status = 'Cancelled'
                 order.orderCancelReason = 'All products were cancelled by the user'
+                order.finalPrice = Number((order.finalPrice - 40).toFixed(2))
                 await order.save()
                 return res.json({ status: true, message: 'All products cancelled, order marked as Cancelled' })
             }
@@ -385,8 +388,7 @@ const cancelItem = async (req,res) => {
             return res.json({ status:true, message:'Product cancelled successfully'})
         
     } catch (error) {
-        console.error('Error while cancel individual Product',error)
-        res.redirect('/pageError')
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 
@@ -413,8 +415,7 @@ const returnOrder = async (req,res) => {
 
         
     } catch (error) {
-        console.error('error while return order',error)
-        res.json({status:false,message:'error while cancel order'})
+        res.status(500).json({status:false,message:'error while cancel order'})
     }
 }
 
@@ -452,8 +453,7 @@ const returnItem = async (req,res) => {
         return res.json({status:true,message: 'Return request submitted successfully'})
         
     } catch (error) {
-        console.error('error while return item',error)
-        res.json({status:false,message:'error while return Item'})
+        res.status(500).json({status:false,message:'error while return Item'})
     }
 }
 
@@ -475,8 +475,7 @@ const createOrder =  async (req, res) => {
 
         res.json({ success: true, razorpayOrder: order, key: process.env.RAZORPAY_KEY })
     } catch (error) {
-        console.error("Error Creating Order:", error)
-        res.json({ success: false })
+        res.status(500).json({ success: false ,message:'Internal server error'})
     }
 }
 
@@ -522,7 +521,6 @@ const verifyPayment = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Verify Payment Error:', error);
         res.status(500).json({ status: false, message: "Internal Server Error" })
     }
 }
@@ -553,7 +551,7 @@ const downloadInvoice =  async (req, res) => {
 
         //Order Details Box
         doc.rect(50, doc.y, 500, 100).stroke()
-        doc.moveDown(0.5);
+        doc.moveDown(0.5)
 
         doc.fontSize(14).fillColor("#000").text(`Invoice Number: ${order.orderId}`, 60, doc.y + 10)
         doc.text(`Customer: ${order.userId.username}`, 60)
@@ -569,7 +567,6 @@ const downloadInvoice =  async (req, res) => {
         doc.moveDown(0.5)
 
         const tableTop = doc.y
-        const columnWidths = [50, 250, 100, 100]
 
         doc.fontSize(12).fillColor("#000")
         
@@ -604,8 +601,7 @@ const downloadInvoice =  async (req, res) => {
         doc.end()
 
     } catch (error) {
-        console.error("Error generating invoice:", error)
-        res.status(500).json({ error: "Error generating invoice" })
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 

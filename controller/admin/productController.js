@@ -19,7 +19,6 @@ const getAddProducts = async (req,res)=>{
         })
 
     } catch (error) {
-        console.error('product page error',error)
         res.redirect('/admin/pageError')
     }
 }
@@ -76,8 +75,7 @@ const addProducts = async (req,res)=>{
             return res.json({status:false,message:'Product already exist,please try with another name'})
         }
     } catch (error) {
-        console.error('Error saving product',error)
-        return res.json({status:false,redirectUrl:'/admin/pageError'})
+        return res.json({status:false,message:'Internal server error'})
     }
 }
 
@@ -112,11 +110,10 @@ const getAllProducts = async (req,res) => {
                 cat:category
             })
         }else{
-            res.render('admin/pageError')
+            return res.redirect('/admin/pageError')
         }
 
     } catch (error) {
-        console.error('Product page error',error)
         res.redirect('/admin/pageError')
     }
 }
@@ -144,7 +141,6 @@ const addProductOffer = async (req,res) => {
 
 
     } catch (error) {
-        res.redirect('/admin/pageError')
         res.status(500).json({status:false,message:'Internal server error'})
     }
 }
@@ -166,7 +162,6 @@ const removeProductOffer = async (req,res) => {
         res.json({status:true})
 
     } catch (error) {
-        res.redirect('/admin/pageError')
         res.status(500).json({status:false,message:'Internal server error'})
     }
 }
@@ -182,8 +177,7 @@ const blockProduct = async (req,res)=>{
 
         res.json({status:true,message:'Product blocked successfully'})
     } catch (error) {
-        console.error('block product error',error)
-        res.redirect('/admin/pageError')
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 
@@ -196,8 +190,7 @@ const unBlockProduct = async (req,res)=>{
 
         res.json({status:true,message:'Product unblocked successfully'})
     } catch (error) {
-        console.error('Unblock product error')
-        res.redirect('/admin/pageError')
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 
@@ -217,7 +210,6 @@ const getEditProduct = async (req,res) => {
             cat:category
         })
     } catch (error) {
-        console.error('edit Product page error',error)
         res.redirect('/admin/pageError')
     }
 }
@@ -227,7 +219,6 @@ const editProduct = async (req,res)=>{
     try {
 
         const id = req.params.id
-        const product = await Product.findOne({_id:id})
 
         const data = req.body
 
@@ -271,9 +262,7 @@ const editProduct = async (req,res)=>{
 
         return res.json({status:true,redirectUrl:'/admin/products'})
     } catch (error) {
-        console.error('edit product error',error)
-        res.redirect('/admin/pageError')
-
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 
@@ -282,27 +271,22 @@ const editProduct = async (req,res)=>{
 
 const deleteSingleImage = async (req,res) => {
     try {
-        console.log('hlllloo')
 
         const {imageId,productId} = req.params
-
 
         await Product.findByIdAndUpdate({_id:productId},{$pull:{productImage:imageId}})
 
         const imagePath = path.join('public','uploads','reImage',imageId)
 
         if(fs.existsSync(imagePath)){
-
             await fs.unlinkSync(imagePath)
-            console.log(`Image ${imageId} deleted successfully`)
         }else{
-            console.log(`image ${imageId} not found`)
+            return res.json({status:false,message:'Image not found'})
         }
 
         res.send({status:true})
 
     } catch (error) {
-        console.error('delete image error',error)
         res.status(500).json({ status: false, message: "Internal server error" })
     }
 }

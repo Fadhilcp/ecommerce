@@ -56,7 +56,6 @@ const getOrderDetail = async (req,res) => {
         })
         
     } catch (error) {
-        console.error('order Detail page Error',error)
         res.redirect('/admin/pageError')
     }
 }
@@ -109,8 +108,7 @@ const updateOrderStatus = async (req,res) => {
         res.json({status:true,message:'Order status updated successfully'})
         
     } catch (error) {
-        console.error('error while updating order status',error)
-        res.redirect('/admin/pageErrro')
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 
@@ -153,8 +151,7 @@ const returnStatus = async (req,res) => {
         res.json({status:true})
         
     } catch (error) {
-        console.error('return status Error',error)
-        res.redirect('/admin/pageError')
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 
@@ -217,8 +214,7 @@ const itemReturnStatus = async (req,res) => {
         res.json({status:true}) 
         
     } catch (error) {
-        console.error('Error while updating return status',error)
-        res.redirect('/admin/pageError')
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 

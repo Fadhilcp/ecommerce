@@ -39,8 +39,7 @@ const productDetails = async (req,res) => {
         })
 
     } catch (error) {
-        console.error('product Details error',error)
-        res.redirect('/page404')
+        res.redirect('/pageError')
     }
 }
 
@@ -54,7 +53,7 @@ const addReviews = async (req,res)=>{
         const userData = await User.findById(user)
 
         if(!userData){
-           return res.json({status:false})
+           return res.json({status:false,message:'User not found'})
         }
 
         const review = new Review({
@@ -66,8 +65,7 @@ const addReviews = async (req,res)=>{
         res.json({status:true})
 
     } catch (error) {
-        console.error('review adding error',error)
-        res.status(500).json('Internal server error')
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 

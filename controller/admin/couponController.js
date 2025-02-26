@@ -18,7 +18,6 @@ const getCoupon = async (req,res) => {
         })
         
     } catch (error) {
-        console.error('coupon page Error',error)
         res.redirect('/admin/pageError')
     }
 }
@@ -55,8 +54,7 @@ const createCoupon = async (req,res) => {
         res.json({status:true,message:'Coupon created successfully'})
 
     } catch (error) {
-        console.error('erro while creating coupon',error)
-        res.redirect('/admin/pageError')
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 
@@ -75,8 +73,7 @@ const deleteCoupon = async (req,res) => {
         res.json({status:true,message:'Coupon deleted'})
         
     } catch (error) {
-        console.error('coupon deleting error',error)
-        res.status(500).json({status:false,message:'Server internal Error'})
+        res.status(500).json({status:false,message:'Inernal server error'})
     }
 }
 

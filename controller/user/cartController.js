@@ -45,7 +45,6 @@ const getCart = async (req,res) => {
         })
         
     } catch (error) {
-        console.error('Cart page error',error)
         return res.redirect('/pageError')
     }
 }
@@ -107,8 +106,7 @@ const addToCart = async (req,res) => {
         return res.json({status:true})
 
     } catch (error) {
-        console.error('cart page error',error)
-        res.redirect('/pageError')
+        res.status(500).json({status:false,message:'internal server error'})
     }
 }
 
@@ -166,7 +164,6 @@ const addToCart = async (req,res) => {
                 return res.json({ status: true,newTotal:newTotalPrice, availableStock: productData.quantity})
             
         } catch (error) {
-            console.error('Error updating cart:', error)
             res.status(500).json({ status: false, message: "Internal server error" })
         }
     }
@@ -201,7 +198,6 @@ const deleteCartItem = async (req,res) => {
 
         return res.json({status:true,message:'Item removed successfully'})
     } catch (error) {
-        console.error('Error deleting cart item',error)
         return res.status(500).json({status:false,message:'Internal server error'})
     }
 }
@@ -241,7 +237,6 @@ const getWishlist = async (req,res) => {
         })
         
     } catch (error) {
-        console.error('wishlist page error',error)
         res.redirect('/pageError')
     }
 }
@@ -286,8 +281,7 @@ const addToWishlist = async (req,res) => {
         res.json({status:true,message:'Product added to Wishlist'})
         
     } catch (error) {
-        console.error('Error while adding product to wishlist',error)
-        res.json({status:false,message:'Internal sever Error'})
+        res.status(500).json({status:false,message:'Internal sever Error'})
     }
 }
 
@@ -345,7 +339,6 @@ const wishlistToCart = async (req,res) => {
 
         
     } catch (error) {
-        console.error('add product to cart from wishlist error',error)
         res.redirect('/pageError')
     }
 }
@@ -377,7 +370,6 @@ const deleteWishlistItem = async (req,res) => {
         return res.json({status:true,message:'product removed successfully'})
         
     } catch (error) {
-        console.error('wishlist product remove error',error)
         res.status(500).json({status:false,message:'Internal Server Error'})
     }
 }

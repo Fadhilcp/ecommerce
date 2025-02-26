@@ -41,9 +41,7 @@ const login = async (req,res) =>{
         }
 
     } catch (error) {
-        console.error('login error',error)
-        res.json({stauts:false,redirectUrl:'/admin/pageError'})
-        
+        res.json({stauts:false,message:'Inernal server error'})
     }
 }
 
@@ -66,9 +64,7 @@ const loadDashboard = async (req,res) =>{
             startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0)
             endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)
         } 
-        
-        else if (filter === "weekly") {
-            
+        else if (filter === "weekly") {    
             const dayOfWeek = today.getDay()
             const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1
             const firstDayOfWeek = new Date(today)
@@ -79,33 +75,32 @@ const loadDashboard = async (req,res) =>{
             lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6)
             endDate = new Date(lastDayOfWeek.setHours(23, 59, 59, 999))
         } 
-        
         else if (filter === "monthly") {
             startDate = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0)
             endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999)
         } 
-        
         else if (filter === "yearly") {
             startDate = new Date(today.getFullYear(), 0, 1, 0, 0, 0, 0)
             endDate = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999)
         } 
-        
         else if (filter === "custom" && fromDate && toDate) {
             startDate = new Date(fromDate)
             endDate = new Date(toDate)
             endDate.setHours(23, 59, 59, 999)
-        } 
-        
+        }   
         else {
             // Default to last 10 years
             startDate = new Date(today.getFullYear() - 10, 0, 1)
             endDate = new Date()
         }
 
+
         //for totalOrder and totalrevenue
         const salesData = await Order.aggregate([
             {
-                $match: { createdAt: { $gte: startDate, $lte: endDate } }
+                $match: { createdAt: { $gte: startDate, $lte: endDate },
+                status: "Delivered" 
+              }
             },
             {
                 $group: {
@@ -136,7 +131,9 @@ const loadDashboard = async (req,res) =>{
         //for chart
         const salesChartData = await Order.aggregate([
             {
-                $match: { createdAt: { $gte: startDate, $lte: endDate } }
+                $match: { createdAt: { $gte: startDate, $lte: endDate } ,
+                status: "Delivered" 
+              }
             },
             {
                 $group: {
@@ -212,8 +209,7 @@ const loadDashboard = async (req,res) =>{
         })
 
     } catch (error) {
-        console.error('Dashboard error',error)
-        res.redirect('/pageError')
+        res.redirect('/admin/pageError')
     }
 }
 
@@ -235,9 +231,8 @@ const logout = async (req,res) => {
                 res.redirect('/admin/login')
             }
         })
-    } catch (error) {
-        console.error('unexpected error during logout',error)    
-        res.redirect('/pageError')
+    } catch (error) { 
+        res.redirect('/admin/pageError')
     }
 }
 
@@ -258,32 +253,22 @@ const getSalesReport = async (req, res) => {
         const today = new Date()
         
         if (filter === "daily") {
-
             startDate = new Date(today.setHours(0, 0, 0, 0))
             endDate = new Date(today.setHours(23, 59, 59, 999))
-
         } else if (filter === "weekly") {
-
             const firstDayOfWeek = new Date(today.setDate(today.getDate() - today.getDay()))
             startDate = new Date(firstDayOfWeek.setHours(0, 0, 0, 0))
             endDate = new Date(today.setHours(23, 59, 59, 999))
-
         } else if (filter === "monthly") {
-
             startDate = new Date(today.getFullYear(), today.getMonth(), 1)
             endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999)
-
         } else if (filter === "yearly") {
-
             startDate = new Date(today.getFullYear(), 0, 1);
             endDate = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999)
-
         } else if (filter === "custom" && fromDate && toDate) {
-
             startDate = new Date(fromDate);
             endDate = new Date(toDate);
             endDate.setHours(23, 59, 59, 999)
-
         } else {
             startDate = new Date("2000-01-01")
             endDate = new Date()
@@ -345,8 +330,7 @@ const getSalesReport = async (req, res) => {
         })
 
     } catch (error) {
-        console.error('Error fetching sales report:', error)
-        res.status(500).send("Internal Server Error")
+        res.redirect('/admin/pageError')
     }
 }
 
@@ -451,8 +435,7 @@ const downloadSalesPDF = async (req, res) => {
         res.download(filePath, 'salesReport.pdf')
 
     } catch (error) {
-        console.error('Error generating PDF:', error)
-        res.status(500).send("Internal Server Error")
+        res.status(500).json({ status: false, message: "Internal server error" })
     }
 }
 
@@ -535,8 +518,7 @@ const downloadSalesExcel = async (req, res) => {
         res.download(filePath, 'salesReport.xlsx')
 
     } catch (error) {
-        console.error('Error generating Excel:', error)
-        res.status(500).send("Internal Server Error")
+        res.status(500).json({ status: false, message: "Internal server error" })
     }
 }
 
