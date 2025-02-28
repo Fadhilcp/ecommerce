@@ -335,8 +335,8 @@ document.addEventListener("DOMContentLoaded", function () {
         offsetY = Math.max(minY, Math.min(offsetY, maxY));
 
         // Position lens relative to viewport
-        lens.style.left = `${e.pageX}px`;
-        lens.style.top = `${e.pageY}px`;
+        lens.style.left = `${e.pageX}px`
+        lens.style.top = `${e.pageY}px`
 
         // Move background to match cursor
         lens.style.backgroundPosition = `-${(offsetX * zoomLevel) - minX}px -${(offsetY * zoomLevel) - minY}px`
@@ -442,13 +442,13 @@ async function addToWishlist(productId){
 
         
     } catch (error) {
-        console.error('Error adding to wishlist:', error)
-        Swal.fire({
-            icon: 'error',
-            title: 'Something went wrong!',
+       await Swal.fire({
+            icon: 'warning',
+            title:'Please Login',
             showConfirmButton: false,
-            timer: 2000
+            timer: 2000,
         })
+        window.location.href = '/login'
     }
 }
 
@@ -470,25 +470,6 @@ function changeQuantity(productId,amount) {
 
     quantityInput.value = newQuantity
 }
-
-    // fetch("/updateCartQuantity", {
-    //     method: "POST",
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({productId, quantity:newQuantity}),
-    // }).then(response => response.json())
-    // .then(result => {
-    //     if (result.status) {
-    //         quantityInput.value = newQuantity
-    //         console.log("Cart updated successfully. New total:", result.newTotal)
-    //     } else {
-    //         console.error("Failed to update cart:", result.message)
-    //     }
-    // })
-    // .catch(error => console.error('Error',error))
- 
-
 
 
 

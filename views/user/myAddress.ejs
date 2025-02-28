@@ -236,12 +236,22 @@
                if(response.ok){
                    location.reload()
                }else{
-                   console.log(response.statusText)
+                Swal.fire({
+                    title: "Try Again",
+                    text: 'Please try again later',
+                    icon: "warning",
+                    showCancelButton: false,
+                })
                }
 
             }
         } catch (error) {
-            console.log('Server error',error)
+            Swal.fire({
+            title: "Try Again",
+            text: 'Server Issue,Please try again later',
+            icon: "warning",
+            showCancelButton: false,
+        })
         }
     }
 </script>

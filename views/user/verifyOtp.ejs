@@ -133,14 +133,13 @@ document.addEventListener("DOMContentLoaded", startTimer)
 
 
 function startTimer() {
-    console.log('Timer is running...');
     const totalDuration = 60;
     const savedStartTime = localStorage.getItem("otpStartTime")
 
-    let timer = 0;
+    let timer = 0
 
     if (savedStartTime) {
-        const elapsedTime = Math.floor((Date.now() - parseInt(savedStartTime, 10)) / 1000);
+        const elapsedTime = Math.floor((Date.now() - parseInt(savedStartTime, 10)) / 1000)
         timer = Math.max(totalDuration - elapsedTime, 0)
         
         if (timer === 0) {
@@ -150,7 +149,7 @@ function startTimer() {
 
     if (!savedStartTime || timer === 0) {
         localStorage.setItem("otpStartTime", Date.now())
-        timer = totalDuration;
+        timer = totalDuration
     }
 
     document.getElementById("timerValue").textContent = timer > 0 ? timer : "Expired"
@@ -228,7 +227,6 @@ function resendOtp() {
                 title: 'Error',
                 text: 'Network error occurred. Please try again.',
             })
-            console.error('Error:', error)
         })
 
     return false
@@ -279,7 +277,6 @@ function resendOtp() {
                     title:'Invalid OTP',
                     text:'Please try again'
                 })
-                console.error('Error: ',error)
             })
                
             return false

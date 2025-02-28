@@ -167,7 +167,12 @@
             }
             
         } catch (error) {
-            console.error('add to cart',error)
+                Swal.fire({
+                title: "Try Again",
+                text: 'Please try again later',
+                icon: "warning",
+                showCancelButton: false,
+            })
         }
     }
 
@@ -206,7 +211,6 @@
                             )
                           }
                           }).catch(err => {
-                               console.error(err)
                                Swal.fire(
                                "Error!",
                                "Something went wrong. Please try again.",

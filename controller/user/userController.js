@@ -363,7 +363,6 @@ const logout = async(req,res) => {
     try {
         req.session.destroy((err)=>{
             if(err){
-                console.error('Session Destruction error',err.messsage)
                 return res.redirect('/pageNotFound')
             }else{
                 return res.redirect('/login')

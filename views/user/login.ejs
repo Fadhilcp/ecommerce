@@ -154,7 +154,9 @@
             <button type="submit" id="submit-btn" class="login-button">LOGIN</button>
         </form>
     </div>
-    <div class="image-section"><img src="/images/perfume-ad.jpeg" alt=""></div>
+    <div class="image-section col-md-6 d-none d-sm-block d-md-flex justify-content-center">
+        <img src="/images/perfume-ad.jpeg" alt="Perfume Ad" class="img-fluid">
+    </div>
 </main>
 
 
@@ -223,7 +225,6 @@ document.addEventListener('DOMContentLoaded',function(){
                         }
                        } catch (error) {
                         msg.innerHTML = 'Failed to connect to the server'
-                        console.error('Fetch error',error)
                        }
                    }    
                 }

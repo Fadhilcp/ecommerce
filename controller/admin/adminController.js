@@ -225,8 +225,7 @@ const logout = async (req,res) => {
         
         req.session.destroy(err => {
             if(err){
-                console.log('Error destroying Session')
-                return res.redirect('/pageError')
+                return res.redirect('/admin/pageError')
             }else{
                 res.redirect('/admin/login')
             }

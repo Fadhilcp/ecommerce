@@ -34,7 +34,6 @@ const getOrder = async (req,res) => {
         })
         
     } catch (error) {
-        console.error('order list page error',error)
         res.redirect('/admin/pageError')
     }
 }

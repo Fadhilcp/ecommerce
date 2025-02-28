@@ -195,8 +195,6 @@ async function updateQuantity(productId, change) {
             document.getElementById(`subTotal-${productId}`).innerText = `₹${(price * newQuantity)}`
             document.getElementById('grandTotal').innerText = `₹${data.newTotal}`
 
-            console.log('data',data)
-
             let availableStock = data.availableStock
             decreaseButton.disabled = false
 
@@ -222,7 +220,12 @@ async function updateQuantity(productId, change) {
 
         }
     } catch (error) {
-        console.error('Error updating quantity:', error)
+        Swal.fire({
+            title: "Try Again",
+            text: 'Please try again later',
+            icon: "error",
+            showCancelButton: false,
+        })
     }
 }
 
@@ -260,7 +263,6 @@ async function updateQuantity(productId, change) {
                             )
                           }
                           }).catch(err => {
-                               console.error(err)
                                Swal.fire(
                                "Error!",
                                "Something went wrong. Please try again.",
@@ -294,7 +296,6 @@ async function updateQuantity(productId, change) {
         }
     })
     .catch(err => {
-        console.error(err)
             Swal.fire(
                 "Error!",
                 "Something went wrong. Please try again.",

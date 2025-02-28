@@ -4,40 +4,158 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PERFUMORA</title>
-
     
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
-	
-	<!-- Animate.css -->
-	<link rel="stylesheet" href="/css/animate.css">
-	<!-- Icomoon Icon Fonts-->
-	<link rel="stylesheet" href="/css/icomoon.css">
-	<!-- Ion Icon Fonts-->
-	<link rel="stylesheet" href="/css/ionicons.min.css">
-	<!-- Bootstrap  -->
-	<link rel="stylesheet" href="/css/bootstrap.min.css">
-
-	<!-- Magnific Popup -->
-	<link rel="stylesheet" href="/css/magnific-popup.css">
-
-	<!-- Flexslider  -->
-	<link rel="stylesheet" href="/css/flexslider.css">
-
-	<!-- Owl Carousel -->
-	<link rel="stylesheet" href="/css/owl.carousel.min.css">
-	<link rel="stylesheet" href="/css/owl.theme.default.min.css">
-	
-	<!-- Date Picker -->
-	<link rel="stylesheet" href="/css/bootstrap-datepicker.css">
-	<!-- Flaticons  -->
-	<link rel="stylesheet" href="/fonts/flaticon/font/flaticon.css">
-
-	<!-- Theme style  -->
-	<link rel="stylesheet" href="/css/style.css">
-
+    <link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="/css/animate.css">
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" href="/css/icomoon.css">
+    <!-- Ion Icon Fonts-->
+    <link rel="stylesheet" href="/css/ionicons.min.css">
+    <!-- Bootstrap  -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <!-- Magnific Popup -->
+    <link rel="stylesheet" href="/css/magnific-popup.css">
+    <!-- Flexslider  -->
+    <link rel="stylesheet" href="/css/flexslider.css">
+    <!-- Owl Carousel -->
+    <link rel="stylesheet" href="/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/css/owl.theme.default.min.css">
+    
+    <!-- Date Picker -->
+    <link rel="stylesheet" href="/css/bootstrap-datepicker.css">
+    <!-- Flaticons  -->
+    <link rel="stylesheet" href="/fonts/flaticon/font/flaticon.css">
+    <!-- Theme style  -->
+    <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
+    <style>
+        /* Modified Mobile Menu Styles */
+        .mobile-menu-toggle {
+            display: none;
+            cursor: pointer;
+            float: right;
+            margin-top: 10px;
+            z-index: 1000;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+        
+        .mobile-menu-toggle .bar {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: #000;
+            margin: 5px 0;
+            transition: 0.4s;
+        }
+        
+        /* Force menu display when active regardless of screen size */
+        .menu-1 ul.show {
+            display: flex !important; /* Use !important to override Bootstrap */
+        }
+        
+        @media screen and (max-width: 768px) {
+            .top-menu .container {
+                position: relative;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+                position: absolute;
+                top: 15px;
+                right: 15px;
+            }
+            
+            .colorlib-nav .top-menu .menu-1 ul {
+                display: none !important; /* Force hide with !important */
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                padding: 20px 0;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+                z-index: 99;
+                flex-direction: column;
+            }
+            
+            .colorlib-nav .top-menu .menu-1 ul.show {
+                display: flex !important; /* Force display with !important */
+            }
+            
+            .colorlib-nav .top-menu .menu-1 ul li {
+                margin: 10px 0;
+                display: block;
+                width: 100%;
+                text-align: center;
+            }
+            
+            .colorlib-nav .top-menu .menu-1 ul li.user {
+                display: inline-block;
+                width: auto;
+                margin: 10px;
+            }
+            
+            /* Container for user icons */
+            .user-icons-container {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            /* Animated hamburger button */
+            .mobile-menu-toggle.active .bar:nth-child(1) {
+                transform: rotate(-45deg) translate(-5px, 6px);
+            }
+            
+            .mobile-menu-toggle.active .bar:nth-child(2) {
+                opacity: 0;
+            }
+            
+            .mobile-menu-toggle.active .bar:nth-child(3) {
+                transform: rotate(45deg) translate(-5px, -6px);
+            }
+            
+            /* Adjust search bar for mobile */
+            .colorlib-nav .top-menu .search-wrap {
+                margin-top: 20px;
+                width: 100%;
+            }
+            
+            /* Adjust logo and search placement */
+            .colorlib-nav .top-menu .row:first-child {
+                position: relative;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            
+            .colorlib-nav .top-menu {
+                padding: 15px 0;
+            }
+            
+            /* Make logo and search responsive */
+            .col-sm-7.col-md-9, .col-sm-5.col-md-3 {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            /* Create space for toggle button */
+            #colorlib-logo {
+                padding-right: 50px;
+            }
+            
+            /* Ensure menu visibility when toggled */
+            .menu-1 {
+                position: relative;
+            }
+        }
+    </style>
 </head>
 <body style="overflow-x: hidden;">
     <nav class="colorlib-nav" role="navigation">
@@ -46,38 +164,87 @@
                 <div class="row">
                     <div class="col-sm-7 col-md-9">
                         <div id="colorlib-logo"><a href="/">PERFUMORA</a></div>
+                        
+                        <!-- Mobile menu toggle button - moved inside this div -->
+                        <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button">
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                        </button>
                     </div>
                     <div class="col-sm-5 col-md-3">
-                    <form action="/shop" method="GET" class="search-wrap">
-                       <div class="form-group">
-                          <input type="search" class="form-control search" placeholder="Search" name="search" value="<%= typeof search !== 'undefined' ? search : '' %>"/>
-                          <button class="btn btn-primary submit-search text-center" type="submit"><i class="icon-search"></i></button>
-                       </div>
-                    </form>
-                 </div>
-             </div>
+                        <form action="/shop" method="GET" class="search-wrap">
+                            <div class="form-group">
+                                <input type="search" class="form-control search" placeholder="Search" name="search" value="<%= typeof search !== 'undefined' ? search : '' %>"/>
+                                <button class="btn btn-primary submit-search text-center" type="submit"><i class="icon-search"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
                 <div class="row">
-                    <div class="col-sm-12 text-left menu-1">
-                        <ul>
+                    <div class="col-sm-12 text-left menu-1" style="display: block;">
+                        <ul class="" id="main-menu">
                             <li class="<%= active === 'home' ? 'active' : '' %>"><a href="/">Home</a></li>
                             <li class="<%= active === 'shop' ? 'active' : '' %>"><a href="/shop">Shop</a></li>
                             <li class=""><a href="#">About</a></li>
                             <li class=""><a href="#">Contact</a></li>
-
+                            
                             <%if(!locals.user){%>
                             <li class="<%= active === 'login' ? 'active' : '' %>"><a href="/login">Login</a></li>
                             <%}%>
-
-                            <li class="user <%= active === 'cart' ? 'active' : '' %>"><a href="/cart"><i class="icon-shopping-cart"></i> Cart </a></li>
-
-                            <%if(locals.user){%>
-                            <li class="user <%= active === 'account' ? 'active' : '' %>"><a href="/account"><i class="fa-regular fa-user"></i></a></li>
-                            <%}%>
-
-                            <li class="user <%= active === 'wishlist' ? 'active' : '' %>"><a href="/wishlist"><i class="fa-regular fa-heart"></i></a></li>
+                     
+                                <li class="user <%= active === 'cart' ? 'active' : '' %>"><a href="/cart"><i class="icon-shopping-cart"></i> Cart </a></li>
+                                
+                                <%if(locals.user){%>
+                                <li class="user <%= active === 'account' ? 'active' : '' %>"><a href="/account"><i class="fa-regular fa-user"></i></a></li>
+                                <%}%>
+                                
+                                <li class="user <%= active === 'wishlist' ? 'active' : '' %>"><a href="/wishlist"><i class="fa-regular fa-heart"></i></a></li>
+                          
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
+    
+    <!-- Your page content goes here -->
+    
+    <!-- Place this script right before the closing body tag -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mainMenu = document.getElementById('main-menu');
+            
+            if (mobileMenuToggle && mainMenu) {
+                mobileMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    mainMenu.classList.toggle('show');
+                    mobileMenuToggle.classList.toggle('active');
+                    
+                    // Debug - check if class is being added
+                    console.log('Menu classes:', mainMenu.className);
+                });
+                
+                // Close menu when clicking anywhere else on the page
+                document.addEventListener('click', function(event) {
+                    if (!mainMenu.contains(event.target) && !mobileMenuToggle.contains(event.target) && mainMenu.classList.contains('show')) {
+                        mainMenu.classList.remove('show');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768 && mainMenu.classList.contains('show')) {
+                        mainMenu.classList.remove('show');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+            } else {
+                console.error('Mobile menu elements not found');
+            }
+        });
+    </script>

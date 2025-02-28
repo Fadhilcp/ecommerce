@@ -299,7 +299,12 @@ document.addEventListener('DOMContentLoaded', function () {
 document.getElementById('placeOrder').addEventListener('click',async () => {
 
     if (selectedAddressId === null) {
-        alert('Please select an address first!')
+        Swal.fire({
+            icon: 'info',
+            title: 'Please select a Address',
+            showConfirmButton: false,
+            timer: 2000,
+        })
         return
     }
 
@@ -357,7 +362,6 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                 })
             }
         } catch (error) {
-            console.error(error)
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
@@ -393,8 +397,6 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
 
                 let orderData = await orderResponse.json()
 
-                console.log('orderData',orderData.status)
-
                 if (!orderData.status) {
                     return Swal.fire({
                         icon: 'error',
@@ -424,8 +426,6 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
 
                         let verifyData = await verifyResponse.json()
 
-                        console.log('verify payment',verifyData.status)
-
                         if (verifyData.status) {
                             Swal.fire({
                                 icon: 'success',
@@ -436,8 +436,6 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                                 window.location.href = '/orderComplete'
                             })
                         } else {
-
-                            console.log('this is issi')
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Payment Failed!',
@@ -489,7 +487,6 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                 
 
             } catch (error) {
-                console.error('Error:', error)
                 Swal.fire({
                     icon: 'error',
                     title: 'Order Processing Error!',
@@ -543,8 +540,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                 }
                     
                 } catch (error) {
-                    console.error('coupon applying error',error)
-                    errorMsg.innerText = 'Server error'
+                    errorMsg.innerText = 'Please Try again later'
                 }
              }
 
@@ -583,7 +579,6 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                 }
                     
                 } catch (error) {
-                    console.error('coupon removing error',error)
                     errorMsg.innerText = 'Server error'
                 }
              }

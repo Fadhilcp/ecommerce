@@ -300,13 +300,13 @@ const wishlistToCart = async (req,res) => {
             return res.json({status:false,message:'Product not found'})
         }
 
-        const cart = await Cart.findOne({userId:userId})
+        let cart = await Cart.findOne({userId:userId})
 
         if(!cart){
             cart = new Cart({userId,products:[]})
         }
 
-        let existingProduct = cart.products.find(item => item.productId.toString() === productId)
+        let existingProduct = await cart.products.find(item => item.productId.toString() === productId)
         if(existingProduct){
             let totalQuantity = existingProduct.quantity + 1
 
@@ -336,10 +336,9 @@ const wishlistToCart = async (req,res) => {
         await wishlist.save()
 
         return res.json({status:true})
-
         
     } catch (error) {
-        res.redirect('/pageError')
+        res.status(500).json({status:false,message:'Internal server error'})
     }
 }
 

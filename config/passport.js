@@ -27,7 +27,6 @@ async (accessToken,refreshToken,profile,done)=>{
             return done(null,user)
         }
     } catch (error) {       
-        console.error('google auth error',error)
         return done(error,null)
     }
 }

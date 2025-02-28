@@ -27,8 +27,7 @@ const isBlock = async (req, res, next) => {
                 return res.redirect('/') 
                 }
             } catch (error) {
-                 console.error('isBlock middleware error', error)
-                res.status(500).json('Internal server error') 
+                res.redirect('/pageError')
             } 
         } else {
             next()
@@ -47,7 +46,6 @@ const adminAuth = async (req,res,next) => {
             res.redirect('/admin/login')
         }
     } catch (error) {
-        console.error('adminAuth middleware error',error)
         res.status(500).json('Internal server error')
     }
 }
@@ -75,7 +73,6 @@ const productIsBlock = async (req,res,next) => {
             next()
 
     } catch (error) {
-        console.error('Product block middleware error',error)
         res.status(500).json('Internal server error')
     }
 }
