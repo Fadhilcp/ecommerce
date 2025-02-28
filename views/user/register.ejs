@@ -139,15 +139,14 @@
                         </div>
                         <span><p class="msg" id="msg4"></p></span>
                         <p id="msg"></p>
-                        <%if(locals.message && message.length > 0){%>
-                            <div class="alert text-danger text-center">
-                                <%= message %>
+
+                            <div id="err-message" class="alert text-danger text-center">
+                                
                             </div>
-                        <%}else{%>
                             <div class="alert text-danger text-center" >
                                
                             </div>
-                            <%}%>
+                           
                         <div class="google-signin">
                             <a href="/auth/google">
                                 <h4 class="fa-brands fa-google"></h4>
@@ -190,6 +189,7 @@ function togglePassword(inputId) {
     var msg2 = document.getElementById('msg2')
     var msg3 = document.getElementById('msg3')
     var msg4 = document.getElementById('msg4')
+    var errMessage = document.getElementById('err-message') 
     let isValid = true
 
     // Clear previous messages
@@ -197,9 +197,10 @@ function togglePassword(inputId) {
     msg2.innerHTML = ''
     msg3.innerHTML = ''
     msg4.innerHTML = ''
+    errMessage.innerText = ''
 
     
-    var usernamePattern = /^[a-zA-Z][a-zA-Z0-9_]{2,15}$/
+    var usernamePattern = /^[a-zA-Z][a-zA-Z0-9_ ]*$/
      if (username == '') {
         msg1.innerHTML = 'Username is required'
         isValid = false
@@ -261,7 +262,28 @@ function togglePassword(inputId) {
     
 
     if (isValid) {
-      document.getElementById('register-form').submit()
+
+        try {
+
+            const response = await fetch('/checkRegister',{
+                method:'POST',
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify({email})
+            })
+
+            const data = await response.json()
+
+            if(response.ok && data.status){
+                document.getElementById('register-form').submit()
+            }else {
+                errMessage.innerText = data.message
+            }
+            
+        } catch (error) {
+            errMessage.innerText = 'Please try again later'
+        }
             }
     }
 

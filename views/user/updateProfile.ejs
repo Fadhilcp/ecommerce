@@ -241,14 +241,14 @@
         e.preventDefault()
 
         const errMessage = document.getElementById('err-message')
-        const username = document.getElementById('username').value
+        const username = document.getElementById('username').value.trim()
         let isValid = true
 
 
         errMessage.innerText = ''
 
 
-        var usernamePattern = /^[a-zA-Z][a-zA-Z0-9_]{2,15}$/
+        var usernamePattern = /^[a-zA-Z][a-zA-Z0-9_ ]*$/
         if (!username) {
             errMessage.innerText = 'Username is required'
             isValid = false
@@ -258,7 +258,7 @@
         isValid = false
         }
         else if(!usernamePattern.test(username)){
-            errMessage.innerText = 'Dont contain any Special Characters'
+            errMessage.innerText = 'Username can only contain letters, numbers, spaces, and underscores, and must start with a letter'
             isValid = false
         }
 
@@ -299,7 +299,6 @@
 
                 
             } catch (error) {
-                console.error('username updating error',error)
                 await Swal.fire({
                     icon: 'error',
                     title: 'username updating error',

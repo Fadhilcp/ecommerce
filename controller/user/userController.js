@@ -240,14 +240,27 @@ function verificationOtp(){
      return otp
 }
 
+const checkRegister = async (req,res) => {
+    try {
+
+        const {email} = req.body 
+
+        const findUser = await User.findOne({email})
+
+        if(findUser) {
+            return res.json({status:false,message:'User already exists'})
+        }
+
+        res.json({status:true})
+        
+    } catch (error) {
+        res.status(500).json({status:false,message:'Internal server issue'})
+    }
+}
+
 const register = async (req,res)=>{
     try {
         const {username,email,password} = req.body
-        const findUser = await User.findOne({email})
-
-        if(findUser){
-            return res.json('user/register',{message:'User already exists'})
-        }
 
         const otp = await verificationOtp()
         const emailSent = await verificationEmail(email,otp)
@@ -371,6 +384,7 @@ module.exports = {
     loadLogin,
     login,
     loadRegister,
+    checkRegister,
     register,
     verifyOtp,
     resendOtp,
