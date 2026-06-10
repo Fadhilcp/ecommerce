@@ -288,14 +288,6 @@ document.addEventListener('DOMContentLoaded', function () {
 })
 
 
-
-
-
-
-
-
-
-
 document.getElementById('placeOrder').addEventListener('click',async () => {
 
     if (selectedAddressId === null) {
@@ -327,9 +319,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
         return
     }
 
-
-
-
+    console.log('checkout order payment method', paymentMethod);
 
     if (paymentMethod === 'COD' || paymentMethod === 'Wallet') {
         try {
@@ -371,11 +361,6 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
         }
     }
 
-
-
-
-
-
     if (paymentMethod === 'RazorPay') { 
 
             // Replacing symbols
@@ -407,7 +392,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
                 } 
 
                 var options = {
-                    "key": "rzp_test_bPK4mH8dSfYQwe",
+                    "key": "rzp_test_SzB3idbO2VtFFh",
                     "amount": orderData.razorpayOrder.amount,
                     "currency": orderData.razorpayOrder.currency,
                     "name": "PERFUMORA",

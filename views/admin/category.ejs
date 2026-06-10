@@ -286,7 +286,6 @@
                     'An error occured while adding the offer',
                     'error'
                 )
-                console.log('Error adding offer',error)
             }
         }
     }
@@ -308,7 +307,6 @@
                 showCancelButton:true,
                 confirmButtonText:'Yes,remove it'
             })
-            console.log(confirm)
            if(confirm.isConfirmed){ 
             const response =  await fetch('/admin/removeCategoryOffer',{
                 method:'POST',
@@ -361,8 +359,6 @@
 
         if(response.ok){
             location.reload()
-        }else{
-            console.log(response.statusText)
         }
          } catch (error) {
             console.error('listing category',error)

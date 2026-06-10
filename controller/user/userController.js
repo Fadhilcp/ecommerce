@@ -202,7 +202,7 @@ const loadRegister = async (req,res)=>{
 
 async function verificationEmail(email, otp) {
     try {
-        const transporter = await nodeMailer.createTransport({
+        const transporter = nodeMailer.createTransport({
             service: 'gmail',
             port: 587,
             secure: false,
@@ -224,6 +224,7 @@ async function verificationEmail(email, otp) {
         return info.accepted.length > 0
 
     } catch (error) {
+        console.error("Nodemailer error:", error);
         return false
     }
 }
@@ -264,14 +265,13 @@ const register = async (req,res)=>{
 
         const otp = await verificationOtp()
         const emailSent = await verificationEmail(email,otp)
-
         if(!emailSent){
-            return res.json('user/register',{message:'Email didnt sent'})
+            return res.render('user/register',{ message:'Email didnt sent', active: 'login' });
         }
         req.session.userOtp = otp
         req.session.userData = {username,email,password}
-        console.log(otp)
-        return res.render('user/verifyOtp', { message: 'OTP sent successfully. Please check your email.',active:'login'})
+        
+        return res.render('user/verifyOtp', { message: 'OTP sent successfully. Please check your email.', active:'login'})
         
     } catch (error) {
         res.redirect('/pageError')

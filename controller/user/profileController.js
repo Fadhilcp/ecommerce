@@ -311,7 +311,6 @@ const forgotPasswordEmail = async (req, res) => {
             const emailSent = verificationEmail(email, otp)
 
             if (emailSent) {
-                console.log('forgot pass Otp', otp)
                 req.session.userOtp = otp
                 req.session.email = email
                 return res.render('user/forgotPasswordOtp',{
@@ -378,7 +377,6 @@ const resendOtp = async (req, res) => {
         const emailSent = await verificationEmail(email, otp)
 
         if (emailSent) {
-            console.log('Resent password OTP', otp)
             return res.json({ status: true, message: 'OTP resend Successfully' })
         } else {
             res.json({ status: false, message: 'resend OTP error' })
@@ -484,13 +482,14 @@ const getOrderDetail = async (req,res) => {
 const getWallet = async (req,res) => {
     try {
 
-        const userId = req.session.user
+        const userId = req.session.user;
         const userData = await User.findById(userId)
 
         let wallet = await Wallet.findOne({userId:userId})
 
         if(!wallet){
-            wallet = new Wallet({userId,transaction:[]})
+            wallet = new Wallet({ userId: userData._id, transaction:[] });
+            await wallet.save();
         }
 
         wallet.transaction.forEach((item) => {

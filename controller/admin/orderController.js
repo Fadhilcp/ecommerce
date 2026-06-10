@@ -131,7 +131,7 @@ const returnStatus = async (req,res) => {
         let wallet = await Wallet.findOne({userId:order.userId})
 
         if(!wallet){
-            wallet = new Wallet({userId:order.userId,transaction:[]})
+            wallet = new Wallet({userId:order.userId,transaction:[]});
         }
 
         if(order.refundStatus === 'Approved'){
@@ -185,7 +185,7 @@ const itemReturnStatus = async (req,res) => {
         let wallet = await Wallet.findOne({userId:order.userId})
 
         if(!wallet){
-            wallet = new Wallet({userId:order.userId,transaction:[]})
+            wallet = new Wallet({ userId:order.userId, transaction:[] })
         }
 
         let refundAmount = order.products[productIndex].price

@@ -140,7 +140,7 @@ const placeOrder = async (req, res) => {
 
             delete req.session.checkout
             req.session.orderId = order._id
-            return res.json({ status: true, razorpayOrder })
+            return res.json({ status: true, razorpayOrder });
         }
 
         // cash on delivery
@@ -150,25 +150,30 @@ const placeOrder = async (req, res) => {
                 return res.json({status:false,message:'Products above 1000 is not allowed Cash on Delivery'})
             }
 
-            let paymentStatus = 'Pending'
+            let paymentStatus = 'Pending';
 
             if(paymentMethod === 'Wallet'){
 
-                const wallet = await Wallet.findOne({userId:userId})
+                let wallet = await Wallet.findOne({ userId });
 
+                if (!wallet) {
+                    wallet = new Wallet({ userId: user._id, balance: 0, transaction: [] });
+                    await wallet.save()
+                }
                 if(wallet.balance < finalPrice){
                     return res.json({ status: false, message: 'Insufficient wallet balance' })
                 }
 
                 wallet.transaction.push({
                     transactionType: 'debit',
-                    amount: finalPrice 
-                })
+                    amount: finalPrice,
+                    date: new Date()
+                });
 
-                wallet.balance = Number((wallet.balance - finalPrice).toFixed(2))
-                await wallet.save()
+                wallet.balance = Number((wallet.balance - finalPrice).toFixed(2));
+                await wallet.save();
 
-                paymentStatus = 'Paid'
+                paymentStatus = 'Paid';
             }
 
             const order = new Order({
@@ -189,30 +194,27 @@ const placeOrder = async (req, res) => {
                 coupon: couponCode,
                 paymentStatus,
                 paymentMethod
-            })
+            });
 
             req.session.finalPrice = null
-            await order.save()
+            await order.save();
 
             for (const item of cartItems) {
                 await Product.findByIdAndUpdate(item.product, { $inc: { quantity: -item.quantity } })
-            }
+            };
 
-            await Cart.findOneAndUpdate({ userId: userId }, { products: [] })
+            await Cart.findOneAndUpdate({ userId: userId }, { products: [] });
 
-            delete req.session.checkout
-            req.session.orderId = order._id
+            delete req.session.checkout;
+            req.session.orderId = order._id;
 
-            return res.json({ status: true })
+            return res.json({ status: true });
         }
 
     } catch (error) {
-        res.status(500).json({ status: false, message: 'Internal server issue' })
+        res.status(500).json({ status: false, message: 'Internal server issue' });
     }
 }
-
-
-
 
 
 const getOrderComplete = async (req,res) => {
@@ -257,10 +259,9 @@ const cancelOrder = async (req,res) => {
             return res.json({status:false,message:`Order already ${order.status}`})
         }
 
-        
         let refundAmount = order.finalPrice
 
-        if(order.status !== 'Pending'){
+        if(order.status !== 'Pending' && order.shippingFee){
             refundAmount =  order.finalPrice - order.shippingFee
         }
 
@@ -276,13 +277,11 @@ const cancelOrder = async (req,res) => {
 
         if(order.paymentStatus === 'Paid'){
 
-            let wallet = await Wallet.findOne({userId:userId})
+            let wallet = await Wallet.findOne({ userId: order.userId });
 
-            if(!wallet){
-                wallet = new Wallet({userId,transaction:[]})
+            if (!wallet) {
+                wallet = new Wallet({ userId: order.userId, balance: 0, transaction: [] });
             }
-
-
             wallet.balance = Number((wallet.balance + refundAmount).toFixed(2))
 
             wallet.transaction.push({
@@ -320,73 +319,73 @@ const cancelItem = async (req,res) => {
 
         const order = await Order.findById(orderId)
 
-            const productIndex = order.products.findIndex(item => item.product.toString() === productId)
+        const productIndex = order.products.findIndex(item => item.product.toString() === productId)
 
-            if (productIndex === -1) {
-                return res.json({ status: false, message: 'Product not found in order' })
-            }
-            
-            if (order.products[productIndex].cancelStatus === 'Cancelled') {
-                return res.json({ status: false, message: 'Product already cancelled' })
-            }
-
-            order.products[productIndex].cancelStatus = 'Cancelled'
-            order.products[productIndex].itemCancelReason = reason
-
-            //calculating refund amount
-            let refundAmount = order.products[productIndex].price
-
-            //if there is coupon
-            if(order.coupon){
-                const discountPercentage = (refundAmount - order.finalPrice) / refundAmount
-                refundAmount -= refundAmount * discountPercentage
-            }
-
-            const userId = order.userId
-            const wallet = await Wallet.findOne({userId:userId})
-
-            if(!wallet){
-                wallet = new Wallet({userId,transaction:[]})
-            }
-
-            if(order.paymentStatus !== 'Failed'){
-                 
-                if(order.paymentStatus === 'Paid'){
-                    wallet.balance = Number((wallet.balance + refundAmount).toFixed(2))
-
-                    wallet.transaction.push({
-                        transactionType:'refund',
-                        amount: refundAmount
-                    })
-
-                    await wallet.save()
-                }
-
-                await Product.findByIdAndUpdate(productId, {
-                    $inc: { quantity: order.products[productIndex].quantity }
-                })
-
-            }
-
-            order.finalPrice = Number((order.finalPrice - refundAmount).toFixed(2))
-            if (order.finalPrice < 0) order.finalPrice = 0
-
-              //cancelling order 
-            const allCancelled = order.products.every(product => product.cancelStatus === 'Cancelled')
-
-            if (allCancelled) {
-
-                order.status = 'Cancelled'
-                order.orderCancelReason = 'All products were cancelled by the user'
-                order.finalPrice = Number((order.finalPrice - 40).toFixed(2))
-                await order.save()
-                return res.json({ status: true, message: 'All products cancelled, order marked as Cancelled' })
-            }
-
-            await order.save()
-
-            return res.json({ status:true, message:'Product cancelled successfully'})
+        if (productIndex === -1) {
+            return res.json({ status: false, message: 'Product not found in order' })
+        }
         
+        if (order.products[productIndex].cancelStatus === 'Cancelled') {
+            return res.json({ status: false, message: 'Product already cancelled' })
+        }
+
+        order.products[productIndex].cancelStatus = 'Cancelled'
+        order.products[productIndex].itemCancelReason = reason
+
+        //calculating refund amount
+        let refundAmount = order.products[productIndex].price
+
+        //if there is coupon
+        if(order.coupon){
+            const discountPercentage = (refundAmount - order.finalPrice) / refundAmount
+            refundAmount -= refundAmount * discountPercentage
+        }
+
+        const userId = order.userId
+        let wallet = await Wallet.findOne({userId:userId})
+
+        if(!wallet){
+            wallet = new Wallet({userId,transaction:[]})
+        }
+
+        if (order.paymentStatus === 'Paid') {
+
+            wallet.balance = Number((wallet.balance + refundAmount).toFixed(2));
+
+            wallet.transaction.push({
+                transactionType: 'credit', 
+                amount: refundAmount,
+                date: new Date()
+            });
+
+            await wallet.save();
+        }
+
+        if (order.paymentStatus !== 'Failed') {
+            await Product.findByIdAndUpdate(productId, {
+                $inc: { quantity: order.products[productIndex].quantity }
+            });
+        }
+
+        order.finalPrice = Number((order.finalPrice - refundAmount).toFixed(2))
+        if (order.finalPrice < 0) order.finalPrice = 0
+
+            //cancelling order 
+        const allCancelled = order.products.every(product => product.cancelStatus === 'Cancelled')
+
+        if (allCancelled) {
+
+            order.status = 'Cancelled'
+            order.orderCancelReason = 'All products were cancelled by the user'
+            order.finalPrice = Number((order.finalPrice - 40).toFixed(2))
+            await order.save()
+            return res.json({ status: true, message: 'All products cancelled, order marked as Cancelled' })
+        }
+
+        await order.save()
+
+        return res.json({ status:true, message:'Product cancelled successfully'})
+    
     } catch (error) {
         res.status(500).json({status:false,message:'Internal server error'})
     }

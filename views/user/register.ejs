@@ -274,7 +274,7 @@ function togglePassword(inputId) {
             })
 
             const data = await response.json()
-
+            
             if(response.ok && data.status){
                 document.getElementById('register-form').submit()
             }else {
@@ -284,7 +284,7 @@ function togglePassword(inputId) {
         } catch (error) {
             errMessage.innerText = 'Please try again later'
         }
-            }
+    }
     }
 
     
