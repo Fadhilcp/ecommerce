@@ -318,9 +318,7 @@ document.getElementById('placeOrder').addEventListener('click',async () => {
         })
         return
     }
-
-    console.log('checkout order payment method', paymentMethod);
-
+    
     if (paymentMethod === 'COD' || paymentMethod === 'Wallet') {
         try {
             let response = await fetch('/placeOrder', {

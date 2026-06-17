@@ -254,9 +254,8 @@
         })
         if(amount){
             try {
-                
                 const response = await fetch('/admin/addCategoryOffer',{
-                    method:'POST',
+                    method:'PATCH',
                     headers:{
                         'content-type':'application/json'
                     },
@@ -309,7 +308,7 @@
             })
            if(confirm.isConfirmed){ 
             const response =  await fetch('/admin/removeCategoryOffer',{
-                method:'POST',
+                method:'PATCH',
                 headers:{
                     'content-type':'application/json'
                 },

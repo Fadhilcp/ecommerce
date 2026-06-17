@@ -1,12 +1,10 @@
-const User = require('../../model/userSchema')
-const Order = require('../../model/orderSchema')
-const Product = require('../../model/productSchema')
-const moment = require('moment')
-const Wallet = require('../../model/walletSchema')
-
-
-
-
+const User = require('../../model/userSchema');
+const Order = require('../../model/orderSchema');
+const Product = require('../../model/productSchema');
+const moment = require('moment');
+const Wallet = require('../../model/walletSchema');
+const MESSAGES = require('../../constants/messages');
+const ORDER_STATUS = require('../../constants/orderStatus');
 
 const getOrder = async (req,res) => {
     try {
@@ -70,19 +68,19 @@ const updateOrderStatus = async (req,res) => {
         const existingOrder = await Order.findById(orderId)
 
         if(!existingOrder){
-            return res.json({status:false,message:'Order not found'})
+            return res.json({ status: false, message: MESSAGES.ORDER_NOT_FOUND });
         }
 
-        if(existingOrder.status === 'Cancelled'){
-            return res.json({status:false,message:'Order is already Cancelled'})
+        if(existingOrder.status === ORDER_STATUS.CANCELLED){
+            return res.json({ status: false, message: MESSAGES.ORDER_ALREADY_CANCELLED });
         }
 
         const updateOrder = await Order.findByIdAndUpdate(orderId, {status:updateStatus},{new:true})
 
-        if(updateOrder.status === 'Cancelled'){
+        if(updateOrder.status === ORDER_STATUS.CANCELLED){
 
             updateOrder.products.forEach(product => {
-                product.cancelStatus = 'Cancelled'
+                product.cancelStatus = ORDER_STATUS.CANCELLED;
             })
 
             const wallet = await Wallet.findOne({userId:updateOrder.userId})
@@ -104,13 +102,12 @@ const updateOrderStatus = async (req,res) => {
 
         await updateOrder.save()
 
-        res.json({status:true,message:'Order status updated successfully'})
+        res.json({ status: true, message: MESSAGES.ORDER_STATUS_UPDATED })
         
     } catch (error) {
-        res.status(500).json({status:false,message:'Internal server error'})
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
-
 
 const returnStatus = async (req,res) => {
     try {
@@ -122,19 +119,19 @@ const returnStatus = async (req,res) => {
         const order = await Order.findById(orderId)
 
         if(!order){
-            return res.json({status:false,message:'Order not found'})
+            return res.json({ status: false, message: MESSAGES.ORDER_NOT_FOUND });
         }
 
         order.status = result
         order.refundStatus = result
 
-        let wallet = await Wallet.findOne({userId:order.userId})
+        let wallet = await Wallet.findOne({ userId: order.userId });
 
         if(!wallet){
             wallet = new Wallet({userId:order.userId,transaction:[]});
         }
 
-        if(order.refundStatus === 'Approved'){
+        if(order.refundStatus === ORDER_STATUS.DELIVERED || result === 'Approved'){
 
             wallet.balance = Number((wallet.balance + order.finalPrice).toFixed(2))
 
@@ -150,11 +147,9 @@ const returnStatus = async (req,res) => {
         res.json({status:true})
         
     } catch (error) {
-        res.status(500).json({status:false,message:'Internal server error'})
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
-
-
 
 const itemReturnStatus = async (req,res) => {
     try {
@@ -165,17 +160,17 @@ const itemReturnStatus = async (req,res) => {
 
         const order = await Order.findById(orderId)
         if(!order){
-            return res.json({status:false,message:'Order not found'})
+            return res.json({ status: false, message: MESSAGES.ORDER_NOT_FOUND })
         }
 
         const productIndex = order.products.findIndex(item => item.product.toString() === productId)
 
         if (productIndex === -1) {
-            return res.json({ status: false, message: 'Product not found in order' })
+            return res.json({ status: false, message: MESSAGES.PRODUCT_NOT_FOUND_IN_ORDER })
         }
 
         if (order.products[productIndex].cancelStatus === result) {
-            return res.json({ status: false, message: `Product already ${result} to return` });
+            return res.json({ status: false, message: MESSAGES.PRODUCT_ALREADY_MUTATED });
         }
 
         order.products[productIndex].cancelStatus = result
@@ -213,7 +208,7 @@ const itemReturnStatus = async (req,res) => {
         res.json({status:true}) 
         
     } catch (error) {
-        res.status(500).json({status:false,message:'Internal server error'})
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
 

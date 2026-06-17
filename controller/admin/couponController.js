@@ -1,27 +1,24 @@
 const Coupon = require('../../model/couponSchema')
 const moment = require('moment')
+const MESSAGES = require('../../constants/messages');
 
 
 const getCoupon = async (req,res) => {
     try {
-
-        const coupons = await Coupon.find()
+        const coupons = await Coupon.find();
 
         coupons.forEach((item) => {
                 item.expire = moment(item.endDate).format('DD-MM-YYYY')
-        })
+        });
 
-        coupons.reverse()
+        coupons.reverse();
 
-        res.render('admin/coupon',{
-            coupons:coupons
-        })
+        res.render('admin/coupon',{ coupons:coupons });
         
     } catch (error) {
-        res.redirect('/admin/pageError')
+        res.redirect('/admin/pageError');
     }
 }
-
 
 const createCoupon = async (req,res) => {
     try {
@@ -37,7 +34,7 @@ const createCoupon = async (req,res) => {
         const existingCoupon = await Coupon.findOne({code:code})
 
         if(existingCoupon){
-            return res.json({status:false,message:'Coupon code already exists'})
+            return res.json({status:false, message: MESSAGES.ADMIN.COUPON_EXISTS });
         }
 
         const newCoupon = new Coupon({
@@ -51,13 +48,12 @@ const createCoupon = async (req,res) => {
 
         await newCoupon.save()
         
-        res.json({status:true,message:'Coupon created successfully'})
+        res.json({status:true,message: MESSAGES.ADMIN.COUPON_CREATED });
 
     } catch (error) {
-        res.status(500).json({status:false,message:'Internal server error'})
+        res.status(500).json({status:false,message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
-
 
 const deleteCoupon = async (req,res) => {
     try {
@@ -67,16 +63,15 @@ const deleteCoupon = async (req,res) => {
         const coupon = await Coupon.findOneAndDelete({code:code})
 
         if(!coupon){
-            return res.json({status:false,message:'Coupon not found'})
+            return res.json({status:false,message: MESSAGES.ADMIN.COUPON_NOT_FOUND });
         }
 
-        res.json({status:true,message:'Coupon deleted'})
+        res.json({status:true,message: MESSAGES.ADMIN.COUPON_DELETED });
         
     } catch (error) {
-        res.status(500).json({status:false,message:'Inernal server error'})
+        res.status(500).json({status:false,message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
-
 
 module.exports = {
     getCoupon,

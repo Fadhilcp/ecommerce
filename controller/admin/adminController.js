@@ -1,16 +1,16 @@
-const User = require('../../model/userSchema')
-const bcrypt = require('bcrypt')
+const User = require('../../model/userSchema');
+const bcrypt = require('bcrypt');
 
-const Order = require('../../model/orderSchema')
-const Product = require('../../model/productSchema')
+const Order = require('../../model/orderSchema');
+const Product = require('../../model/productSchema');
 
-const PDFDocument = require('pdfkit')
-const ExcelJS = require('exceljs')
+const PDFDocument = require('pdfkit');
+const ExcelJS = require('exceljs');
 
-const fs = require('fs')
-const path = require('path')
+const fs = require('fs');
+const path = require('path');
 
-
+const MESSAGES = require('../../constants/messages');
 
 const loadLogin =  (req,res) =>{
 
@@ -20,31 +20,51 @@ const loadLogin =  (req,res) =>{
         res.render('admin/login',{message:''})
 }
 
-const login = async (req,res) =>{
-
+const login = async (req, res) => {
     try {
-        const {email,password} = req.body
-        const admin = await User.findOne({email,isAdmin:true})
+        const { email, password } = req.body;
 
-        if(admin){
-            const passwordMatch = await bcrypt.compare(password,admin.password)
+        const admin = await User.findOne({ email, isAdmin: true });
 
-            if(passwordMatch){
-                req.session.admin = true
-              return res.json({status:true,redirectUrl:'/admin'})
-
-            }else{
-                return res.json({status:false,message:'Invalid Password'})
-            }
-        }else{
-            return res.json({status:false,message:'Admin not found'})
+        if (!admin) {
+            return res.json({ status: false, message: MESSAGES.ADMIN.ADMIN_NOT_FOUND });
         }
 
-    } catch (error) {
-        res.json({stauts:false,message:'Inernal server error'})
-    }
-}
+        if (!admin.password) {
+            return res.json({ status: false, message: "This account uses Google Sign-In. Please login with Google." });
+        }
 
+        const passwordMatch = await bcrypt.compare(password, admin.password);
+
+        if (!passwordMatch) {
+            return res.json({ status: false, message: MESSAGES.INVALID_PASSWORD });
+        }
+        
+        req.session.admin = true;
+        return res.json({ status: true, redirectUrl: "/admin" });
+        
+    } catch (error) {
+        res.json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
+    }
+};
+
+const pageError = async (req, res) => {
+    res.render('admin/pageError');
+};
+
+const logout = async (req, res) => {
+    try {
+        req.session.destroy(err => {
+            if (err) {
+                return res.redirect('/admin/pageError');
+            } else {
+                res.redirect('/admin/login');
+            }
+        });
+    } catch (error) { 
+        res.redirect('/admin/pageError');
+    }
+};
 
 
 const loadDashboard = async (req,res) =>{
@@ -213,32 +233,6 @@ const loadDashboard = async (req,res) =>{
     }
 }
 
-
-
-const pageError = async (req,res) => {
-    res.render('admin/pageError')
-}
-
-
-const logout = async (req,res) => {
-    try {
-        
-        req.session.destroy(err => {
-            if(err){
-                return res.redirect('/admin/pageError')
-            }else{
-                res.redirect('/admin/login')
-            }
-        })
-    } catch (error) { 
-        res.redirect('/admin/pageError')
-    }
-}
-
-
-
-
-
 const getSalesReport = async (req, res) => {
     try {
         let { filter, fromDate, toDate } = req.query
@@ -332,10 +326,6 @@ const getSalesReport = async (req, res) => {
         res.redirect('/admin/pageError')
     }
 }
-
-
-
-
 
 const downloadSalesPDF = async (req, res) => {
     try {
@@ -434,10 +424,9 @@ const downloadSalesPDF = async (req, res) => {
         res.download(filePath, 'salesReport.pdf')
 
     } catch (error) {
-        res.status(500).json({ status: false, message: "Internal server error" })
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
-
 
 const downloadSalesExcel = async (req, res) => {
     try {
@@ -517,18 +506,9 @@ const downloadSalesExcel = async (req, res) => {
         res.download(filePath, 'salesReport.xlsx')
 
     } catch (error) {
-        res.status(500).json({ status: false, message: "Internal server error" })
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
-
-
-
-
-
-
-
-
-
 
 module.exports = {
     loadLogin,

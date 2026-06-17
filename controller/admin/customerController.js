@@ -1,9 +1,5 @@
-const User = require('../../model/userSchema')
-
-
-
-
-
+const User = require('../../model/userSchema');
+const MESSAGES = require('../../constants/messages');
 
 const customerInfo = async (req,res) => {
     try {
@@ -26,11 +22,9 @@ const customerInfo = async (req,res) => {
                 {email:{$regex:'.*'+search+'.*'}}
             ]
         })
-
-
         .limit(limit*1)
         .skip((page-1)*limit)
-        .exec()
+        .exec();
 
         const count = await User.find({
             isAdmin:false,
@@ -38,44 +32,40 @@ const customerInfo = async (req,res) => {
                 {username:{$regex:'.*'+search+'.*'}},
                 {email:{$regex:'.*'+search+'.*'}}
             ]
-        }).countDocuments()
+        }).countDocuments();
 
         res.render('admin/customers',{
             data:userData
             ,currentPage:page,
             totalPages:Math.ceil(count/limit)
-        })
+        });
 
     } catch (error) {
-        res.redirect('/admin/pageError')
+        res.redirect('/admin/pageError');
     }
 }
-
-
 
 const customerBlocked = async (req,res) =>{
     try {
          
         let id = req.query.id
-        await User.updateOne({_id:id},{$set:{isBlocked:true}})
+        await User.updateOne({ _id: id }, { $set: { isBlocked: true } })
 
-        res.json({status:true,message:'User blocked successfully'})
+        res.json({status:true, message: MESSAGES.ADMIN.USER_BLOCKED });
     } catch (error) {
-        res.status(500).json({status:false,message:'Erro while blocking user'})
+        res.status(500).json({status:false, message: MESSAGES.ADMIN.BLOCK_ERROR });
     }
 }
-
-
 
 const customerunBlocked = async (req,res) => {
     try {
         
         let id = req.query.id
-        await User.updateOne({_id:id},{$set:{isBlocked:false}})
+        await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
 
-        res.json({status:true,message:'User unblock successfully'})
+        res.json({ status:true, message: MESSAGES.ADMIN.USER_UNBLOCKED });
     } catch (error) {
-        res.status(500).json({status:false,message:'Erro while unblocking user'})
+        res.status(500).json({ status:false, message: MESSAGES.ADMIN.UNBLOCK_ERROR });
     }
 }
 

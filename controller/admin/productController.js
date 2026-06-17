@@ -1,13 +1,11 @@
-const User = require('../../model/userSchema')
-const Category = require('../../model/categorySchema')
-const Product = require('../../model/productSchema')
-const fs = require('fs')
-const path = require('path')
-const sharp = require('sharp')
-const { status } = require('init')
-
-
-
+const User = require('../../model/userSchema');
+const Category = require('../../model/categorySchema');
+const Product = require('../../model/productSchema');
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
+const { status } = require('init');
+const MESSAGES = require('../../constants/messages');
 
 const getAddProducts = async (req,res)=>{
     try {
@@ -23,63 +21,55 @@ const getAddProducts = async (req,res)=>{
     }
 }
 
-
 const addProducts = async (req,res)=>{
-
     try {
         const products = req.body
         const productExists = await Product.findOne({
             productName:products.productName
         })
 
-        if(!productExists){
-            const images = []
-            if(req.files && req.files.length > 0){
-                for(let i=0;i<req.files.length;i++){
-                   
-                    const originalImagePath = req.files[i].path
-                    const resizedImagePath = path.join('public','uploads','productImages',req.files[i].filename)
-                    await sharp(originalImagePath).resize({width:440,height:440}).toFile(resizedImagePath)
-                    images.push(req.files[i].filename)
-                }
-            }
-
-
-            const categoryId = await Category.findOne({name:products.category})
-
-            if(!categoryId){
-                return res.json({status:false,message:'Category not found'})
-            }
-            products.productOffer = Math.floor(((products.regularPrice - products.offerPrice) / products.regularPrice) * 100)
-    
-            const newProduct = new Product({
-                productName:products.productName,
-                description:products.description,
-                category:categoryId._id,
-                regularPrice:products.regularPrice,
-                offerPrice:products.offerPrice,
-                productOffer:products.productOffer,
-                createdAt:new Date(),
-                quantity:products.quantity,
-                capacity:products.capacity,
-                productImage:images,
-                status:'Available'
-            })
-    
-            await newProduct.save()
-
-            return res.json({status:true,redirectUrl:'/admin/addProducts'})
-
-
-        }else{
-            return res.json({status:false,message:'Product already exist,please try with another name'})
+        if (productExists) {
+            return res.json({ status: false, message: MESSAGES.ADMIN.PRODUCT_EXISTS });
         }
+        const images = []
+        if(req.files && req.files.length > 0){
+            for(let i=0;i<req.files.length;i++){
+                
+                const originalImagePath = req.files[i].path
+                const resizedImagePath = path.join('public','uploads','productImages',req.files[i].filename)
+                await sharp(originalImagePath).resize({width:440,height:440}).toFile(resizedImagePath)
+                images.push(req.files[i].filename)
+            }
+        }
+
+        const categoryId = await Category.findOne({name:products.category})
+
+        if(!categoryId){
+            return res.json({ status: false, message: MESSAGES.CATEGORY_NOT_FOUND });
+        }
+        products.productOffer = Math.floor(((products.regularPrice - products.offerPrice) / products.regularPrice) * 100)
+
+        const newProduct = new Product({
+            productName:products.productName,
+            description:products.description,
+            category:categoryId._id,
+            regularPrice:products.regularPrice,
+            offerPrice:products.offerPrice,
+            productOffer:products.productOffer,
+            createdAt:new Date(),
+            quantity:products.quantity,
+            capacity:products.capacity,
+            productImage:images,
+            status:'Available'
+        })
+
+        await newProduct.save()
+
+        return res.json({status:true,redirectUrl:'/admin/addProducts'})
     } catch (error) {
-        return res.json({status:false,message:'Internal server error'})
+        return res.json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
-
-
 
 const getAllProducts = async (req,res) => {
     try {
@@ -93,7 +83,7 @@ const getAllProducts = async (req,res) => {
         .limit(limit*1)
         .skip((page -1) * limit)
         .populate('category')
-        .exec()
+        .exec();
 
         const count = await Product.find({
             productName :{$regex:new RegExp('.*'+search+'.*','i')}
@@ -112,14 +102,10 @@ const getAllProducts = async (req,res) => {
         }else{
             return res.redirect('/admin/pageError')
         }
-
     } catch (error) {
         res.redirect('/admin/pageError')
     }
 }
-
-
-
 
 const addProductOffer = async (req,res) => {
     try {
@@ -138,15 +124,10 @@ const addProductOffer = async (req,res) => {
         await findCategory.save()
         
         res.json({status:true})
-
-
     } catch (error) {
-        res.status(500).json({status:false,message:'Internal server error'})
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
-
-
-
 
 const removeProductOffer = async (req,res) => {
     try { 
@@ -162,12 +143,9 @@ const removeProductOffer = async (req,res) => {
         res.json({status:true})
 
     } catch (error) {
-        res.status(500).json({status:false,message:'Internal server error'})
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
-
-
-
 
 const blockProduct = async (req,res)=>{
     try {
@@ -175,12 +153,11 @@ const blockProduct = async (req,res)=>{
 
         await Product.updateOne({_id:productId},{$set:{isBlocked:true}},{new:true})
 
-        res.json({status:true,message:'Product blocked successfully'})
+        res.json({ status: true, message: MESSAGES.ADMIN.PRODUCT_BLOCKED });
     } catch (error) {
-        res.status(500).json({status:false,message:'Internal server error'})
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
-
 
 const unBlockProduct = async (req,res)=>{
     try {
@@ -188,15 +165,11 @@ const unBlockProduct = async (req,res)=>{
 
         await Product.updateOne({_id:productId},{$set:{isBlocked:false}},{new:true})
 
-        res.json({status:true,message:'Product unblocked successfully'})
+        res.json({ status: true, message: MESSAGES.ADMIN.PRODUCT_UNBLOCKED });
     } catch (error) {
-        res.status(500).json({status:false,message:'Internal server error'})
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
-
-
-
-
 
 const getEditProduct = async (req,res) => {
     try {
@@ -230,7 +203,7 @@ const editProduct = async (req,res)=>{
         const category = await Category.findOne({_id:data.category})
 
         if(existingProduct){
-            return res.json({status:false,message:'Product with this name is already exists'})
+            return res.json({ status: false, message: MESSAGES.ADMIN.PRODUCT_NAME_TAKEN });
         }
 
         const images = []
@@ -262,12 +235,9 @@ const editProduct = async (req,res)=>{
 
         return res.json({status:true,redirectUrl:'/admin/products'})
     } catch (error) {
-        res.status(500).json({status:false,message:'Internal server error'})
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
-
-
-
 
 const deleteSingleImage = async (req,res) => {
     try {
@@ -281,13 +251,13 @@ const deleteSingleImage = async (req,res) => {
         if(fs.existsSync(imagePath)){
             await fs.unlinkSync(imagePath)
         }else{
-            return res.json({status:false,message:'Image not found'})
+            return res.json({ status: false, message: MESSAGES.ADMIN.IMAGE_NOT_FOUND })
         }
 
         res.send({status:true})
 
     } catch (error) {
-        res.status(500).json({ status: false, message: "Internal server error" })
+        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
 
