@@ -1,33 +1,23 @@
-
-
-<!-- setting header -->
 <%- include("../../views/partials/admin/header") %>
 
-    <style>
-        .sales-summary {
-            background-color: #f8f9fa;
-            border-left: 4px solid #0d6efd;
-            margin-bottom: 20px;
-        }
-        .status-badge {
-            width: 85px;
-        }
-        .trend-up {
-            color: #198754;
-        }
-        .trend-down {
-            color: #dc3545;
-        }
-    </style>
+<style>
+    .sales-summary {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0d6efd;
+        margin-bottom: 20px;
+        height: 100%;
+    }
+    .status-badge {
+        width: 85px;
+    }
+</style>
 
 <section class="content-main"> 
-
     <div class="container-fluid p-4">
-        <!-- Summary Cards -->
-        <div class="row mb-4">
-
-            <div class="col-md-3">
-                <div class="card sales-summary">
+        
+        <div class="row mb-4 g-3">
+            <div class="col-12 col-md-6 col-lg">
+                <div class="card sales-summary border-primary">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">Overall Sales Count</h6>
                         <h4 class="card-title"><%= overallSalesCount %></h4>
@@ -35,131 +25,143 @@
                 </div>
             </div>
         
-            <div class="col-md-3">
-                <div class="card sales-summary">
+            <div class="col-12 col-md-6 col-lg">
+                <div class="card sales-summary border-secondary">
                     <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted">Overall Order Amount</h6>
+                        <h6 class="card-subtitle mb-2 text-muted">Real Order Amount</h6>
                         <h4 class="card-title">₹<%= overallOrderAmount.toFixed(2) %></h4>
                     </div>
                 </div>
             </div>
         
-            <div class="col-md-3">
-                <div class="card sales-summary">
+            <div class="col-12 col-md-6 col-lg">
+                <div class="card sales-summary border-warning">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">Overall Discount</h6>
-                        <h4 class="card-title">₹<%= overallDiscount.toFixed(2) %></h4>
+                        <h4 class="card-title text-danger">-₹<%= overallDiscount.toFixed(2) %></h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg">
+                <div class="card sales-summary border-success">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Final Net Amount</h6>
+                        <h4 class="card-title text-success">₹<%= overallFinalAmount.toFixed(2) %></h4>
                     </div>
                 </div>
             </div>
         
-            <div class="col-md-3">
-                <div class="card sales-summary">
+            <div class="col-12 col-md-12 col-lg">
+                <div class="card sales-summary border-info">
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted">Customers Count</h6>
                         <h4 class="card-title"><%= customersCount %></h4>
                     </div>
                 </div>
             </div>
-
         </div>
 
+        <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <h5 class="mb-0">Recent Sales</h5>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    
+                    <select id="filterSelect" class="form-select form-select-sm" style="width: auto;">
+                        <option value="">All Time</option>
+                        <option value="daily" <%= locals.filter === 'daily' ? 'selected' : '' %>>Daily</option>
+                        <option value="weekly" <%= locals.filter === 'weekly' ? 'selected' : '' %>>Weekly</option>
+                        <option value="monthly" <%= locals.filter === 'monthly' ? 'selected' : '' %>>Monthly</option>
+                        <option value="yearly" <%= locals.filter === 'yearly' ? 'selected' : '' %>>Yearly</option>
+                        <option value="custom" <%= locals.filter === 'custom' ? 'selected' : '' %>>Custom</option>
+                    </select>
 
-<!-- Sales Table -->
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Recent Sales</h5>
-        <div class="d-flex">
-            <!-- Filter Dropdown -->
-            <select id="filterSelect" class="formSelect form-select-sm me-2">
-                <option value="">All</option>
-                <option value="daily" <%= filter === 'daily' ? 'selected' : '' %>>Daily</option>
-                <option value="weekly" <%= filter === 'weekly' ? 'selected' : '' %>>Weekly</option>
-                <option value="monthly" <%= filter === 'monthly' ? 'selected' : '' %>>Monthly</option>
-                <option value="yearly" <%= filter === 'yearly' ? 'selected' : '' %>>Yearly</option>
-                <option value="custom" <%= filter === 'custom' ? 'selected' : '' %>>Custom</option>
-            </select>
+                    <input type="date" id="fromDate" 
+                        class="form-control form-control-sm <%= locals.filter === 'custom' ? '' : 'd-none' %>" 
+                        value="<%= locals.fromDate || '' %>" 
+                        style="width: auto;">
 
-            <!-- Custom Date Filter (hidden initially) -->
-            <input type="date" id="fromDate" class="form-control form-control-sm me-2" 
-                   value="<%= fromDate || '' %>" style="display: none;">
-            <input type="date" id="toDate" class="form-control form-control-sm me-2" 
-                   value="<%= toDate || '' %>" style="display: none;">
+                    <input type="date" id="toDate" 
+                        class="form-control form-control-sm <%= locals.filter === 'custom' ? '' : 'd-none' %>" 
+                        value="<%= locals.toDate || '' %>" 
+                        style="width: auto;">
 
-            <!-- Filter Button -->
-            <button class="btn btn-primary btn-sm" id="applyFilter">Apply</button>
+                    <button class="btn btn-primary btn-sm" id="applyFilter">Apply Filter</button>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle text-center mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-start ps-4">Order ID</th>
+                                <th>Customer</th>
+                                <th>Status</th>
+                                <th>Products Sold</th>
+                                <th>Real Price</th>
+                                <th>Discount</th>
+                                <th>Final Price</th>
+                                <th class="pe-4">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (salesData.length > 0) { %>
+                                <% salesData.forEach(order => { %>
+                                    <tr>
+                                        <td class="text-start ps-4">#ORD-<%= order.orderId %></td>
+                                        <td><%= order.customerName %></td>
+                                        <td>
+                                            <span class="badge bg-<%= order.status === 'Delivered' ? 'success' : (order.status === 'Pending' ? 'warning text-dark' : 'info') %>">
+                                                <%= order.status %>
+                                            </span>
+                                        </td>
+                                        <td class="fw-bold"><%= order.totalProductsSold %></td>
+                                        <td>₹<%= order.totalPrice.toFixed(2) %></td>
+                                        
+                                        <td class="text-danger">-₹<%= order.discount.toFixed(2) %></td>
+                                        
+                                        <td class="fw-bold text-success">₹<%= order.finalPrice.toFixed(2) %></td>
+                                        <td class="pe-4">
+                                            <%= order.createdAt ? new Date(order.createdAt).toISOString().split('T')[0] : 'N/A' %>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" class="text-center py-4 text-muted">No sales data found for this period.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="p-3 border-top d-flex justify-content-end gap-2">
+                    <button id="downloadPdf" class="btn btn-danger btn-sm">
+                        <i class="bi bi-file-pdf"></i> Download PDF
+                    </button>
+                    <button id="downloadExcel" class="btn btn-success btn-sm">
+                        <i class="bi bi-file-excel"></i> Download Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination-area mt-4 mb-50">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-start">
+                    <% for(let i=1; i<=totalPages; i++){ %>
+                        <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>&filter=<%= locals.filter || '' %>&fromDate=<%= locals.fromDate || '' %>&toDate=<%= locals.toDate || '' %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
         </div>
     </div>
-
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Status</th>
-                        <th class="text-center">Products Sold</th>
-                        <th>Total Price</th>
-                        <th>Discount</th>
-                        <th>Final Price</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% salesData.forEach(order => { %>
-                        <tr>
-                            <td>#ORD-<%= order.orderId %></td>
-                            <td><%= order.customerName %></td>
-                            <td><%= order.status %></td>
-                            <td class="text-center"><%= order.totalProductsSold %></td>
-                            <td>₹<%= order.totalPrice.toFixed(2) %></td>
-                            <td>₹<%= (order.totalPrice - (order.finalPrice - 40)).toFixed(2) %></td>
-                            <td>₹<%= order.finalPrice.toFixed(2) %></td>
-                            <td>
-                                <% if (order.createdAt) { %>
-                                    <%= new Date(order.createdAt).toISOString().split('T')[0] %>
-                                <% } else { %>
-                                    N/A
-                                <% } %>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Download Buttons -->
-        <div class="d-flex justify-content-end mt-3">
-            <button id="downloadPdf" class="btn btn-danger me-2">
-                <i class="fas fa-file-pdf"></i> Download PDF
-            </button>
-            <button id="downloadExcel" class="btn btn-success">
-                <i class="fas fa-file-excel"></i> Download Excel
-            </button>
-        </div>
-    </div>
-</div>
-
-
-    </div>
-
-    <div class="pagination-area mt-15 mb-50">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-                <%for(let i=1;i<=totalPages;i++){%>
-                <li class="page-item <%=(i===currentPage) ? 'active' : ''%>" >
-                    <a class="page-link" href="?page=<%= i %>"><%=i%></a>
-                </li>
-                <%}%>
-            </ul>
-        </nav>
-    </div>
-
 </section>
-   
-<script>
 
+<script>
 
 document.addEventListener("DOMContentLoaded", function() {
         const filterSelect = document.getElementById("filterSelect")
@@ -196,28 +198,28 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     document.getElementById('downloadPdf').addEventListener('click', function () {
-    let filter = document.getElementById('filterSelect').value
-    let fromDate = document.getElementById('fromDate').value
-    let toDate = document.getElementById('toDate').value
+        let filter = document.getElementById('filterSelect').value
+        let fromDate = document.getElementById('fromDate').value
+        let toDate = document.getElementById('toDate').value
 
-    let url = `/admin/downloadSalesPdf?filter=${filter}`
-    if (filter === "custom") {
-        url += `&fromDate=${fromDate}&toDate=${toDate}`
-    }
-    window.location.href = url
-})
+        let url = `/admin/downloadSalesPdf?filter=${filter}`
+        if (filter === "custom") {
+            url += `&fromDate=${fromDate}&toDate=${toDate}`
+        }
+        window.location.href = url
+    })
 
-document.getElementById('downloadExcel').addEventListener('click', function () {
-    let filter = document.getElementById('filterSelect').value
-    let fromDate = document.getElementById('fromDate').value
-    let toDate = document.getElementById('toDate').value
+    document.getElementById('downloadExcel').addEventListener('click', function () {
+        let filter = document.getElementById('filterSelect').value
+        let fromDate = document.getElementById('fromDate').value
+        let toDate = document.getElementById('toDate').value
 
-    let url = `/admin/downloadSalesExcel?filter=${filter}`
-    if (filter === "custom") {
-        url += `&fromDate=${fromDate}&toDate=${toDate}`
-    }
-    window.location.href = url
-})
+        let url = `/admin/downloadSalesExcel?filter=${filter}`
+        if (filter === "custom") {
+            url += `&fromDate=${fromDate}&toDate=${toDate}`
+        }
+        window.location.href = url
+    })
 
 
 </script>

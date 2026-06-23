@@ -6,7 +6,6 @@ const couponSchema = new Schema({
     code: {
         type: String,
         required: true,
-        unique: true,
         trim: true
       },
       discountValue: {
@@ -24,6 +23,10 @@ const couponSchema = new Schema({
         type: Boolean,
         default: true
      },
+     isDeleted: {
+          type: Boolean,
+          default: false
+      },
       startDate: {
         type: Date,
         required: true, 

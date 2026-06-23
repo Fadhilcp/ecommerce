@@ -52,8 +52,6 @@ async function securePassword(password) {
         const passwordHash = await bcrypt.hash(password, 10);
         return passwordHash;
     } catch (error) {
-        console.error('Hash password', error);
-        // Fallback message via standard text if response stream object isn't available contextually
         throw new Error(MESSAGES.INTERNAL_SERVER_ERROR);
     }
 }
@@ -396,12 +394,19 @@ const getOrderDetail = async (req, res) => {
         const orderId = req.params.id;
 
         const orderData = await Order.findById(orderId);
+
         orderData.date = moment(orderData.createdAt).format('MMMM Do YYYY, h:mm:ss A');
+
+        let discountPercentage = 0;
+        if (orderData.coupon && orderData.coupon.discountValue) {
+            discountPercentage = orderData.coupon.discountValue;
+        }
 
         return res.render('user/orderDetails', {
             order: orderData, 
             user: userData,
-            active: 'account'
+            active: 'account',
+            discountPercentage: discountPercentage
         });
         
     } catch (error) {

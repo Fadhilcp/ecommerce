@@ -39,7 +39,7 @@ const getCheckout = async (req, res) => {
             return res.redirect('/login');
         }
 
-        const coupons = await Coupon.find();
+        const coupons = await Coupon.find({ isDeleted: false });
 
         coupons.forEach((item) => {
             item.expire = moment(item.endDate).format('DD-MM-YYYY');
@@ -102,6 +102,7 @@ const applyCoupon = async (req, res) => {
 
         const coupon = await Coupon.findOne({
             code: couponCode,
+            isDeleted: false,
             isActive: true,
             totalUsageLimit: { $gt: 0 },
             startDate: { $lte: currentDate },

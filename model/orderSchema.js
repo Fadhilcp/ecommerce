@@ -41,7 +41,7 @@ const orderSchema = new Schema({
           },
           cancelStatus:{
             type:String,
-            enum: ['Pending','Shipped','Delivered','Cancelled','Requested','Approved','Rejected'], 
+            enum: ['Pending','Shipped','Delivered','Cancelled','Requested','Approved','Rejected', 'Returned'], 
             default: 'Pending' 
           },
           itemCancelReason: {
@@ -102,7 +102,7 @@ const orderSchema = new Schema({
       },
       status: {
         type: String,
-        enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Requested', 'Approved', 'Rejected'],
+        enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Requested', 'Approved', 'Rejected', 'Returned'],
         default: 'Pending'
       },
       paymentStatus: {
@@ -127,13 +127,17 @@ const orderSchema = new Schema({
         required: true
       },
       coupon: {
-          type:String
+        code: { 
+          type: String, 
+          default: null 
+        },
+        discountValue: { 
+          type: Number, 
+          default: 0 
+        }
       }
     },
-    { timestamps: true }
-)
-
-
+    { timestamps: true });
 
 const Order = mongoose.model('Order',orderSchema)
 module.exports = Order

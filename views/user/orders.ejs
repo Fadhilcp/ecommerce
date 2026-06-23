@@ -1,90 +1,49 @@
-
 <style>
     * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
     }
 
     body {
-        background-color: #f5f5f5;
-    }
-
-    .header {
-        background: white;
-        padding: 1rem 2rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .logo {
-        font-size: 2rem;
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         color: #333;
-        font-weight: bold;
-        text-decoration: none;
     }
 
-    .nav {
+    /* UNIFORM LAYOUT STRUCTURAL COHERENCE */
+    .main-content {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 1rem;
-    }
-
-    .nav-links {
-        display: flex;
-        gap: 2rem;
-    }
-
-    .nav-links a {
-        text-decoration: none;
-        color: #333;
-        font-weight: 500;
-    }
-
-    .search-cart {
-        display: flex;
-        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
         gap: 1rem;
     }
 
-    .search-box {
-        padding: 0.5rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .search-button {
-        background: #ff6b00;
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .cart {
-        text-decoration: none;
-        color: #333;
-    }
-
-    .main-content {
-        display: flex;
-    }
-
     .sidebar {
-        width: 250px;
+        width: 280px;
         background: white;
-        border-radius: 4px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        height: fit-content;
+        overflow: hidden;
     }
 
     .sidebar-item {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        color: #333;
+        gap: 0.75rem;
+        padding: 1.2rem;
+        color: #495057;
         text-decoration: none;
-        border-bottom: 1px solid #eee;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .sidebar-item:hover {
+        background: #f8f9fa;
+        color: #ef7c00;
     }
 
     .sidebar-item.active {
@@ -94,178 +53,263 @@
 
     .profile-content {
         flex: 1;
+    }
+
+    /* MATCHED CARD COMPONENT DESIGN */
+    .custom-card {
         background: white;
-        padding: 2rem;
-        border-radius: 4px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: none;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
     }
 
-    .profile-header {
+    .custom-card-header {
+        background: #fff;
+        border-bottom: 1px solid #edf2f7;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .custom-card-header h5 {
+        margin: 0;
+        font-weight: 600;
+        color: #1a202c;
+    }
+
+    /* DATA TABLE REDESIGN */
+    .item-table th {
+        background: #f7fafc;
+        color: #4a5568;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #edf2f7;
+        padding: 1rem;
+    }
+
+    .item-table td {
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    /* PRODUCT ITEM ARCHITECTURE */
+    .product-list-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .product-list-item {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
+        gap: 0.75rem;
     }
 
-    .profile-image {
-        width: 100px;
-        height: 100px;
-        background: #ddd;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .product-thumb {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #edf2f7;
     }
 
-    .profile-info h2 {
-        margin-bottom: 0.5rem;
+    .product-title-text {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.9rem;
     }
 
-    .profile-details {
-        margin-top: 2rem;
-    }
-
-    .profile-details p {
-        margin-bottom: 1rem;
-        color: #333;
-    }
-
-    .profile-details strong {
+    /* STANDARDIZED COLOR CONTRAST STATUS BADGES */
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
         display: inline-block;
-        width: 100px;
+        text-transform: capitalize;
     }
 
+    .badge-pending { background-color: #feebc8; color: #c05621; }
+    .badge-paid { background-color: #c6f6d5; color: #22543d; }
+    .badge-shipped { background-color: #e2e8f0; color: #2b6cb0; }
+    .badge-failed { background-color: #fed7d7; color: #9b2c2c; }
+    .badge-delivered { background-color: #c6f6d5; color: #22543d; }
+    .badge-cancelled { background-color: #e2e8f0; color: #4a5568; }
 
+    /* ACTION BUTTON INTERFACE */
+    .btn-custom-outline {
+        background: transparent;
+        border: 1px solid #cbd5e0;
+        color: #4a5568;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+        white-space: nowrap;
+    }
 
-    .profile-content {
-            padding: 20px
-        }
-        table {
-            width: 100%;
-        }
-        .badge {
-    padding: 8px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-}
+    .btn-custom-outline:hover {
+        background: #f7fafc;
+        border-color: #a0aec0;
+        color: #2d3748;
+    }
 
-.badge.bg-success {
-    background: #10B981;
-    color: white;
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
-}
+    /* PAGINATION ENGINE ALIGNMENT */
+    .pagination-wrapper {
+        margin-top: 1.5rem;
+    }
 
-.btn-view {
-    padding: 8px 16px;
-    background: #ef7c00;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
-}
+    .custom-pagination {
+        display: flex;
+        gap: 0.35rem;
+        list-style: none;
+        padding: 0;
+    }
 
-.btn-view:hover {
-    background: #ca6138;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);
-}
+    .custom-page-item .page-link {
+        display: block;
+        padding: 0.5rem 0.85rem;
+        color: #4a5568;
+        text-decoration: none;
+        background: white;
+        border: 1px solid #cbd5e0;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .custom-page-item:hover .page-link {
+        background: #f7fafc;
+        color: #ef7c00;
+        border-color: #a0aec0;
+    }
+
+    .custom-page-item.active .page-link {
+        background: #ef7c00;
+        color: white;
+        border-color: #ef7c00;
+    }
 </style>
 
- 
-
-
-
-
-<!-- setting header -->
 <%- include("../../views/partials/user/header") %>
 
+<div class="main-content">
+    <aside class="sidebar">
+        <a href="/account" class="sidebar-item">Profile</a>
+        <a href="/orders" class="sidebar-item active">Orders</a>
+        <a href="/wallet" class="sidebar-item">Wallet</a>
+        <a href="/address" class="sidebar-item">My Address</a>
+        <a href="/updateProfile" class="sidebar-item">Update Profile</a>
+        <% if(!user.googleId){ %>
+            <a href="/changePassword" class="sidebar-item">Change Password</a>
+        <% } %>
+        <a href="/logout" class="sidebar-item">Logout</a>
+    </aside>
 
+    <main class="profile-content">
+        <div class="mb-4">
+            <h4 style="font-weight: 700; color: #1a202c;">My Orders</h4>
+            <p class="text-muted mb-0">Track, view, and manage your recent store purchases.</p>
+        </div>
 
+        <div class="custom-card">
+            <div class="table-responsive">
+                <table class="table item-table mb-0 text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-start" style="padding-left: 1.5rem;">Product</th>
+                            <th>Date</th>
+                            <th>Payment Status</th>
+                            <th>Order Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if(orders.length > 0){ %>
+                            <% orders.forEach((order)=>{ %>
+                                <tr>
+                                    <td class="text-start" style="padding-left: 1.5rem; max-width: 300px;">
+                                        <div class="product-list-wrapper">
+                                            <% order.products.forEach((product)=>{ %>
+                                                <div class="product-list-item">
+                                                    <img src="/uploads/reImage/<%= product.productImage %>" alt="Product" class="product-thumb">
+                                                    <span class="product-title-text text-truncate"><%= product.productName %></span>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    </td>
+                                    <td class="fw-semibold" style="color: #4a5568;"><%= order.date %></td>
+                                    <td>
+                                        <span class="status-badge <%= order.paymentStatus === 'Paid' ? 'badge-paid' : 'badge-failed' %>">
+                                            <%= order.paymentStatus %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <% 
+                                            let statusClass = 'badge-pending';
+                                            if(order.status === 'Delivered') statusClass = 'badge-delivered';
+                                            if(order.status === 'Shipped') statusClass = 'badge-shipped';
+                                            if(order.status === 'Cancelled') statusClass = 'badge-cancelled';
+                                        %>
+                                        <span class="status-badge <%= statusClass %>">
+                                            <%= order.status %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="/orderDetails/<%= order._id %>" class="btn-custom-outline">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" style="padding: 3rem 1rem;">
+                                    <div class="text-center text-muted">
+                                        <p class="mb-0" style="font-size: 1.1rem; font-weight: 500;">You have no orders yet.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-    <div class="main-content">
-        <aside class="sidebar">
-            <a href="/account" class="sidebar-item">Profile</a>
-            <a href="/orders" class="sidebar-item active">Orders</a>
-            <a href="/wallet" class="sidebar-item">Wallet</a>
-            <a href="/address" class="sidebar-item">My Address</a>
-            <a href="/updateProfile" class="sidebar-item">Update Profile</a>
-            <% if(!user.googleId){ %>
-                <a href="/changePassword" class="sidebar-item">Change Password</a>
-                <% } %>
-            <a href="/logout" class="sidebar-item">Logout</a>
-        </aside>
-
-     
-<main class="profile-content" >
-    <h2 class="text-center mb-4">My Orders</h2>
-    <table class="table table-striped text-center">
-        <thead class="table">
-            <tr>
-                <th>Product</th>
-                <th>Date</th>
-                <th>Payment Status</th>
-                <th>Order Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% if(orders.length > 0){ %>
-                <% orders.forEach((order)=>{ %>
-                    <tr>
-                        <td style="vertical-align: middle;">
-                            <ul style="list-style: none; padding: 0; margin: 0;">
-                                <% order.products.forEach((product)=>{ %>
-                                <li style="display: flex; align-items: center; gap: 10px;">
-                                    <img src="/uploads/reImage/<%= product.productImage %>" alt="" style="width: 60px; object-fit: cover;">
-                                    <span><%= product.productName %></span>
-                                </li>
-                                <% }) %>
-                            </ul>
-                        </td>
-                        <td style="vertical-align: middle;"><%= order.date %></td>
-                        <td style="vertical-align: middle;"><span class="badge bg-success"><%= order.paymentStatus %></span></td>
-                        <td style="vertical-align: middle;"><span class="badge bg-success"><%= order.status %></span></td>
-                        <td style="vertical-align: middle;"><button class="btn-view" onclick="window.location.href = '/orderDetails/<%= order._id %>'" >View Details</button></td>
-                    </tr>
-                <% }) %>
-            <%}else{%>
-                <p>You have no Orders</p>
-            <% } %>
-        </tbody>
-    </table>
-    <div class="pagination-area mt-15 mb-50">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-                <% if (currentPage > 1) { %>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
-                    </li>
-                <% } %>
-    
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                    <li class="page-item <%= i == currentPage ? 'active' : '' %>">
-                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                    </li>
-                <% } %>
-    
-                <% if (currentPage < totalPages) { %>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
-                    </li>
-                <% } %> 
-            </ul>
-        </nav>
-    </div>
+        <% if(orders.length > 0) { %>
+            <div class="pagination-wrapper mb-4">
+                <nav aria-label="Page navigation">
+                    <ul class="custom-pagination">
+                        <% if (currentPage > 1) { %>
+                            <li class="custom-page-item">
+                                <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                            </li>
+                        <% } %>
+            
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="custom-page-item <%= i == currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+            
+                        <% if (currentPage < totalPages) { %>
+                            <li class="custom-page-item">
+                                <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                            </li>
+                        <% } %> 
+                    </ul>
+                </nav>
+            </div>
+        <% } %>
+    </main>
 </div>
-
-
 
 
 

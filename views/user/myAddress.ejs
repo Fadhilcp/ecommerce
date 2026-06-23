@@ -3,88 +3,48 @@
     * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
     }
 
     body {
-        background-color: #f5f5f5;
-    }
-
-    .header {
-        background: white;
-        padding: 1rem 2rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .logo {
-        font-size: 2rem;
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         color: #333;
-        font-weight: bold;
-        text-decoration: none;
     }
 
-    .nav {
+    /* UNIFORM LAYOUT STRUCTURAL COHERENCE */
+    .main-content {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 1rem;
-    }
-
-    .nav-links {
-        display: flex;
-        gap: 2rem;
-    }
-
-    .nav-links a {
-        text-decoration: none;
-        color: #333;
-        font-weight: 500;
-    }
-
-    .search-cart {
-        display: flex;
-        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
         gap: 1rem;
     }
 
-    .search-box {
-        padding: 0.5rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .search-button {
-        background: #ff6b00;
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .cart {
-        text-decoration: none;
-        color: #333;
-    }
-
-    .main-content {
-        display: flex;
-    }
-
     .sidebar {
-        width: 250px;
+        width: 280px;
         background: white;
-        border-radius: 4px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        height: fit-content;
+        overflow: hidden;
     }
 
     .sidebar-item {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        color: #333;
+        gap: 0.75rem;
+        padding: 1.2rem;
+        color: #495057;
         text-decoration: none;
-        border-bottom: 1px solid #eee;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .sidebar-item:hover {
+        background: #f8f9fa;
+        color: #ef7c00;
     }
 
     .sidebar-item.active {
@@ -94,67 +54,150 @@
 
     .profile-content {
         flex: 1;
-        background: white;
-        padding: 2rem;
-        border-radius: 4px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    .profile-header {
+    /* ACTIONS HEADER PANEL */
+    .content-header-panel {
         display: flex;
+        justify-content: space-between;
         align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
         gap: 1rem;
-        margin-bottom: 2rem;
     }
 
-    .profile-image {
-        width: 100px;
-        height: 100px;
-        background: #ddd;
-        border-radius: 50%;
-        display: flex;
+    /* BUTTON COMPONENT DESIGN */
+    .btn-action-primary {
+        background: #ef7c00;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 10px rgba(239, 124, 0, 0.2);
     }
 
-    .profile-info h2 {
-        margin-bottom: 0.5rem;
+    .btn-action-primary:hover {
+        background: #d66f00;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(239, 124, 0, 0.3);
     }
 
-    .profile-details {
-        margin-top: 2rem;
+    /* ADDRESS CARDS CONTAINER GRID */
+    .address-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 1.25rem;
     }
 
-    .profile-details p {
+    .address-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid #edf2f7;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .address-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    }
+
+    .address-card-body {
+        padding: 1.5rem;
+    }
+
+    .address-username {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a202c;
         margin-bottom: 1rem;
-        color: #333;
+        border-bottom: 1px solid #edf2f7;
+        padding-bottom: 0.5rem;
     }
 
-    .profile-details strong {
+    .address-line {
+        font-size: 0.9rem;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .address-line strong {
+        color: #2d3748;
+        font-weight: 600;
         display: inline-block;
-        width: 100px;
+        width: 90px;
     }
 
+    /* CARD CONTROLS FOOTER */
+    .address-card-footer {
+        background: #f7fafc;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #edf2f7;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
 
+    .btn-card-edit {
+        background: transparent;
+        border: 1px solid #cbd5e0;
+        color: #4a5568;
+        padding: 0.45rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
 
-   
+    .btn-card-edit:hover {
+        background: #edf2f7;
+        color: #1a202c;
+    }
+
+    .btn-card-delete {
+        background: #fed7d7;
+        border: 1px solid #feb2b2;
+        color: #9b2c2c;
+        padding: 0.45rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-card-delete:hover {
+        background: #feb2b2;
+        color: #742a2a;
+    }
+
+    .empty-address-state {
+        grid-column: 1 / -1;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 4rem 2rem;
+        text-align: center;
+        color: #718096;
+    }
 </style>
 
- 
-
-
-
-
-<!-- setting header -->
 <%- include("../../views/partials/user/header") %>
-
-
-
-
-
-
-
-
 
 <div class="main-content">
     <aside class="sidebar">
@@ -165,53 +208,57 @@
         <a href="/updateProfile" class="sidebar-item">Update Profile</a>
         <% if(!user.googleId){ %>
             <a href="/changePassword" class="sidebar-item">Change Password</a>
-            <% } %>
+        <% } %>
         <a href="/logout" class="sidebar-item">Logout</a>
     </aside>
 
-
-
-
-    <div class="container" style="max-width: 600px; margin: auto;">
-        <h2 class="text-center">My Addresses</h2>
-    
-        <!-- Create Address Button -->
-        <div class="text-end mb-3">
-            <button class="btn btn-primary" onclick="window.location.href='/createAddress'">+ Create Address</button>
+    <main class="profile-content">
+        <div class="content-header-panel">
+            <div>
+                <h4 style="font-weight: 700; color: #1a202c; margin-bottom: 0.25rem;">My Addresses</h4>
+                <p class="text-muted mb-0">Manage your shipping information and default delivery locations.</p>
+            </div>
+            <button class="btn-action-primary" onclick="window.location.href='/createAddress'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add New Address
+            </button>
         </div>
-    
-        <ul class="list-group">
-            <!-- Address 1 -->
-            <% if(userAddress){%>
-                <%userAddress.address.forEach((address)=>{%>
-            <li class="list-group-item p-3 default">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><%= user.username %></h5>
-                </div>
-                
-                <p class="mb-1"><strong>House No.:</strong> <%= address.houseNo %></p>
-                <p class="mb-1"><strong>Street:</strong> <%= address.street %></p>
-                <p class="mb-1"><strong>City:</strong> <%= address.city %></p>
-                
-                <p class="mb-1"><strong>State:</strong> <%= address.state %></p>
-                <p class="mb-1"><strong>Phone:</strong> <%= address.phone %></p>
-                <p class="mb-1"><strong>PINCODE:</strong> <%= address.pincode %></p>
-                
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-sm me-2" style="background-color: #ef7c00;" onclick="window.location.href = '/editAddress?id=<%= address._id %>'">Edit</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteAddress('<%= address.id %>')">Delete</button>
-                </div>
-            </li>
-            <%})%>
-            <%}else{%>
-                <div><h1>No Address</h1></div>
-            <%}%>
-        </ul>
-    </div>
-    
 
+        <div class="address-grid">
+            <% if(userAddress && userAddress.address.length > 0){ %>
+                <% userAddress.address.forEach((address)=>{ %>
+                    <div class="address-card">
+                        <div class="address-card-body">
+                            <div class="address-username"><%= user.username %></div>
+                            <div class="address-line"><strong>House No:</strong><%= address.houseNo %></div>
+                            <div class="address-line"><strong>Street:</strong><%= address.street %></div>
+                            <div class="address-line"><strong>City:</strong><%= address.city %></div>
+                            <div class="address-line"><strong>State:</strong><%= address.state %></div>
+                            <div class="address-line"><strong>PINCODE:</strong><%= address.pincode %></div>
+                            <div class="address-line" style="margin-top: 0.75rem; font-weight: 500;">
+                                <strong>Phone:</strong><%= address.phone %>
+                            </div>
+                        </div>
+                        <div class="address-card-footer">
+                            <button class="btn-card-edit" onclick="window.location.href = '/editAddress?id=<%= address._id %>'">
+                                Edit Info
+                            </button>
+                            <button class="btn-card-delete" onclick="deleteAddress('<%= address._id %>')">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="empty-address-state">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <h5 style="font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;">No addresses found</h5>
+                    <p class="mb-0" style="font-size: 0.95rem;">You haven't added any shipping locations to your account yet.</p>
+                </div>
+            <% } %>
+        </div>
+    </main>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>

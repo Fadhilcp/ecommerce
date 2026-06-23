@@ -55,19 +55,21 @@ const placeOrder = async (req, res) => {
             capacity: item.productId.capacity,
             productImage: item.productId.productImage[0],
             quantity: item.quantity,
-            price: item.productId.offerPrice * item.quantity
+            price: item.productId.offerPrice 
         }));
 
-        const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+        const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
         let finalPrice = req.session.finalPrice && req.session.finalPrice <= totalPrice ? req.session.finalPrice : totalPrice;
         const couponCode = req.session.couponCode;
 
         const shippingFee = 40;
 
+        let couponSnapshot = { code: null, discountValue: 0 };
+
         // Checking coupon
         if (couponCode) {
-            const check = await Coupon.findOne({ code: couponCode });
+            const check = await Coupon.findOne({ code: couponCode, isDeleted: false });
 
             if (!check) {
                 return res.json({ status: false, message: MESSAGES.INVALID_COUPON_CODE });
@@ -89,9 +91,12 @@ const placeOrder = async (req, res) => {
 
             let discountAmount = Number(((totalPrice * check.discountValue) / 100).toFixed(2));
             finalPrice = Number((totalPrice - discountAmount).toFixed(2));
+
+            couponSnapshot.code = check.code;
+            couponSnapshot.discountValue = check.discountValue;
             
             await Coupon.findOneAndUpdate(
-                { code: couponCode },
+                { code: couponCode, isDeleted: false },
                 { $inc: { totalUsageLimit: -1 } }
             );
             req.session.couponCode = null;
@@ -126,7 +131,7 @@ const placeOrder = async (req, res) => {
                     phone: selectedAddress.phone,
                     pincode: selectedAddress.pincode
                 },
-                coupon: couponCode,
+                coupon: couponSnapshot,
                 paymentMethod,
                 paymentStatus,
                 status: ORDER_STATUS.PENDING,
@@ -188,7 +193,7 @@ const placeOrder = async (req, res) => {
                     phone: selectedAddress.phone,
                     pincode: selectedAddress.pincode
                 },
-                coupon: couponCode,
+                coupon: couponSnapshot,
                 paymentStatus,
                 paymentMethod,
                 status: ORDER_STATUS.PENDING
@@ -320,13 +325,16 @@ const cancelItem = async (req, res) => {
         order.products[productIndex].itemCancelReason = reason;
 
         // calculating refund amount
-        let refundAmount = order.products[productIndex].price;
+        let itemPrice = order.products[productIndex].price;
+        let refundAmount = itemPrice;
 
         // if there is a coupon applied
-        if (order.coupon) {
-            const discountPercentage = (refundAmount - order.finalPrice) / refundAmount;
-            refundAmount -= refundAmount * discountPercentage;
+        if (order.coupon && order.coupon.discountValue) {
+            const couponDiscount = (itemPrice * order.coupon.discountValue) / 100;
+            refundAmount = itemPrice - couponDiscount;
         }
+
+        refundAmount = Number(refundAmount.toFixed(2));
 
         const userId = order.userId;
         let wallet = await Wallet.findOne({ userId: userId });
@@ -356,13 +364,28 @@ const cancelItem = async (req, res) => {
         order.finalPrice = Number((order.finalPrice - refundAmount).toFixed(2));
         if (order.finalPrice < 0) order.finalPrice = 0;
 
+        order.totalPrice = Number((order.totalPrice - itemPrice).toFixed(2));
+        if (order.totalPrice < 0) order.totalPrice = 0;
+
         // check if all items are cancelled 
         const allCancelled = order.products.every(product => product.cancelStatus === ORDER_STATUS.CANCELLED);
 
         if (allCancelled) {
             order.status = ORDER_STATUS.CANCELLED;
             order.orderCancelReason = 'All products were cancelled by the user';
-            order.finalPrice = Number((order.finalPrice - 40).toFixed(2));
+
+            if (order.paymentStatus === 'Paid' && order.shippingFee > 0) {
+                
+                wallet.balance = Number((wallet.balance + order.shippingFee).toFixed(2));
+                wallet.transaction.push({
+                    transactionType: 'credit', 
+                    amount: order.shippingFee,
+                    date: new Date()
+                });
+                await wallet.save();
+            }
+
+            order.finalPrice = 0;
             await order.save();
             return res.json({ status: true, message: MESSAGES.ALL_PRODUCTS_CANCELLED });
         }
@@ -385,9 +408,22 @@ const returnOrder = async (req, res) => {
         if (!order) {
             return res.json({ status: false, message: MESSAGES.ORDER_NOT_FOUND });
         }
-        order.status = ORDER_STATUS.RETURN_REQUESTED;
+
+        if (order.status === 'Cancelled' || order.status === 'Returned' || order.status === 'Requested') {
+            return res.json({ status: false, message: `Order is already ${order.status.toLowerCase()}.` });
+        }
+
+        order.status = 'Requested';
         order.refundStatus = 'Requested';
         order.refundReason = reason;
+
+        order.products.forEach(product => {
+            if (product.cancelStatus !== 'Cancelled' && product.cancelStatus !== 'Approved' && product.cancelStatus !== 'Rejected') {
+                product.cancelStatus = 'Requested';
+                product.refundStatus = 'Requested';
+                product.refundReason = reason;
+            }
+        });
 
         await order.save();
         return res.json({ status: true, redirectUrl: '/orders' });
@@ -414,17 +450,32 @@ const returnItem = async (req, res) => {
             return res.json({ status: false, message: MESSAGES.PRODUCT_NOT_FOUND_IN_ORDER });
         }
 
-        if (order.products[productIndex].cancelStatus === ORDER_STATUS.RETURN_REQUESTED) {
+        const product = order.products[productIndex];
+
+        if (product.cancelStatus === 'Requested' || product.cancelStatus === 'Approved') {
             return res.json({ status: false, message: MESSAGES.PRODUCT_ALREADY_REQUESTED_RETURN });
         }
 
-        order.products[productIndex].cancelStatus = ORDER_STATUS.RETURN_REQUESTED;
-        order.products[productIndex].refundStatus = 'Requested';
-        order.products[productIndex].refundReason = reason;
+        // 1. Update the specific item's status
+        product.cancelStatus = 'Requested';
+        product.refundStatus = 'Requested';
+        product.refundReason = reason;
+
+        // 2. UPDATE: Dynamic Bottom-Up Check
+        // Check if every single item in this order is now either Cancelled, Requested, Approved, or Rejected
+        const allItemsProcessed = order.products.every(p => 
+            ['Requested', 'Approved', 'Rejected', 'Cancelled', 'Returned'].includes(p.cancelStatus)
+        );
+
+        // If all items are accounted for in a return/cancel flow, elevate the global order status automatically!
+        if (allItemsProcessed && order.status === 'Delivered') {
+            order.status = 'Requested';
+            order.refundStatus = 'Requested';
+            order.refundReason = 'All items individually requested for return by user.';
+        }
 
         await order.save();
         return res.json({ status: true, message: MESSAGES.ORDER_RETURN_REQUEST_SUBMITTED });
-        
     } catch (error) {
         res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
@@ -564,11 +615,6 @@ const downloadInvoice =  async (req, res) => {
         res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
-
-
-
-
-
 
 module.exports = {
     placeOrder,

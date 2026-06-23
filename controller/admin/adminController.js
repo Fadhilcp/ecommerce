@@ -235,94 +235,110 @@ const loadDashboard = async (req,res) =>{
 
 const getSalesReport = async (req, res) => {
     try {
-        let { filter, fromDate, toDate } = req.query
+        let { filter, fromDate, toDate } = req.query;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
 
-        const page = parseInt(req.query.page) || 1
-        const limit = 10
-
-        let startDate
-        let endDate
-
-        const today = new Date()
+        let startDate;
+        let endDate;
+        const today = new Date();
         
         if (filter === "daily") {
-            startDate = new Date(today.setHours(0, 0, 0, 0))
-            endDate = new Date(today.setHours(23, 59, 59, 999))
+            startDate = new Date(today.setHours(0, 0, 0, 0));
+            endDate = new Date(today.setHours(23, 59, 59, 999));
         } else if (filter === "weekly") {
-            const firstDayOfWeek = new Date(today.setDate(today.getDate() - today.getDay()))
-            startDate = new Date(firstDayOfWeek.setHours(0, 0, 0, 0))
-            endDate = new Date(today.setHours(23, 59, 59, 999))
+            const firstDayOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+            startDate = new Date(firstDayOfWeek.setHours(0, 0, 0, 0));
+            endDate = new Date(today.setHours(23, 59, 59, 999));
         } else if (filter === "monthly") {
-            startDate = new Date(today.getFullYear(), today.getMonth(), 1)
-            endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999)
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
         } else if (filter === "yearly") {
             startDate = new Date(today.getFullYear(), 0, 1);
-            endDate = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999)
+            endDate = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999);
         } else if (filter === "custom" && fromDate && toDate) {
             startDate = new Date(fromDate);
+            startDate.setHours(0, 0, 0, 0);
             endDate = new Date(toDate);
-            endDate.setHours(23, 59, 59, 999)
+            endDate.setHours(23, 59, 59, 999);
         } else {
-            startDate = new Date("2000-01-01")
-            endDate = new Date()
+            startDate = new Date("2000-01-01");
+            endDate = new Date();
         }
 
-        //pagination
-        const totalOrders = await Order.countDocuments({ createdAt: { $gte: startDate, $lte: endDate } })
-        const totalPages = Math.ceil(totalOrders / limit)
+        const matchCondition = {
+            createdAt: { $gte: startDate, $lte: endDate },
+            status: { $nin: ['Cancelled'] }, 
+            paymentStatus: { $ne: 'Failed' }
+        };
+        
+        const totalOrders = await Order.countDocuments(matchCondition);
+        const totalPages = Math.ceil(totalOrders / limit);
 
-        //order list
+        const summaryData = await Order.aggregate([
+            { $match: matchCondition },
+            {
+                $group: {
+                    _id: null,
+                    overallSalesCount: { $sum: 1 },
+                    overallOrderAmount: { $sum: "$totalPrice" }, 
+                    overallDiscount: { $sum: { $add: [{ $subtract: ["$totalPrice", "$finalPrice"] }, "$shippingFee"] } },
+                    overallFinalAmount: { $sum: "$finalPrice" },
+                    uniqueCustomers: { $addToSet: "$userId" }
+                }
+            }
+        ]);
+
+        const summary = summaryData[0] || {
+            overallSalesCount: 0,
+            overallOrderAmount: 0,
+            overallDiscount: 0,
+            overallFinalAmount: 0,
+            uniqueCustomers: []
+        };
+
         const salesData = await Order.aggregate([
-            { 
-                $match: { 
-                    createdAt: { $gte: startDate, $lte: endDate } 
-                } 
-            },
-            { 
-                $unwind: "$products"
-            },
+            { $match: matchCondition },
+            { $unwind: "$products" },
             { 
                 $group: {
-                    _id: "$orderId",
+                    _id: "$_id",
                     orderId: { $first: "$orderId" },
                     customerName: { $first: "$address.name" },
                     totalProductsSold: { $sum: "$products.quantity" }, 
                     totalPrice: { $first: "$totalPrice" },
                     finalPrice: { $first: "$finalPrice" }, 
+                    shippingFee: { $first: "$shippingFee" },
                     createdAt: { $first: "$createdAt" }, 
                     status: { $first: "$status" }
                 } 
             },
             {
                 $addFields: {
-                    discount: { $subtract: ["$totalPrice", "$finalPrice"] }
+                    discount: { $add: [{ $subtract: ["$totalPrice", "$finalPrice"] }, "$shippingFee"] }
                 }
             },
             { $sort: { createdAt: -1 } },
             { $skip: (page - 1) * limit },
             { $limit: limit }
-        ])
-
-        const overallSalesCount = salesData.length
-        const overallOrderAmount = salesData.reduce((sum, order) => sum + (order.finalPrice - 40), 0)
-        const overallDiscount = salesData.reduce((sum, order) => sum + (order.totalPrice - (order.finalPrice - 40)), 0)
-        const customersCount = new Set(salesData.map(order => order.customerName)).size
-
+        ]);
 
         res.render('admin/salesReport', { 
             salesData, 
-            filter, 
-            fromDate,
-            toDate,
-            overallSalesCount,
-            overallOrderAmount,
-            overallDiscount,
-            customersCount,
-            currentPage : page,
+            filter: filter || '', 
+            fromDate: fromDate || '',
+            toDate: toDate || '',
+            overallSalesCount: summary.overallSalesCount,
+            overallOrderAmount: summary.overallOrderAmount,
+            overallDiscount: summary.overallDiscount,
+            overallFinalAmount: summary.overallFinalAmount, // Passing the new value to EJS
+            customersCount: summary.uniqueCustomers.length,
+            currentPage: page,
             totalPages
-        })
+        });
 
     } catch (error) {
+        console.log('error', error);
         res.redirect('/admin/pageError')
     }
 }
