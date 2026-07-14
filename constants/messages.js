@@ -45,6 +45,7 @@ module.exports = Object.freeze({
 
     // Cart & Wishlist
     CART_NOT_FOUND: 'Cart not found.',
+    PRODUCT_ALREADY_IN_CART: 'Product is already in your cart.',
     PRODUCT_NOT_FOUND_IN_CART: 'Product not found in cart.',
     ITEM_NOT_FOUND_IN_CART: 'Item not found in cart.',
     PRODUCT_ADDED_TO_CART: 'Product added to cart successfully.',

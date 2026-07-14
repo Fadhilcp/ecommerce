@@ -223,7 +223,7 @@ const addToWishlist = async (req, res) => {
         const cart = await Cart.findOne({ userId: userId });
 
         if (cart && cart.products.some(item => item.productId.toString() === productId.toString())) {
-            return res.json({ status: false, message: MESSAGES.PRODUCT_NOT_FOUND_IN_CART });
+            return res.json({ status: false, message: MESSAGES.PRODUCT_ALREADY_IN_CART });
         }
 
         let wishlist = await Wishlist.findOne({ userId: userId });
@@ -259,6 +259,10 @@ const wishlistToCart = async (req, res) => {
 
         if (!product) {
             return res.json({ status: false, message: MESSAGES.PRODUCT_NOT_FOUND });
+        }
+
+        if (product.quantity < 1) {
+            return res.json({ status: false, message: MESSAGES.OUT_OF_STOCK });
         }
 
         let cart = await Cart.findOne({ userId: userId });
@@ -306,7 +310,7 @@ const wishlistToCart = async (req, res) => {
 
 const deleteWishlistItem = async (req, res) => {
     try {
-        const productId = req.query.id;
+        const productId = req.params.id;
         const userId = req.session.user;
 
         const wishlist = await Wishlist.findOne({ userId: userId });

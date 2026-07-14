@@ -537,82 +537,144 @@ const verifyPayment = async (req, res) => {
         res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
-
-const downloadInvoice =  async (req, res) => {
+const downloadInvoice = async (req, res) => {
     try {
-        const orderId = req.params.id
+        const orderId = req.params.id;
 
-
-        const order = await Order.findById(orderId).populate('userId')
+        const order = await Order.findById(orderId).populate('userId');
 
         if (!order) {
-            return res.status(404).json({ error: MESSAGES.ORDER_NOT_FOUND });
+            return res.status(404).json({ error: "Order not found" });
         }
 
         // Set response headers
-        res.setHeader("Content-Disposition", `attachment; filename=invoice-${orderId}.pdf`)
-        res.setHeader("Content-Type", "application/pdf")
+        res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.orderId || orderId}.pdf`);
+        res.setHeader("Content-Type", "application/pdf");
 
         // Create PDF 
-        const doc = new PDFDocument({ margin: 50 })
-        doc.pipe(res)
+        const doc = new PDFDocument({ margin: 50 });
+        doc.pipe(res);
 
-        doc.font("Helvetica-Bold").fontSize(22).fillColor("#333").text("PERFUMORA", { align: "center", underline: true })
-        doc.moveDown(1)
-
-        //Order Details Box
-        doc.rect(50, doc.y, 500, 100).stroke()
-        doc.moveDown(0.5)
-
-        doc.fontSize(14).fillColor("#000").text(`Invoice Number: ${order.orderId}`, 60, doc.y + 10)
-        doc.text(`Customer: ${order.userId.username}`, 60)
-        doc.text(`Date: ${order.createdAt.toDateString()}`, 60)
-        doc.text(`Total: $${order.finalPrice}`, 60)
-        doc.moveDown(1)
-
-       
-        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke()
-        doc.moveDown(0.5)
-    
-        doc.fontSize(14).fillColor("#444").text("Items Purchased:", { underline: true })
-        doc.moveDown(0.5)
-
-        const tableTop = doc.y
-
-        doc.fontSize(12).fillColor("#000")
-        
-        // Table Header Row
-        doc.rect(50, tableTop, 500, 20).fill("#ddd")
-        doc.fillColor("#000").text("No", 60, tableTop + 5)
-        doc.text("Product Name", 110, tableTop + 5)
-        doc.text("Quantity", 360, tableTop + 5)
-        doc.text("Price", 460, tableTop + 5)
-        
-        // Table Rows
-        let yPos = tableTop + 25;
-        order.products.forEach((item, index) => {
-            doc.fillColor("#000").text(index + 1, 60, yPos)
-            doc.text(item.productName, 110, yPos)
-            doc.text(`${item.quantity}`, 360, yPos)
-            doc.text(`$${item.price.toFixed(2)}`, 460, yPos)
-            yPos += 20
-        })
-
-        doc.moveDown()
-        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke()
-        doc.moveDown(0.5)
-
-        doc.rect(400, doc.y, 150, 30).fill("#eee")
-        doc.fillColor("#000").fontSize(16).text(`Paid: $${order.finalPrice}`, 410, doc.y + 8, { bold: true })
-
-
+        // --- 1. HEADER ---
+        doc.font("Helvetica-Bold").fontSize(24).fillColor("#333").text("PERFUMORA", { align: "center", letterSpacing: 2 });
+        doc.moveDown(0.5);
+        doc.font("Helvetica").fontSize(10).fillColor("#666").text("Invoice / Receipt", { align: "center" });
         doc.moveDown(2);
-        doc.fontSize(12).fillColor("#666").text("Thank you for shopping with us!", { align: "center", italic: true })
 
-        doc.end()
+        // --- 2. ORDER & SHIPPING INFO (Two Columns with strictly managed Y-coordinates) ---
+        const customerX = 50;
+        const shippingX = 320;
+        const infoStartY = doc.y; // Lock the starting Y position
+
+        // Left Column: Order Info
+        doc.font("Helvetica-Bold").fontSize(11).fillColor("#333").text("Order Details", customerX, infoStartY);
+        doc.font("Helvetica").fontSize(10).fillColor("#555");
+        doc.text(`Invoice No: ${order.orderId}`, customerX, infoStartY + 15);
+        doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, customerX, infoStartY + 30);
+        doc.text(`Payment Method: ${order.paymentMethod}`, customerX, infoStartY + 45);
+        doc.text(`Payment Status: ${order.paymentStatus}`, customerX, infoStartY + 60);
+
+        // Right Column: Shipping Address
+        doc.font("Helvetica-Bold").fontSize(11).fillColor("#333").text("Shipping Address", shippingX, infoStartY);
+        doc.font("Helvetica").fontSize(10).fillColor("#555");
+        doc.text(order.address.name, shippingX, infoStartY + 15);
+        doc.text(`${order.address.houseNo}, ${order.address.street}`, shippingX, infoStartY + 30);
+        doc.text(`${order.address.city}, ${order.address.state} - ${order.address.pincode}`, shippingX, infoStartY + 45);
+        doc.text(`Phone: ${order.address.phone}`, shippingX, infoStartY + 60);
+
+        // Safely push the document cursor below the longest column
+        doc.y = infoStartY + 90; 
+
+        // --- 3. ITEMS TABLE HEADER ---
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor("#ddd").stroke();
+        doc.moveDown(0.5);
+        
+        const tableTop = doc.y;
+        doc.font("Helvetica-Bold").fontSize(10).fillColor("#333");
+        doc.text("No.", 50, tableTop);
+        doc.text("Product Details", 90, tableTop);
+        doc.text("Qty", 320, tableTop);
+        doc.text("Unit Price", 380, tableTop);
+        doc.text("Total", 480, tableTop, { width: 70, align: "right" });
+        
+        doc.moveDown(0.5);
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor("#ddd").stroke();
+        doc.moveDown(0.5);
+
+        // --- 4. ITEMS TABLE ROWS ---
+        doc.font("Helvetica").fontSize(10).fillColor("#555");
+        let yPos = doc.y;
+
+        order.products.forEach((item, index) => {
+            if (yPos > 650) {
+                doc.addPage();
+                yPos = 50;
+            }
+
+            const rowTotal = item.price * item.quantity;
+
+            doc.text(index + 1, 50, yPos);
+            doc.text(`${item.productName} (${item.capacity})`, 90, yPos, { width: 220 });
+            doc.text(item.quantity.toString(), 320, yPos);
+            doc.text(`$${item.price.toFixed(2)}`, 380, yPos);
+            doc.text(`$${rowTotal.toFixed(2)}`, 480, yPos, { width: 70, align: "right" });
+            
+            yPos = doc.y + 10; 
+        });
+
+        doc.y = yPos;
+        doc.moveDown(1);
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).strokeColor("#ddd").stroke();
+        doc.moveDown(1.5);
+
+        // --- 5. COST SUMMARY (Strictly managed Y-coordinates) ---
+        const summaryX = 350;
+        const summaryValueX = 480;
+        let summaryY = doc.y; // Lock Y position for the summary section
+
+        doc.font("Helvetica").fontSize(10);
+        
+        // Subtotal
+        doc.text("Subtotal:", summaryX, summaryY);
+        doc.text(`$${order.totalPrice.toFixed(2)}`, summaryValueX, summaryY, { width: 70, align: "right" });
+        summaryY += 15;
+
+        // Shipping Fee
+        doc.text("Shipping Fee:", summaryX, summaryY);
+        doc.text(`$${order.shippingFee.toFixed(2)}`, summaryValueX, summaryY, { width: 70, align: "right" });
+        summaryY += 15;
+
+        // Discount (Only show if a coupon was used)
+        if (order.coupon && order.coupon.discountValue > 0) {
+            doc.fillColor("#228B22").text(`Discount (${order.coupon.code}):`, summaryX, summaryY);
+            doc.text(`-$${order.coupon.discountValue.toFixed(2)}`, summaryValueX, summaryY, { width: 70, align: "right" });
+            summaryY += 15;
+        }
+
+        // Grand Total Box
+        summaryY += 5; // Add a little gap before the total box
+        doc.rect(summaryX - 10, summaryY, 230, 25).fillColor("#f5f5f5").fill();
+        doc.fillColor("#333").font("Helvetica-Bold").fontSize(12);
+        
+        // Draw text inside the box (using summaryY offset)
+        doc.text("Grand Total:", summaryX, summaryY + 7);
+        doc.text(`$${order.finalPrice.toFixed(2)}`, summaryValueX, summaryY + 7, { width: 70, align: "right" });
+
+        // Safely push cursor below the total box
+        doc.y = summaryY + 40;
+
+        // --- 6. FOOTER ---
+        doc.moveDown(2);
+        doc.font("Helvetica-Oblique")
+            .fontSize(10)
+            .fillColor("#888")
+            .text("Thank you for shopping with PERFUMORA!", { align: "center" });
+
+        doc.end();
 
     } catch (error) {
-        res.status(500).json({ status: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
+        console.error("PDF Generation Error: ", error);
+        res.status(500).json({ status: false, message: "Internal Server Error" }); 
     }
 }
 
